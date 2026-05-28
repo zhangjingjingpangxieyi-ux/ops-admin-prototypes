@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>问卷数据统计 - 优化版 v9</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f0f2f5; color: #303133; font-size: 13px; }
+    .app { display: block; min-height: 100vh; }
+    .sidebar { width: 200px; background: #1a2332; color: #c9d1d9; flex-shrink: 0; }
+    .logo { height: 60px; display: flex; align-items: center; padding: 0 20px; font-size: 16px; font-weight: 600; color: #fff; border-bottom: 1px solid #2a3447; }
+    .logo .icon { width: 28px; height: 28px; background: linear-gradient(135deg, #5b8def, #8b6dff); border-radius: 6px; margin-right: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .menu { padding: 8px 0; }
+    .menu-item { padding: 10px 20px; cursor: pointer; display: flex; align-items: center; gap: 10px; color: #a8b3c4; font-size: 13px; }
+    .menu-item:hover, .menu-item.active { background: #243042; color: #fff; }
+    .menu-item.sub { padding-left: 44px; font-size: 12px; color: #8b94a8; }
+    .menu-item.sub.current { background:#2c3a52; color:#5b8def; }
+    .main { width: 100%; min-height: 100vh; display: flex; flex-direction: column; min-width: 0; }
+    .topbar { height: 50px; background: #fff; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid #e4e7ed; gap: 12px; }
+    .icon-btn { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #606266; border-radius: 4px; }
+    .tabs-bar { display: flex; gap: 2px; flex: 1; }
+    .tab-page { padding: 6px 14px; background: #f5f7fa; border-radius: 4px; font-size: 13px; color: #606266; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .tab-page.active { background: #ecf5ff; color: #409eff; border-bottom: 2px solid #409eff; border-radius: 4px 4px 0 0; }
+    .tab-page .close { color: #c0c4cc; font-size: 12px; }
+    .search-box { position: relative; }
+    .search-box input { width: 240px; padding: 6px 12px 6px 32px; border: 1px solid #dcdfe6; border-radius: 4px; font-size: 13px; outline: none; background: #f5f7fa; }
+    .search-box .ico { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #909399; }
+    .search-box .kbd { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 11px; color: #909399; background: #fff; padding: 1px 6px; border-radius: 3px; border: 1px solid #e4e7ed; }
+    .top-right { display: flex; align-items: center; gap: 14px; color: #606266; white-space: nowrap; }
+    .top-right span { display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 13px; }
+    .region-select { padding: 5px 10px; border: 1px solid #dcdfe6; border-radius: 4px; background: #fff; font-size: 13px; }
+    .notify { position: relative; }
+    .notify .badge { position: absolute; top: -6px; right: -6px; background: #f56c6c; color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 8px; }
+    .content { flex: 1; padding: 12px 16px; overflow: auto; }
+    .breadcrumb { background: #fff; padding: 14px 20px; border-radius: 4px; margin-bottom: 12px; display: flex; align-items: center; gap: 16px; }
+    .back-btn { color: #409eff; cursor: pointer; padding: 4px 10px; border: 1px solid #d9ecff; border-radius: 4px; background: #ecf5ff; font-size: 13px; text-decoration: none; }
+    .breadcrumb .title { font-size: 14px; color: #303133; }
+    .section { background: #fff; border-radius: 4px; margin-bottom: 12px; padding: 16px 20px; }
+    .section-title { font-size: 14px; font-weight: 600; color: #303133; margin-bottom: 14px; padding-left: 8px; border-left: 3px solid #409eff; }
+    .overview-table { width: 100%; border-collapse: collapse; }
+    .overview-table th, .overview-table td { padding: 10px 12px; text-align: center; border: 1px solid #ebeef5; font-size: 13px; }
+    .overview-table th { background: #fafbfc; color: #606266; font-weight: 500; }
+    .overview-table td { color: #303133; font-size: 14px; }
+    .overview-table .group-th { background: #f5f7fa; color: #409eff; font-weight: 600; }
+    .help-icon { display: inline-block; width: 14px; height: 14px; line-height: 14px; text-align: center; border-radius: 50%; background: #c0c4cc; color: #fff; font-size: 10px; margin-left: 4px; cursor: help; }
+    .detail-tabs { display: flex; border-bottom: 1px solid #e4e7ed; margin-bottom: 16px; }
+    .detail-tab { padding: 10px 20px; cursor: pointer; color: #606266; position: relative; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; }
+    .detail-tab.active { color: #409eff; font-weight: 600; }
+    .detail-tab.active::after { content: ""; position: absolute; bottom: -1px; left: 20px; right: 20px; height: 2px; background: #409eff; border-radius: 1px; }
+    .detail-tab.ai-tab { color: #7c4dff; }
+    .detail-tab.ai-tab.active { color: #7c4dff; }
+    .detail-tab.ai-tab.active::after { background: linear-gradient(90deg, #7c4dff, #9b6dff); }
+    .ai-badge { font-size: 10px; padding: 1px 5px; background: linear-gradient(135deg, #ff6e7f, #bfe9ff); color: #fff; border-radius: 8px; margin-left: 4px; font-weight: 500; }
+    .filter-area { background: #fafbfc; padding: 14px; border-radius: 4px; margin-bottom: 14px; }
+    .filter-row, .advanced-filter { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+    .filter-item { display: flex; align-items: center; gap: 6px; }
+    .filter-item label { color: #606266; font-size: 13px; white-space: nowrap; }
+    .filter-item input, .filter-item select { padding: 5px 10px; border: 1px solid #dcdfe6; border-radius: 4px; font-size: 13px; outline: none; width: 160px; background: #fff; }
+    .filter-item.wide input { width: 220px; }
+    .advanced-filter { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #dcdfe6; }
+    .advanced-filter.show { display: flex; }
+    .filter-actions { margin-top: 12px; display: flex; gap: 8px; align-items: center; }
+    .toggle-link { color: #409eff; cursor: pointer; font-size: 13px; user-select: none; margin-left: auto; }
+    .q-filter-panel { display: none; margin-top: 12px; padding: 14px; background: #fff; border: 1px solid #e4e7ed; border-radius: 4px; }
+    .q-filter-panel.show { display: block; }
+    .q-filter-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed #ebeef5; }
+    .q-filter-head .left { font-size: 13px; color: #606266; }
+    .q-filter-head .left b { color: #409eff; }
+    .q-filter-head .right a { color: #409eff; margin-left: 12px; cursor: pointer; font-size: 12px; }
+    .q-checklist { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 16px; max-height: 220px; overflow-y: auto; }
+    .q-check { display: flex; align-items: flex-start; gap: 6px; padding: 6px 8px; border-radius: 4px; cursor: pointer; font-size: 13px; color: #303133; }
+    .q-check:hover { background: #f5f7fa; }
+    .q-check input { margin-top: 3px; cursor: pointer; }
+    .q-tag { display: inline-block; padding: 1px 6px; background: #ecf5ff; color: #409eff; font-size: 11px; border-radius: 3px; margin-right: 4px; }
+    .btn { padding: 6px 14px; border: 1px solid #dcdfe6; border-radius: 4px; cursor: pointer; font-size: 13px; background: #fff; color: #606266; display: inline-flex; align-items: center; gap: 4px; transition: all .2s; }
+    .btn:hover { color: #409eff; border-color: #c6e2ff; background: #ecf5ff; }
+    .btn.primary { background: #409eff; color: #fff; border-color: #409eff; }
+    .btn.active-toggle { color: #409eff; border-color: #409eff; background: #ecf5ff; }
+    .action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding: 10px 14px; background: #f5f9ff; border-radius: 4px; border: 1px solid #e6f0ff; }
+    .action-info { color: #606266; font-size: 13px; }
+    .action-info b { color: #409eff; margin: 0 3px; font-weight: 600; }
+    .divider { color: #dcdfe6; margin: 0 4px; }
+    .dropdown { position: relative; display: inline-block; }
+    .dropdown-menu { display: none; position: absolute; right: 0; top: calc(100% + 4px); background: #fff; border: 1px solid #e4e7ed; border-radius: 4px; box-shadow: 0 2px 12px rgba(0,0,0,.12); min-width: 130px; z-index: 100; }
+    .dropdown.open .dropdown-menu { display: block; }
+    .dropdown-menu a { display: block; padding: 8px 14px; color: #606266; text-decoration: none; font-size: 13px; cursor: pointer; }
+    .dropdown-menu a:hover { background: #f5f7fa; color: #409eff; }
+    .question-card { border: 1px solid #ebeef5; border-radius: 4px; padding: 16px 20px; margin-bottom: 12px; position: relative; }
+    .q-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 16px; }
+    .q-info { flex: 1; min-width: 0; }
+    .q-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+    .q-title { font-size: 14px; font-weight: 600; color: #303133; }
+    .q-ai-btn { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 12px; background: linear-gradient(135deg, #f3edff, #e8f0ff); color: #7c4dff; font-size: 12px; cursor: pointer; border: 1px solid #e0d4ff; transition: all .2s; position: relative; }
+    .q-ai-btn:hover { background: linear-gradient(135deg, #7c4dff, #5b8def); color: #fff; border-color: transparent; transform: translateY(-1px); }
+    .q-meta { color: #909399; font-size: 12px; }
+    .q-meta span { margin-right: 14px; }
+    .q-meta .tag-single { color: #409eff; }
+    .q-tools { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+    .q-tool-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #909399; border-radius: 4px; font-size: 16px; transition: all .2s; }
+    .q-tool-btn:hover, .q-tool-btn.active { background: #ecf5ff; color: #409eff; }
+    .q-table, .matrix-table, .text-answer-table { width: 100%; border-collapse: collapse; }
+    .q-table th, .q-table td, .matrix-table th, .matrix-table td, .text-answer-table th, .text-answer-table td { padding: 10px 14px; border-bottom: 1px solid #ebeef5; font-size: 13px; vertical-align: middle; }
+    .q-table th, .matrix-table th, .text-answer-table th { background: #fafbfc; color: #606266; font-weight: 500; text-align: left; }
+    .q-table th:first-child, .q-table td:first-child { width: 30%; }
+    .percent-cell { display: flex; align-items: center; gap: 10px; }
+    .percent-bar { width: 120px; height: 6px; background: #ecf5ff; border-radius: 3px; overflow: hidden; }
+    .percent-bar-inner { height: 100%; background: linear-gradient(90deg, #409eff, #66b1ff); }
+    .option-with-custom { display: flex; align-items: center; gap: 10px; }
+    .view-detail-link { color: #409eff; cursor: pointer; font-size: 12px; padding: 2px 8px; border-radius: 3px; background: #f0f9ff; border: 1px solid #d9ecff; white-space: nowrap; }
+    .matrix-table { margin-top: 8px; }
+    .matrix-table th, .matrix-table td { border: 1px solid #ebeef5; text-align: center; }
+    .matrix-table td:first-child { text-align: left; background: #fafbfc; color: #303133; font-weight: 500; }
+    .matrix-cell .percent { color: #909399; font-size: 12px; margin-left: 4px; }
+    .text-answer-table { margin-top: 8px; border: 1px solid #ebeef5; }
+    .text-answer-table .col-id { width: 200px; color: #606266; font-family: Monaco, monospace; }
+    .text-answer-table .col-action { width: 100px; }
+    .text-answer-table a { color: #409eff; cursor: pointer; }
+    .text-pagination, .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 6px; padding-top: 14px; }
+    .text-pagination button, .pagination button { padding: 5px 10px; border: 1px solid #dcdfe6; background: #fff; border-radius: 4px; cursor: pointer; min-width: 30px; font-size: 13px; color: #606266; }
+    .text-pagination button.active, .pagination button.active { background: #409eff; color: #fff; border-color: #409eff; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+    .stats-report-wrap {
+      margin-top: 16px;
+      border-top: 1px solid #ebeef5;
+      padding-top: 40px;
+      position: relative;
+    }
+    .stats-table-tools {
+      position: absolute;
+      right: 0;
+      top: 14px;
+      display: flex;
+      gap: 14px;
+      color: #303133;
+      font-size: 15px;
+    }
+    .stats-scroll {
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      border: 1px solid #ebeef5;
+      border-bottom: 0;
+      scrollbar-color: #c9c9c9 transparent;
+      scrollbar-width: thin;
+    }
+    .stats-scroll::-webkit-scrollbar {
+      height: 10px;
+    }
+    .stats-scroll::-webkit-scrollbar-thumb {
+      background: #c9c9c9;
+      border-radius: 8px;
+    }
+    .stats-table {
+      width: 2740px;
+      min-width: 2740px;
+      border-collapse: collapse;
+      table-layout: fixed;
+      background: #fff;
+    }
+    .stats-table th,
+    .stats-table td {
+      height: 48px;
+      padding: 9px 8px;
+      border-right: 1px solid #ebeef5;
+      border-bottom: 1px solid #ebeef5;
+      text-align: left;
+      vertical-align: middle;
+      color: #111;
+      font-size: 12px;
+      line-height: 18px;
+      white-space: normal;
+      word-break: break-all;
+    }
+    .stats-table th {
+      height: 62px;
+      background: #fff;
+      color: #111;
+      font-weight: 600;
+    }
+    .stats-table .narrow { width: 72px; }
+    .stats-table .mid { width: 112px; }
+    .stats-table .wide { width: 165px; }
+    .stats-table .question { width: 190px; }
+    .stats-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-top: 12px;
+      color: #111;
+    }
+    .stats-pagination .page-num {
+      min-width: 20px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #1890ff;
+      color: #1890ff;
+      border-radius: 2px;
+    }
+    .stats-pagination .jump-input {
+      width: 34px;
+      height: 24px;
+      border: 1px solid #dcdfe6;
+      border-radius: 2px;
+      background: #fff;
+    }
+    .reward-filter {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .reward-filter .filter-item input,
+    .reward-filter .filter-item select {
+      width: 220px;
+      height: 32px;
+    }
+    .reward-filter .filter-item.compact input,
+    .reward-filter .filter-item.compact select {
+      width: 190px;
+    }
+    .reward-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 8px 0 12px;
+    }
+    .reward-actions-left {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .reward-table {
+      width: 1520px;
+      min-width: 1520px;
+    }
+    .reward-table .wide { width: 160px; }
+    .reward-table .op-wide { width: 360px; }
+    .reward-table td,
+    .reward-table th {
+      height: 47px;
+      white-space: nowrap;
+      word-break: normal;
+    }
+    .reward-table td:nth-child(2) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 130px;
+    }
+    .reward-status-success {
+      color: #111;
+    }
+    .modal-mask { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-mask.show { display: flex; }
+    .modal { background: #fff; border-radius: 8px; width: 800px; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; }
+    .modal-head { padding: 14px 20px; border-bottom: 1px solid #f0f2f5; display: flex; justify-content: space-between; align-items: center; }
+    .modal-head .t { font-size: 15px; font-weight: 600; color: #303133; }
+    .modal-head .x { cursor: pointer; color: #909399; font-size: 22px; }
+    .modal-head .sub-info { font-size: 12px; color: #909399; margin-top: 2px; }
+    .modal-toolbar { padding: 12px 20px; background: #fafbfc; border-bottom: 1px solid #f0f2f5; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .modal-toolbar input { padding: 5px 10px; border: 1px solid #dcdfe6; border-radius: 4px; width: 220px; font-size: 13px; outline: none; }
+    .detail-table { width: 100%; border-collapse: collapse; }
+    .detail-table th, .detail-table td { padding: 12px 16px; border-bottom: 1px solid #f0f2f5; font-size: 13px; text-align: left; }
+    .detail-table th { background: #fafbfc; color: #606266; font-weight: 500; }
+    .detail-table .col-id { width: 120px; color: #606266; font-family: Monaco, monospace; }
+    .detail-table .col-action { width: 110px; }
+    .detail-table a { color: #409eff; cursor: pointer; }
+    .modal-foot { padding: 12px 20px; border-top: 1px solid #f0f2f5; display: flex; justify-content: flex-end; gap: 8px; align-items: center; }
+    .feedback { position: fixed; right: 0; top: 220px; width: 36px; padding: 8px 0; background: #5b8def; color: #fff; writing-mode: vertical-rl; text-align: center; border-radius: 4px 0 0 4px; cursor: pointer; font-size: 12px; }
+    .ai-report-empty { padding: 60px 20px; text-align: center; }
+    .ai-report-empty .icon { font-size: 60px; margin-bottom: 16px; }
+    .empty-title { font-size: 18px; color: #303133; font-weight: 600; margin-bottom: 8px; }
+    .empty-desc { color: #909399; font-size: 13px; margin-bottom: 28px; max-width: 540px; margin-left: auto; margin-right: auto; line-height: 1.7; }
+    .empty-desc strong { color: #606266; }
+    .btn-generate { padding: 10px 24px; font-size: 14px; background: linear-gradient(135deg, #6e7bff 0%, #9b6dff 100%); color: #fff; border: none; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(123,97,255,.3); transition: all .2s; }
+    .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(123,97,255,.4); }
+    .hint { display: inline-flex; align-items: center; gap: 4px; margin-top: 14px; padding: 6px 14px; background: #fafbfc; border: 1px solid #ebeef5; border-radius: 4px; color: #909399; font-size: 12px; }
+    .ai-loading { padding: 80px 20px; text-align: center; }
+    .ai-loading-spinner { display: inline-block; width: 60px; height: 60px; position: relative; margin-bottom: 24px; }
+    .ai-loading-spinner::before, .ai-loading-spinner::after { content: ""; position: absolute; inset: 0; border-radius: 50%; }
+    .ai-loading-spinner::before { border: 4px solid #ecf5ff; }
+    .ai-loading-spinner::after { border: 4px solid transparent; border-top-color: #7c4dff; border-right-color: #5b8def; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .ai-loading-text { font-size: 14px; color: #7c4dff; margin-bottom: 20px; font-weight: 500; }
+    .ai-loading-progress { max-width: 460px; margin: 0 auto; }
+    .progress-bar { height: 6px; background: #ecf5ff; border-radius: 3px; overflow: hidden; }
+    .progress-bar-inner { height: 100%; background: linear-gradient(90deg, #5b8def, #7c4dff, #9b6dff); transition: width .3s; }
+    .ai-loading-status { color: #909399; font-size: 12px; margin-top: 14px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    .ai-loading-status .step { padding: 3px 10px; border-radius: 12px; background: #f5f7fa; color: #909399; }
+    .ai-loading-status .step.done { background: #f0f9ff; color: #409eff; }
+    .ai-loading-status .step.doing { background: #f3edff; color: #7c4dff; font-weight: 500; }
+    .ai-report-content { padding: 4px; }
+    .ai-report-header { background: linear-gradient(135deg, #f3edff, #ecf5ff); padding: 20px; border-radius: 8px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+    .ai-report-header .left { flex: 1; }
+    .ai-report-header h2 { font-size: 18px; color: #303133; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .summary-info { font-size: 12px; color: #606266; }
+    .summary-info .item { display: inline-block; background: #fff; padding: 3px 10px; border-radius: 10px; border: 1px solid #e4e7ed; margin: 2px 4px 2px 0; }
+    .summary-info .label { color: #7c4dff; font-weight: 600; margin-right: 4px; }
+    .ai-report-header .right { display: flex; gap: 8px; flex-shrink: 0; }
+    .ai-report-body { padding: 0 8px; }
+    .ai-report-body h3 { color: #303133; margin: 20px 0 10px; font-size: 15px; padding-left: 10px; border-left: 3px solid #7c4dff; }
+    .ai-report-body p { color: #606266; font-size: 13px; line-height: 1.8; margin-bottom: 10px; }
+    .ai-report-body ul { padding-left: 24px; color: #606266; font-size: 13px; line-height: 1.9; }
+    .ai-report-body strong { color: #7c4dff; }
+    .insight-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 12px 0; }
+    .insight-card { background: #fafbfc; border: 1px solid #ebeef5; border-radius: 6px; padding: 14px; }
+    .ic-title { font-size: 12px; color: #909399; margin-bottom: 6px; }
+    .ic-value { font-size: 22px; font-weight: 600; color: #7c4dff; }
+    .ic-desc { font-size: 12px; color: #606266; margin-top: 4px; }
+
+    .sidebar {
+      width: 210px;
+      flex: 0 0 210px;
+      color: #b9c7d9;
+      background: #001529;
+      box-shadow: 1px 0 0 rgba(0,0,0,.12);
+    }
+    .brand {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      padding: 0 18px 0 80px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      position: relative;
+      white-space: nowrap;
+    }
+    .brand::before {
+      content: "m";
+      position: absolute;
+      left: 48px;
+      top: 9px;
+      width: 22px;
+      height: 22px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .nav {
+      height: calc(100vh - 40px);
+      overflow: hidden;
+      padding-top: 5px;
+    }
+    .nav-item,
+    .nav-sub {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 20px 0 23px;
+      color: #c3d0df;
+      white-space: nowrap;
+    }
+    .nav-item .chev,
+    .nav-sub .chev {
+      margin-left: auto;
+      color: #8ea0b5;
+    }
+    .nav-item.dim { color: #90a1b4; }
+    .nav-group.open > .nav-item {
+      color: #fff;
+      background: #001f38;
+      font-weight: 600;
+    }
+    .sub-list {
+      padding: 0 0 6px;
+      background: #001b2f;
+    }
+    .nav-sub {
+      height: 38px;
+      padding-left: 40px;
+      color: #c2cfdf;
+    }
+    .nav-sub.active {
+      margin: 0 9px 0 4px;
+      padding-left: 40px;
+      color: #fff;
+      background: #1890ff;
+      border-radius: 3px;
+    }
+    .topbar {
+      height: 40px;
+      flex: 0 0 40px;
+      display: flex;
+      align-items: stretch;
+      padding: 0;
+      gap: 0;
+      background: #fff;
+      border-bottom: 1px solid #e6ebf1;
+      box-shadow: 0 1px 2px rgba(0,0,0,.02);
+    }
+    .top-left {
+      display: flex;
+      align-items: center;
+      width: 68px;
+      border-right: 1px solid #edf1f5;
+      color: #758293;
+    }
+    .hamburger,
+    .refresh {
+      width: 34px;
+      text-align: center;
+      font-size: 18px;
+      line-height: 40px;
+    }
+    .tabs {
+      display: flex;
+      height: 40px;
+      min-width: 265px;
+    }
+    .tab {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 18px;
+      border-right: 1px solid #edf1f5;
+      color: #243346;
+    }
+    .tab.active {
+      color: #1686f4;
+      background: #eaf4ff;
+      font-weight: 600;
+    }
+    .tab span:last-child {
+      color: #9ca8b6;
+      font-weight: 400;
+    }
+    .global {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      height: 40px;
+      padding-right: 12px;
+      color: #263548;
+      white-space: nowrap;
+    }
+    .search {
+      width: 168px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      border: 1px solid #dfe5ec;
+      border-radius: 14px;
+      color: #a5afbb;
+      gap: 4px;
+    }
+    .kbd {
+      margin-left: auto;
+      padding: 1px 5px;
+      border: 1px solid #d5dce5;
+      border-radius: 2px;
+      color: #4a5566;
+      font-size: 10px;
+    }
+    .select-pill {
+      height: 28px;
+      min-width: 168px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #d8e0ea;
+      border-radius: 15px;
+      color: #1f2d3d;
+      background: #fff;
+    }
+    .badge {
+      position: relative;
+      color: #1686f4;
+      font-weight: 700;
+    }
+    .badge::after {
+      content: "12";
+      position: absolute;
+      top: -11px;
+      right: -9px;
+      min-width: 15px;
+      height: 15px;
+      padding: 0 4px;
+      border-radius: 8px;
+      color: #fff;
+      background: #ff4d4f;
+      font-size: 10px;
+      line-height: 15px;
+      text-align: center;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .34;
+      background-image:
+        repeating-linear-gradient(-30deg, transparent 0 86px, rgba(0,0,0,.025) 86px 88px, transparent 88px 172px),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='210' height='92' viewBox='0 0 210 92'%3E%3Ctext x='8' y='55' transform='rotate(-30 90 45)' font-family='Arial' font-size='13' fill='%238f98a3' fill-opacity='.22'%3Ezhangjing%20%E6%95%B0%E6%8D%AE%E7%BB%9F%E8%AE%A1%3C/text%3E%3C/svg%3E");
+      background-size: 210px 92px;
+    }
+    .app { position: relative; z-index: 1; }
+    .content { padding: 12px 16px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <main class="main">
+      <div class="content">
+        <div class="breadcrumb">
+          <a class="back-btn" href="index.html">← 返回列表</a>
+          <span class="title">问卷： [1387]满意度问卷</span>
+        </div>
+
+        <section class="section">
+          <div class="section-title">数据概况</div>
+          <table class="overview-table">
+            <thead>
+              <tr>
+                <th colspan="4" class="group-th">问卷数据 <span class="help-icon">?</span></th>
+                <th colspan="5" class="group-th">派奖数据 <span class="help-icon">?</span></th>
+              </tr>
+              <tr>
+                <th>今日新增答卷</th><th>累计答卷</th><th>访问次数</th><th>访客量</th>
+                <th>今日发奖成功</th><th>累计发奖成功</th><th>异常待补发</th><th>无法派奖</th><th>累计发奖失败</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>2919</td><td>2919</td><td>4626</td><td>3473</td><td>2919</td><td>2919</td><td>0</td><td>0</td><td>0</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="section">
+          <div class="section-title">数据详情</div>
+          <div class="detail-tabs">
+            <div class="detail-tab active" onclick="switchTab(this,'question')">📋 题目报表</div>
+            <div class="detail-tab" onclick="switchTab(this,'statistics')">📈 统计报表</div>
+            <div class="detail-tab" onclick="switchTab(this,'reward')">🎁 奖励报表</div>
+            <div class="detail-tab ai-tab" onclick="switchTab(this,'ai')">✨ AI 报告 <span class="ai-badge">NEW</span></div>
+          </div>
+
+          <div class="filter-area" id="reportFilterArea">
+            <div class="filter-row">
+              <div class="filter-item wide"><label>提交时间</label><input type="text" value="2026-05-01 → 2026-05-15"></div>
+              <div class="filter-item"><label>角色ID</label><input type="text" placeholder="请输入角色ID"></div>
+              <div class="filter-item"><label>渠道</label><select><option>请选择渠道</option><option>iOS</option><option>Android</option><option>官网</option></select></div>
+              <div class="filter-item"><label>区服</label><select><option>请选择区服</option><option>位面2-美国</option></select></div>
+              <span class="toggle-link" onclick="toggleAdv(this)">展开高级筛选 ▼</span>
+            </div>
+            <div class="advanced-filter" id="advFilter">
+              <div class="filter-item"><label>累充金额</label><input type="text" placeholder="最小值 - 最大值"></div>
+              <div class="filter-item"><label>上报语言</label><select><option>请选择</option><option>中文</option><option>英文</option></select></div>
+              <div class="filter-item"><label>地区</label><input type="text" placeholder="请输入地区"></div>
+              <div class="filter-item"><label>角色等级</label><input type="text" placeholder="最小值 - 最大值"></div>
+              <div class="filter-item"><label>答题超时(秒)</label><input type="number"></div>
+              <div class="filter-item"><label>显示已删除题目</label><select><option selected>隐藏</option><option>显示</option></select></div>
+            </div>
+            <div class="filter-actions">
+              <button class="btn primary" onclick="doQuery()">🔍 查询</button>
+              <button class="btn">重置</button>
+              <button class="btn" id="qFilterBtn" onclick="toggleQFilter()">显示题目筛选</button>
+            </div>
+            <div class="q-filter-panel" id="qFilterPanel">
+              <div class="q-filter-head">
+                <div class="left">已选 <b id="qCheckedCount">5</b> / 5 道题目</div>
+                <div class="right"><a onclick="qCheckAll(true)">全选</a><a onclick="qCheckAll(false)">取消全选</a><a onclick="qCheckInvert()">反选</a></div>
+              </div>
+              <div class="q-checklist" id="qChecklist">
+                <label class="q-check"><input type="checkbox" checked><span><span class="q-tag">单选</span>Q1：总体而言，您对游戏体验满意度如何？</span></label>
+                <label class="q-check"><input type="checkbox" checked><span><span class="q-tag">单选</span>Q2：请对付费体验进行满意度评分</span></label>
+                <label class="q-check"><input type="checkbox" checked><span><span class="q-tag">多选</span>Q3：您在游戏中最常遇到哪些问题？</span></label>
+                <label class="q-check"><input type="checkbox" checked><span><span class="q-tag">矩阵</span>Q4：请对以下方面进行评价</span></label>
+                <label class="q-check"><input type="checkbox" checked><span><span class="q-tag">填空</span>Q5：请填写您对【英雄置换】的建议意见</span></label>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane active" id="pane-question">
+            <div class="action-bar">
+              <div class="action-info">📌 当前筛选结果：<b id="resultCount">1,016</b> 条答卷数据 <span class="divider">·</span><b id="qCount">5</b> 道题目</div>
+              <div class="dropdown" id="exportDrop"><button class="btn" onclick="toggleDrop(event)">⬇ 导出 ▼</button><div class="dropdown-menu"><a>导出 Excel</a><a>导出 Word</a><a>导出 PDF</a></div></div>
+            </div>
+            <div id="questionList"></div>
+            <div class="pagination"><span class="info">共 5 题</span><button>‹</button><button class="active">1</button><button>›</button></div>
+          </div>
+
+          <div class="tab-pane" id="pane-statistics">
+            <div class="stats-report-wrap">
+              <div class="stats-table-tools"><span>⇩</span><span>T</span><span>⚙</span></div>
+              <div class="stats-scroll">
+                <table class="stats-table">
+                  <thead>
+                    <tr>
+                      <th class="narrow">序号</th>
+                      <th class="mid">角色名称</th>
+                      <th class="mid">角色ID</th>
+                      <th class="mid">区服名称</th>
+                      <th class="mid">区服ID</th>
+                      <th class="mid">地区</th>
+                      <th class="mid">pid</th>
+                      <th class="wide">累充金额(美元) ↕</th>
+                      <th class="mid">vip经验</th>
+                      <th class="mid">角色等级</th>
+                      <th class="mid">vip等级</th>
+                      <th class="wide">创建时间</th>
+                      <th class="mid">主城等级</th>
+                      <th class="mid">主线关卡</th>
+                      <th class="mid">答题时间</th>
+                      <th class="wide">提交时间</th>
+                      <th class="mid">上报语言</th>
+                      <th class="question">问题1：【单选题】总体而言，您对游戏体验满意度如何?</th>
+                      <th class="question">问题2：【单选题】请对付费体验进行满意度评分</th>
+                      <th class="question">问题3：【单选题】最近一次联系客服时，您的问题是否得到有效解决?</th>
+                      <th class="question">问题4：【多选题】您对客服团队的哪些方面最为关注?</th>
+                      <th class="question">问题5：【单选题】您是否清楚当前享有的VIP特权内容?</th>
+                      <th class="question">问题6：【单选题】现有VIP特权在多大程度上满足了您的期望?</th>
+                      <th class="question">问题7：【多选题】您最希望增加哪些VIP专属服务?</th>
+                      <th class="question">问题8：【填空题】还有其他任何想要分享的意见或建议吗?</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>1597</td><td></td><td>254</td><td></td><td>2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>203秒</td><td>2026-05-18 18:00:51</td><td>中文(zhCN)</td><td>非常不满意</td><td>非常不满意</td><td>未联系过客服</td><td>多语言支持</td><td>完全不清楚</td><td>其他：__________(你😍是😃谁😎是😎来😄)</td><td>其他：__________😃😃😃中间😐😐)</td><td>😃😃😃😃😃中间😐😐😐</td></tr>
+                    <tr><td>1596</td><td></td><td>24</td><td></td><td>2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>182秒</td><td>2026-05-18 17:57:21</td><td>中文(zhCN)</td><td>非常不满意</td><td>非常不满意</td><td>未联系过客服</td><td>多语言支持</td><td>完全不清楚</td><td>其他：__________(你好呀？😃害怕的😐)</td><td>其他：__________(nikankans huihaopale😃good~~~~///)</td><td>！！！</td></tr>
+                    <tr><td>1595</td><td></td><td>23</td><td></td><td>2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>128秒</td><td>2026-05-18 17:54:13</td><td>中文(zhCN)</td><td>非常满意</td><td>非常不满意</td><td>未联系过客服</td><td>多语言支持</td><td>完全不清楚</td><td>其他：__________(Far Below Expectations！！！###)</td><td>其他：__________(你是谁？？###)</td><td>我是推不重要c#重要的是你死定了##</td></tr>
+                    <tr><td>1594</td><td></td><td>22</td><td></td><td>2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>51秒</td><td>2026-05-18 17:51:51</td><td>中文(zhCN)</td><td>非常满意</td><td>非常不满意</td><td>未联系过客服</td><td>多语言支持</td><td>完全不清楚</td><td>其他：__________(~!@#$%^&*()!&lt;&gt;、)</td><td>其他：__________(！！！@@@###)</td><td>###</td></tr>
+                    <tr><td>1593</td><td></td><td>21</td><td></td><td>2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>120秒</td><td>2026-05-18 15:09:34</td><td>中文(zhCN)</td><td>非常满意</td><td>非常不满意</td><td>未联系过客服</td><td>多语言支持</td><td>完全不清楚</td><td>其他：__________(abc)</td><td>其他：__________(好)</td><td>你好😊吃了吗(ㄒoㄒ)/~~😊じπプ☄o(*￣▽￣*)ブ</td></tr>
+                    <tr><td>1592</td><td></td><td>20</td><td></td><td>2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>54秒</td><td>2026-05-18 15:06:57</td><td>中文(zhCN)</td><td>非常不满意</td><td>非常不满意</td><td>未联系过客服</td><td>多语言支持</td><td>完全不清楚</td><td>其他：__________()</td><td>其他：__________(？？？)</td><td>∞</td></tr>
+                    <tr><td>1591</td><td></td><td>19</td><td></td><td>2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>23秒</td><td>2026-05-18 15:05:57</td><td>中文(zhCN)</td><td>非常不满意</td><td>非常不满意</td><td>未联系过客服</td><td>多语言支持</td><td>完全不清楚</td><td>其他：__________(嗯)</td><td>其他：__________(嗯嗯)</td><td>嗯嗯嗯</td></tr>
+                    <tr><td>1590</td><td></td><td>18</td><td></td><td>2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>37秒</td><td>2026-05-18 15:05:26</td><td>中文(zhCN)</td><td>非常不满意</td><td>非常不满意</td><td>未解决</td><td>服务态度</td><td>基本清楚</td><td>其他：__________(😊)</td><td>其他：__________(~~~////(^v^)\\\\~~~)</td><td>(•̀ω•́)✧(•̀ω•́)✧</td></tr>
+                    <tr><td>1589</td><td></td><td>17</td><td></td><td>2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>45秒</td><td>2026-05-18 15:04:41</td><td>中文(zhCN)</td><td>非常满意</td><td>非常满意</td><td>未解决</td><td>服务态度</td><td>完全不清楚</td><td>其他：__________(123456789)</td><td>其他：__________(o k)</td><td>哦哦哦哦哦哦</td></tr>
+                    <tr><td>1588</td><td></td><td>16</td><td></td><td>2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>35秒</td><td>2026-05-18 15:03:48</td><td>中文(zhCN)</td><td>非常满意</td><td>非常满意</td><td>完全解决</td><td>响应速度</td><td>非常清楚</td><td>其他：__________🆗</td><td>其他：__________(吃完)</td><td>666</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="stats-pagination">
+                <span>‹</span>
+                <span class="page-num">1</span>
+                <span>2</span>
+                <span>›</span>
+                <span>跳至</span>
+                <span class="jump-input"></span>
+                <span>页</span>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane" id="pane-reward">
+            <div class="reward-actions">
+              <div class="reward-actions-left">
+                <button class="btn primary">一键补发</button>
+                <button class="btn">导出派奖失败日志</button>
+              </div>
+              <div class="stats-table-tools" style="position:static;"><span>⇩</span><span>T</span><span>⚙</span></div>
+            </div>
+
+            <div class="stats-scroll">
+              <table class="stats-table reward-table">
+                <thead>
+                  <tr>
+                    <th class="narrow">序号</th>
+                    <th class="mid">角色名称</th>
+                    <th class="mid">角色ID</th>
+                    <th class="mid">区服名称</th>
+                    <th class="mid">区服ID</th>
+                    <th class="mid">地区</th>
+                    <th class="mid">pid</th>
+                    <th class="wide">累充金额(美元)</th>
+                    <th class="mid">角色等级</th>
+                    <th class="wide">提交时间</th>
+                    <th class="wide">奖励发放时间</th>
+                    <th class="wide">上报语言</th>
+                    <th class="mid">状态</th>
+                    <th class="op-wide">操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>11086462</td><td>Traveler53146...</td><td>53536395</td><td>S471</td><td>10471</td><td>韩国</td><td>21621010</td><td>0</td><td>9</td><td>2026-05-25 05:53:23</td><td>2026-05-25 05:53:23</td><td>韩语(koKR)</td><td class="reward-status-success">成功</td><td></td></tr>
+                  <tr><td>11086405</td><td>Traveler49334...</td><td>49668967</td><td>S442</td><td>10442</td><td>德国</td><td>21621005</td><td>0</td><td>7</td><td>2026-05-25 05:23:14</td><td>2026-05-25 05:23:14</td><td>英文(enUS)</td><td class="reward-status-success">成功</td><td></td></tr>
+                  <tr><td>11086368</td><td>ABDULAZIZ22</td><td>52918139</td><td>S465</td><td>10465</td><td>沙特阿拉伯</td><td>21621018</td><td>0</td><td>14</td><td>2026-05-25 05:06:28</td><td>2026-05-25 05:06:28</td><td>arEG</td><td class="reward-status-success">成功</td><td></td></tr>
+                  <tr><td>11086293</td><td>Traveler48232...</td><td>48550616</td><td>S432</td><td>10432</td><td>日本</td><td>21621011</td><td>0</td><td>19</td><td>2026-05-25 04:27:04</td><td>2026-05-25 04:27:04</td><td>日语(jaJP)</td><td class="reward-status-success">成功</td><td></td></tr>
+                  <tr><td>11086233</td><td>Alexsa*staff</td><td>49120489</td><td>S438</td><td>10438</td><td>俄罗斯联邦</td><td>21621015</td><td>0</td><td>6</td><td>2026-05-25 03:57:04</td><td>2026-05-25 03:57:04</td><td>英文(enUS)</td><td class="reward-status-success">成功</td><td></td></tr>
+                  <tr><td>11086157</td><td>ViensJouer</td><td>49458950</td><td>S440</td><td>10440</td><td>法国</td><td>21621002</td><td>0</td><td>15</td><td>2026-05-25 03:12:54</td><td>2026-05-25 03:12:54</td><td>法语(frFR)</td><td class="reward-status-success">成功</td><td></td></tr>
+                  <tr><td>11086151</td><td>M222</td><td>53181439</td><td>S467</td><td>10467</td><td>沙特阿拉伯</td><td>21621018</td><td>0</td><td>17</td><td>2026-05-25 03:10:09</td><td>2026-05-25 03:10:09</td><td>arEG</td><td class="reward-status-success">成功</td><td></td></tr>
+                  <tr><td>11086149</td><td>Ricardosv</td><td>51238856</td><td>S451</td><td>10451</td><td>智利</td><td>21621006</td><td>0</td><td>17</td><td>2026-05-25 03:07:44</td><td>2026-05-25 03:07:44</td><td>西班牙语(esES)</td><td class="reward-status-success">成功</td><td></td></tr>
+                  <tr><td>11086126</td><td>Traveler50915...</td><td>51270903</td><td>S451</td><td>10451</td><td>美国</td><td>21621006</td><td>0</td><td>6</td><td>2026-05-25 02:53:32</td><td>2026-05-25 02:53:32</td><td>英文(enUS)</td><td class="reward-status-success">成功</td><td></td></tr>
+                  <tr><td>11086108</td><td>Traveler51714...</td><td>52085139</td><td>S460</td><td>10460</td><td>菲律宾</td><td>21621001</td><td>0</td><td>9</td><td>2026-05-25 02:45:03</td><td>2026-05-25 02:45:03</td><td>英文(enUS)</td><td class="reward-status-success">成功</td><td></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="stats-pagination">
+              <span>‹</span>
+              <span>1</span>
+              <span>…</span>
+              <span>10</span>
+              <span>11</span>
+              <span class="page-num">12</span>
+              <span>13</span>
+              <span>14</span>
+              <span>…</span>
+              <span>1467</span>
+              <span>›</span>
+              <select style="height:26px;border:1px solid #dcdfe6;border-radius:2px;background:#fff;"><option>10 条/页</option></select>
+              <span>跳至</span>
+              <span class="jump-input"></span>
+              <span>页</span>
+            </div>
+          </div>
+          <div class="tab-pane" id="pane-ai">
+            <div class="action-bar"><div class="action-info">📌 当前筛选结果：<b>1,016</b> 条答卷数据 <span class="divider">·</span><b>5</b> 道题目</div></div>
+            <div id="aiEmpty" class="ai-report-empty">
+              <div class="icon">✨</div>
+              <div class="empty-title">AI 智能问卷报告</div>
+              <div class="empty-desc">AI 基于<strong>有效回答</strong>及<strong>当前筛选条件</strong>，深度分析该问卷，并自动生成包含<strong>整体结论、关键洞察、优化建议</strong>等完整报告。</div>
+              <button class="btn-generate" onclick="generateReport()">✨ 立即生成 AI 报告</button>
+              <div class="hint">⏱ 预计耗时 20-40 秒，请耐心等待</div>
+            </div>
+            <div id="aiLoading" class="ai-loading" style="display:none;">
+              <div class="ai-loading-spinner"></div>
+              <div class="ai-loading-text">AI 报告生成中，生成报告耗时较长，请耐心等待！<span id="loadingPercent">0</span>%...</div>
+              <div class="ai-loading-progress">
+                <div class="progress-bar"><div class="progress-bar-inner" id="progressBar" style="width:0%"></div></div>
+                <div class="ai-loading-status">
+                  <span class="step" id="step1">① 读取筛选数据</span><span class="step" id="step2">② 数据深度分析</span><span class="step" id="step3">③ 生成洞察建议</span><span class="step" id="step4">④ 整理报告内容</span>
+                </div>
+              </div>
+            </div>
+            <div id="aiReport" class="ai-report-content" style="display:none;">
+              <div class="ai-report-header">
+                <div class="left">
+                  <h2>✨ AI 问卷分析报告</h2>
+                  <div class="summary-info"><span class="item"><span class="label">时间:</span>2026-05-01 → 2026-05-15</span><span class="item"><span class="label">样本:</span>1,016 条</span><span class="item"><span class="label">题目:</span>5 道</span><span class="item"><span class="label">生成时间:</span>2026-05-15 11:23</span></div>
+                </div>
+                <div class="right"><button class="btn" onclick="generateReport()">🔄 重新生成</button><button class="btn">📥 下载PDF</button></div>
+              </div>
+              <div class="ai-report-body">
+                <h3>📌 整体结论</h3>
+                <p>基于筛选后的 <strong>1,016</strong> 份有效答卷数据分析，目标人群整体满意度<strong>偏正面</strong>，但<strong>付费与充值体验</strong>是当前最突出的负面反馈来源，需优先优化以提升用户留存与营收。</p>
+                <div class="insight-grid">
+                  <div class="insight-card"><div class="ic-title">综合满意度</div><div class="ic-value">57.11%</div><div class="ic-desc">正面评价占比</div></div>
+                  <div class="insight-card"><div class="ic-title">付费体验</div><div class="ic-value">30.39%</div><div class="ic-desc">负面评价占比 ⚠️</div></div>
+                  <div class="insight-card"><div class="ic-title">充值不顺利</div><div class="ic-value">44.33%</div><div class="ic-desc">最突出痛点 🔴</div></div>
+                </div>
+                <h3>🎯 关键洞察</h3>
+                <ul><li>Q1 总体满意度：正面合计 <strong>57.11%</strong>，但“一般”占比 31.89% 偏高。</li><li>Q2 付费满意度：负面合计 <strong>30.39%</strong>，为所有题目中最低分项。</li><li>Q3 充值便利性：<strong>44.33%</strong> 玩家反馈“不顺利”，重点排查支付通道。</li></ul>
+                <h3>💡 优化建议</h3>
+                <ul><li><strong>立即行动</strong>：拉取近 7 天异常订单日志，定位高失败率的支付通道。</li><li><strong>中期规划</strong>：优化支付流程文案与错误提示，缩短充值步骤。</li><li><strong>长期策略</strong>：对“一般”满意度玩家做精细化运营。</li></ul>
+                <h3>📊 题目相关性分析</h3>
+                <p>Q2 付费满意度 与 Q3 充值便利性 的负面反馈玩家<strong>重合度高达 78%</strong>，建议作为整体专项优化。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-mask" id="customDetailModal" onclick="if(event.target===this)closeCustomModal()">
+    <div class="modal">
+      <div class="modal-head"><div><div class="t" id="modalTitle">自定义回答详情</div><div class="sub-info" id="modalSubInfo"></div></div><div class="x" onclick="closeCustomModal()">×</div></div>
+      <div class="modal-toolbar"><div>共 <b id="customTotal">85</b> 条自定义回答</div><div><input type="text" placeholder="搜索回答内容..." oninput="searchDetail(this.value)"><button class="btn">⬇ 导出</button></div></div>
+      <div class="modal-body"><table class="detail-table"><thead><tr><th class="col-id">答题序号</th><th class="col-content">详细填写内容</th><th class="col-action">答卷详情</th></tr></thead><tbody id="detailTableBody"></tbody></table></div>
+      <div class="modal-foot"><span>共 <span id="totalFoot">85</span> 条</span><button class="btn">‹</button><button class="btn primary">1</button><button class="btn">2</button><button class="btn">›</button></div>
+    </div>
+  </div>
+  <div class="feedback">意见反馈</div>
+
+  <script>
+    const questions = [
+      { id:"Q1", type:"单选题", title:"Q1：总体而言，您对游戏体验满意度如何？", answers:2919, times:2919, options:[{name:"非常满意", count:370, percent:12.68},{name:"满意", count:1297, percent:44.43},{name:"一般", count:931, percent:31.89},{name:"不满意", count:236, percent:8.08},{name:"其他（请填写）", count:85, percent:2.91, hasCustom:true}] },
+      { id:"Q2", type:"单选题", title:"Q2：请对付费体验进行满意度评分", answers:2919, times:2919, options:[{name:"非常满意", count:216, percent:7.40},{name:"满意", count:626, percent:21.45},{name:"一般", count:1190, percent:40.77},{name:"不满意", count:645, percent:22.10},{name:"非常不满意", count:242, percent:8.29}] },
+      { id:"Q3", type:"多选题", title:"Q3：您在游戏中最常遇到哪些问题？（可多选）", answers:2919, times:6234, options:[{name:"卡顿掉线", count:1450, percent:49.67},{name:"充值失败", count:1294, percent:44.33},{name:"画面闪退", count:856, percent:29.33},{name:"操作不流畅", count:1023, percent:35.05},{name:"账号问题", count:412, percent:14.11},{name:"其他（请填写）", count:234, percent:8.02, hasCustom:true}] },
+      { id:"Q4", type:"矩阵题", title:"Q4：请对以下方面进行满意度评价", answers:2919, times:2919, isMatrix:true, matrixRows:["游戏画质","操作手感","付费体验","客服服务","其他方面（请补充）"], matrixCols:["非常满意","满意","一般","不满意","非常不满意"], matrixData:[[820,1245,612,178,64],[690,1102,745,282,100],[216,626,1190,645,242],[432,985,968,374,160],[186,412,1320,765,236]] },
+      { id:"Q5", type:"填空题", title:"Q5：请填写您对【英雄置换】的建议意见", answers:39659, times:39659, isText:true, textAnswers:[["12373453","测试"],["12373454","没有"],["12373455","，"],["12373456","j"],["12373457","嗯"],["12373458","没"],["12373459","屠龙"],["12373460","无"],["12373461","😊"],["12373462","啊"]], totalAnswers:39659 }
+    ];
+    const customAnswers = [{ id:"12717816", content:"游戏整体可以，但是希望多一些福利活动" }, { id:"12717820", content:"画面再优化一下就完美了" }, { id:"12717835", content:"希望能增加更多剧情玩法" }];
+    function renderQuestions(){
+      const list = document.getElementById("questionList");
+      list.innerHTML = questions.map(q => {
+        let body = q.isMatrix ? renderMatrix(q) : q.isText ? renderTextAnswers(q) : renderOptionsTable(q);
+        return `<div class="question-card" data-qid="${q.id}"><div class="q-header"><div class="q-info"><div class="q-title-row"><span class="q-title">${q.title}</span><span class="q-ai-btn" onclick="alert('AI 数据分析')">✨ AI 数据分析</span></div><div class="q-meta"><span class="tag-single">【${q.type}】</span><span>回答人数：${q.answers}</span><span>回答次数：${q.times}</span></div></div>${q.isText ? `<div class="q-tools"><div class="q-tool-btn active">🧾</div></div>` : q.isMatrix ? "" : `<div class="q-tools"><div class="q-tool-btn active">🧾</div><div class="q-tool-btn">🥧</div><div class="q-tool-btn">📊</div></div>`}</div>${body}</div>`;
+      }).join("");
+    }
+    function renderOptionsTable(q){
+      return `<table class="q-table"><thead><tr><th>选项</th><th>选择次数</th><th>百分比</th></tr></thead><tbody>${q.options.map(o => `<tr><td>${o.hasCustom ? `<div class="option-with-custom"><span>${o.name}</span><span class="view-detail-link" onclick="openCustomDetail('${q.id}','${o.name}','${o.count}')">查看详情 →</span></div>` : o.name}</td><td>${o.count}</td><td><div class="percent-cell"><div class="percent-bar"><div class="percent-bar-inner" style="width:${o.percent}%"></div></div>${o.percent}%</div></td></tr>`).join("")}</tbody></table>`;
+    }
+    function renderMatrix(q){
+      return `<table class="matrix-table"><thead><tr><th></th>${q.matrixCols.map(c => `<th>${c}</th>`).join("")}<th>小计</th></tr></thead><tbody>${q.matrixRows.map((row, r) => { const vals = q.matrixData[r]; const total = vals.reduce((s,v)=>s+v,0); return `<tr><td>${row}</td>${vals.map(v => `<td class="matrix-cell">${v}<span class="percent">(${(v/total*100).toFixed(1)}%)</span></td>`).join("")}<td><b>${total}</b></td></tr>`; }).join("")}</tbody></table>`;
+    }
+    function renderTextAnswers(q){
+      return `<table class="text-answer-table"><thead><tr><th class="col-id">答题序号</th><th>详细填写内容</th><th class="col-action">答卷详情</th></tr></thead><tbody>${q.textAnswers.map(a => `<tr><td class="col-id">${a[0]}</td><td>${a[1]}</td><td class="col-action"><a onclick="alert('跳转到答卷详情：${a[0]}')">查看详情</a></td></tr>`).join("")}</tbody></table><div class="text-pagination"><span>共 ${q.totalAnswers.toLocaleString()} 条</span><button>‹</button><button class="active">1</button><button>2</button><button>3</button><button>›</button><select><option>10条/页</option><option>20条/页</option></select><span>跳至</span><input type="number" style="width:50px;padding:4px 6px;border:1px solid #dcdfe6;border-radius:3px;"><span>页</span></div>`;
+    }
+    function switchTab(el, tab){
+      document.querySelectorAll(".detail-tab").forEach(x=>x.classList.remove("active"));
+      el.classList.add("active");
+      document.querySelectorAll(".tab-pane").forEach(p=>p.classList.remove("active"));
+      document.getElementById("pane-"+tab).classList.add("active");
+      const reportFilter = document.getElementById("reportFilterArea");
+      if (reportFilter) reportFilter.style.display = "";
+    }
+    function toggleAdv(el){ const adv = document.getElementById("advFilter"); adv.classList.toggle("show"); el.textContent = adv.classList.contains("show") ? "收起高级筛选 ▲" : "展开高级筛选 ▼"; }
+    function toggleQFilter(){ const panel = document.getElementById("qFilterPanel"); const btn = document.getElementById("qFilterBtn"); panel.classList.toggle("show"); btn.textContent = panel.classList.contains("show") ? "隐藏题目筛选" : "显示题目筛选"; btn.classList.toggle("active-toggle", panel.classList.contains("show")); }
+    function qCheckAll(checked){ document.querySelectorAll("#qChecklist input").forEach(c=>c.checked=checked); updateQCount(); }
+    function qCheckInvert(){ document.querySelectorAll("#qChecklist input").forEach(c=>c.checked=!c.checked); updateQCount(); }
+    function updateQCount(){ const count = document.querySelectorAll("#qChecklist input:checked").length; document.getElementById("qCheckedCount").textContent = count; document.getElementById("qCount").textContent = count; }
+    document.addEventListener("change", e => { if(e.target.closest("#qChecklist")) updateQCount(); });
+    function doQuery(){ document.getElementById("resultCount").textContent = Math.floor(Math.random()*500 + 800).toLocaleString(); }
+    function toggleDrop(e){ e.stopPropagation(); document.getElementById("exportDrop").classList.toggle("open"); }
+    document.addEventListener("click", e => { if(!e.target.closest("#exportDrop")) document.getElementById("exportDrop").classList.remove("open"); });
+    function openCustomDetail(qid, optionName, count){ document.getElementById("modalSubInfo").textContent = `题目：${qid} / 选项：${optionName}`; document.getElementById("customTotal").textContent = count; document.getElementById("totalFoot").textContent = count; document.getElementById("detailTableBody").innerHTML = customAnswers.map(item => `<tr><td class="col-id">${item.id}</td><td>${item.content}</td><td><a onclick="alert('跳转到答卷详情')">查看详情</a></td></tr>`).join(""); document.getElementById("customDetailModal").classList.add("show"); }
+    function closeCustomModal(){ document.getElementById("customDetailModal").classList.remove("show"); }
+    function searchDetail(keyword){ document.querySelectorAll("#detailTableBody tr").forEach(row => row.style.display = row.textContent.includes(keyword) ? "" : "none"); }
+    let loadingTimer = null;
+    function generateReport(){
+      document.getElementById("aiEmpty").style.display = "none";
+      document.getElementById("aiReport").style.display = "none";
+      document.getElementById("aiLoading").style.display = "block";
+      let progress = 0;
+      const steps = ["step1","step2","step3","step4"];
+      steps.forEach(s=>document.getElementById(s).className = "step");
+      if(loadingTimer) clearInterval(loadingTimer);
+      loadingTimer = setInterval(() => {
+        progress += Math.random() * 4 + 5;
+        if(progress >= 100){
+          progress = 100;
+          clearInterval(loadingTimer);
+          steps.forEach(s=>document.getElementById(s).classList.add("done"));
+          setTimeout(() => { document.getElementById("aiLoading").style.display = "none"; document.getElementById("aiReport").style.display = "block"; }, 350);
+        }
+        document.getElementById("loadingPercent").textContent = Math.floor(progress);
+        document.getElementById("progressBar").style.width = progress + "%";
+        const idx = Math.min(Math.floor(progress / 25), 3);
+        steps.forEach((s,i) => { const el = document.getElementById(s); el.classList.remove("doing"); if(i < idx) el.classList.add("done"); else if(i === idx) el.classList.add("doing"); });
+      }, 180);
+    }
+    renderQuestions();
+  </script>
+</body>
+</html>

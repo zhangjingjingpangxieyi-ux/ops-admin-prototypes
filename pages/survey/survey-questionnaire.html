@@ -1,0 +1,1052 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>游戏运营后台 - 调查问卷</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      --blue: #1890ff;
+      --side: #001529;
+      --text: #1f2d3d;
+      --line: #e8edf3;
+      --bg: #eef2f6;
+    }
+
+    body {
+      margin: 0;
+      min-width: 1180px;
+      height: 100vh;
+      overflow: hidden;
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+      font-size: 12px;
+      background: var(--bg);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .34;
+      background-image:
+        repeating-linear-gradient(-30deg, transparent 0 86px, rgba(0,0,0,.025) 86px 88px, transparent 88px 172px),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='210' height='92' viewBox='0 0 210 92'%3E%3Ctext x='8' y='55' transform='rotate(-30 90 45)' font-family='Arial' font-size='13' fill='%238f98a3' fill-opacity='.22'%3Ezhangjing%20%E5%BC%A0%E6%99%AF%E5%8F%AF%E8%A7%81%3C/text%3E%3C/svg%3E");
+      background-size: 210px 92px;
+    }
+
+    .app {
+      display: flex;
+      height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    .sidebar {
+      width: 210px;
+      flex: 0 0 210px;
+      color: #b9c7d9;
+      background: var(--side);
+      box-shadow: 1px 0 0 rgba(0,0,0,.12);
+    }
+
+    .brand {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      padding: 0 18px 0 80px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .brand::before {
+      content: "m";
+      position: absolute;
+      left: 48px;
+      top: 9px;
+      width: 22px;
+      height: 22px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .nav {
+      height: calc(100vh - 40px);
+      overflow: hidden;
+      padding-top: 5px;
+    }
+
+    .nav-item,
+    .nav-sub {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 20px 0 23px;
+      color: #c3d0df;
+      white-space: nowrap;
+    }
+
+    .nav-item .chev,
+    .nav-sub .chev {
+      margin-left: auto;
+      color: #8ea0b5;
+    }
+
+    .nav-item.dim { color: #90a1b4; }
+    .nav-group.open > .nav-item {
+      color: #fff;
+      background: #001f38;
+      font-weight: 600;
+    }
+
+    .sub-list {
+      padding: 0 0 6px;
+      background: #001b2f;
+    }
+
+    .nav-sub {
+      height: 38px;
+      padding-left: 40px;
+      color: #c2cfdf;
+    }
+
+    .nav-sub.active {
+      margin: 0 9px 0 4px;
+      padding-left: 40px;
+      color: #fff;
+      background: #1890ff;
+      border-radius: 3px;
+    }
+
+    .main {
+      width: 100vw;
+      min-width: 1180px;
+      display: flex;
+      flex-direction: column;
+      background: #eef2f6;
+    }
+
+    .topbar {
+      height: 40px;
+      flex: 0 0 40px;
+      display: flex;
+      align-items: stretch;
+      background: #fff;
+      border-bottom: 1px solid #e6ebf1;
+      box-shadow: 0 1px 2px rgba(0,0,0,.02);
+    }
+
+    .top-left {
+      display: flex;
+      align-items: center;
+      width: 68px;
+      border-right: 1px solid #edf1f5;
+      color: #758293;
+    }
+
+    .hamburger,
+    .refresh {
+      width: 34px;
+      text-align: center;
+      font-size: 18px;
+      line-height: 40px;
+    }
+
+    .tabs {
+      display: flex;
+      height: 40px;
+      min-width: 265px;
+    }
+
+    .tab {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 18px;
+      border-right: 1px solid #edf1f5;
+      color: #243346;
+    }
+
+    .tab.active {
+      color: #1686f4;
+      background: #eaf4ff;
+      font-weight: 600;
+    }
+
+    .tab span:last-child {
+      color: #9ca8b6;
+      font-weight: 400;
+    }
+
+    .global {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      height: 40px;
+      padding-right: 12px;
+      color: #263548;
+      white-space: nowrap;
+    }
+
+    .search {
+      width: 168px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      border: 1px solid #dfe5ec;
+      border-radius: 14px;
+      color: #a5afbb;
+      gap: 4px;
+    }
+
+    .kbd {
+      margin-left: auto;
+      padding: 1px 5px;
+      border: 1px solid #d5dce5;
+      border-radius: 2px;
+      color: #4a5566;
+      font-size: 10px;
+    }
+
+    .select-pill {
+      height: 28px;
+      min-width: 168px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #d8e0ea;
+      border-radius: 15px;
+      color: #1f2d3d;
+      background: #fff;
+    }
+
+    .badge {
+      position: relative;
+      color: #1686f4;
+      font-weight: 700;
+    }
+
+    .badge::after {
+      content: "3";
+      position: absolute;
+      top: -11px;
+      right: -9px;
+      min-width: 15px;
+      height: 15px;
+      padding: 0 4px;
+      border-radius: 8px;
+      color: #fff;
+      background: #ff4d4f;
+      font-size: 10px;
+      line-height: 15px;
+      text-align: center;
+    }
+
+    .filter {
+      height: 65px;
+      flex: 0 0 65px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 20px;
+      background: #fff;
+      border-bottom: 1px solid #e8edf3;
+      position: relative;
+      z-index: 20;
+    }
+
+    .field {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border: 1px solid #dfe5ec;
+      border-radius: 2px;
+      color: #9aa6b4;
+    }
+
+    .field.filter-control {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .field.filter-control.open {
+      border-color: #1890ff;
+      box-shadow: 0 0 0 1px rgba(24,144,255,.28);
+    }
+
+    .field.small { width: 220px; }
+    .field.status {
+      width: 220px;
+      color: #111;
+    }
+    .field.date {
+      width: 235px;
+      color: #b5beca;
+    }
+
+    .field .label {
+      min-width: 86px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      padding: 0 11px;
+      color: #222;
+      border-right: 1px solid #dfe5ec;
+    }
+
+    .field .value {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+    }
+
+    .dropdown-menu-filter {
+      display: none;
+      position: absolute;
+      top: 33px;
+      left: -1px;
+      min-width: calc(100% + 2px);
+      padding: 4px 0;
+      background: #fff;
+      border: 1px solid #dfe5ec;
+      box-shadow: 0 4px 12px rgba(0,0,0,.08);
+      z-index: 60;
+    }
+
+    .field.open .dropdown-menu-filter,
+    .field.open .date-panel {
+      display: block;
+    }
+
+    .dropdown-option {
+      height: 34px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      color: #111;
+      background: #fff;
+      white-space: nowrap;
+    }
+
+    .dropdown-option:hover,
+    .dropdown-option.active {
+      background: #e8f6fc;
+      font-weight: 600;
+    }
+
+    .date-panel {
+      display: none;
+      position: absolute;
+      top: 33px;
+      left: -1px;
+      width: 450px;
+      background: #fff;
+      border: 1px solid #dfe5ec;
+      box-shadow: 0 4px 14px rgba(0,0,0,.10);
+      color: #303133;
+      z-index: 70;
+    }
+
+    .date-body {
+      display: grid;
+      grid-template-columns: 1fr 168px;
+      min-height: 270px;
+    }
+
+    .calendar {
+      padding: 12px 14px 0;
+      border-right: 1px solid #edf1f5;
+    }
+
+    .calendar-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 28px;
+      margin-bottom: 8px;
+      color: #303133;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .calendar-head .nav-arrows {
+      color: #c0c4cc;
+      font-weight: 400;
+      letter-spacing: 7px;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      row-gap: 11px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .calendar-grid .week {
+      color: #303133;
+      font-weight: 500;
+    }
+
+    .calendar-grid .muted {
+      color: #c0c4cc;
+    }
+
+    .calendar-grid .day {
+      width: 24px;
+      height: 24px;
+      margin: 0 auto;
+      line-height: 24px;
+      border-radius: 2px;
+    }
+
+    .calendar-grid .selected {
+      border: 1px solid #1890ff;
+      color: #1890ff;
+      background: #eaf6ff;
+    }
+
+    .time-columns {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-left: 1px solid #f3f5f8;
+    }
+
+    .time-column {
+      height: 270px;
+      overflow: hidden;
+      border-right: 1px solid #edf1f5;
+      padding: 7px 0;
+      text-align: center;
+      color: #303133;
+      line-height: 28px;
+      font-size: 14px;
+    }
+
+    .time-column:last-child {
+      border-right: 0;
+    }
+
+    .date-shortcuts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 12px 12px;
+      border-top: 1px solid #edf1f5;
+      background: #fff;
+    }
+
+    .shortcut {
+      height: 22px;
+      padding: 0 8px;
+      border: 1px solid #7cc4ff;
+      border-radius: 2px;
+      color: #1890ff;
+      background: #eaf6ff;
+      font-size: 12px;
+      line-height: 20px;
+    }
+
+    .date-confirm {
+      margin-left: auto;
+      padding: 0 10px;
+      border-color: #dfe5ec;
+      color: #b0b8c4;
+      background: #f7f7f7;
+    }
+
+    .btn {
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 15px;
+      border: 1px solid transparent;
+      border-radius: 2px;
+      background: var(--blue);
+      color: #fff;
+      font-size: 12px;
+      cursor: default;
+    }
+
+    .btn.secondary {
+      color: #9ca8b6;
+      background: #f5f7fa;
+      border-color: #dfe5ec;
+    }
+
+    .content {
+      flex: 1;
+      padding: 14px 8px 0 10px;
+      overflow: hidden;
+    }
+
+    .panel {
+      height: calc(100vh - 79px);
+      background: #fff;
+      border: 1px solid #e7ecf2;
+      box-shadow: 0 2px 10px rgba(31,45,61,.05);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-actions {
+      height: 49px;
+      flex: 0 0 49px;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      border-bottom: 1px solid #edf1f5;
+    }
+
+    .panel-actions .btn { margin-right: 12px; }
+
+    .tools {
+      margin-left: auto;
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      color: #111;
+      font-size: 16px;
+    }
+
+    .table-area {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .table-scroll {
+      height: calc(100% - 47px);
+      overflow: auto;
+      position: relative;
+      border-bottom: 1px solid #edf1f5;
+      scrollbar-color: #c9c9c9 transparent;
+      scrollbar-width: thin;
+    }
+
+    .table-scroll::-webkit-scrollbar {
+      height: 10px;
+      width: 8px;
+    }
+
+    .table-scroll::-webkit-scrollbar-thumb {
+      background: #c9c9c9;
+      border-radius: 8px;
+    }
+
+    .table-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
+      width: 1818px;
+      min-width: 1818px;
+      color: #263548;
+      background: #fff;
+    }
+
+    th,
+    td {
+      height: 69px;
+      padding: 0 8px;
+      border-right: 1px solid #edf1f5;
+      border-bottom: 1px solid #edf1f5;
+      text-align: left;
+      vertical-align: middle;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      background: #fff;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      height: 35px;
+      color: #222;
+      font-weight: 600;
+      background: #fff;
+    }
+
+    .check-col { width: 29px; text-align: center; }
+    .sort-col { width: 51px; text-align: center; color: #a4afbd; }
+    .id-col { width: 62px; }
+    .title-col { width: 160px; }
+    .num-col { width: 80px; }
+    .people-col { width: 88px; }
+    .time-col { width: 230px; }
+    .award-col { width: 105px; }
+    .state-col { width: 88px; }
+    .risk-col { width: 150px; }
+    .last-col { width: 200px; }
+    .audit-col { width: 205px; }
+    .stat-col { width: 102px; }
+    .op-col { width: 190px; }
+
+    .check-col,
+    .sort-col,
+    .id-col,
+    .stat-col,
+    .op-col {
+      position: sticky;
+      background: #fff;
+    }
+
+    .check-col { left: 0; z-index: 5; }
+    .sort-col { left: 29px; z-index: 5; }
+    .id-col { left: 80px; z-index: 5; }
+    .stat-col { right: 190px; z-index: 5; }
+    .op-col { right: 0; z-index: 5; }
+
+    .stat-col,
+    .op-col {
+      overflow: visible;
+    }
+
+    .stat-col::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -16px;
+      width: 16px;
+      height: 100%;
+      background: linear-gradient(90deg, rgba(255,255,255,0), #fff 72%);
+      pointer-events: none;
+    }
+
+    th.check-col,
+    th.sort-col,
+    th.id-col,
+    th.stat-col,
+    th.op-col {
+      z-index: 7;
+    }
+
+    .id-col {
+      box-shadow: 8px 0 10px -10px rgba(0,0,0,.45);
+    }
+
+    .stat-col {
+      box-shadow: -8px 0 10px -10px rgba(0,0,0,.45);
+    }
+
+    input[type="checkbox"] {
+      width: 13px;
+      height: 13px;
+      margin: 0;
+      appearance: none;
+      border: 1px solid #dfe5ec;
+      border-radius: 2px;
+      background: #fff;
+      vertical-align: middle;
+    }
+
+    a {
+      color: #168cff;
+      text-decoration: none;
+    }
+
+    .drag {
+      color: #b6bec9;
+      font-size: 18px;
+    }
+
+    .twoline {
+      display: inline-block;
+      line-height: 22px;
+      white-space: normal;
+    }
+
+    .award {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 20px;
+      min-width: 28px;
+      padding: 0 4px;
+      border: 1px solid #5bb5ff;
+      background: #eaf6ff;
+      color: #168cff;
+      border-radius: 2px;
+      line-height: 18px;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      margin-right: 7px;
+      border-radius: 50%;
+      vertical-align: middle;
+    }
+
+    .green { background: #21bf39; }
+    .orange { background: #faad14; }
+    .light { background: #d8e9ff; }
+    .state-running { color: #21bf39; }
+    .state-waiting { color: #faad14; }
+    .state-ended { color: #222; }
+    .state-draft { color: #c2c9d3; }
+    .risk-red { color: #ff1f1f; line-height: 22px; }
+    .risk-green { color: #0a9f25; font-weight: 600; }
+    .ai-icon {
+      display: inline-block;
+      width: 22px;
+      height: 22px;
+      margin-right: 5px;
+      border-radius: 4px;
+      color: #fff;
+      background: #2f14e8;
+      font-weight: 700;
+      font-size: 12px;
+      line-height: 22px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .analysis-link {
+      color: #168cff;
+      white-space: nowrap;
+    }
+
+    .ops {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      overflow: visible;
+    }
+
+    .ops .danger { color: #ff4d4f; }
+
+    .pagination {
+      height: 47px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 0 14px;
+      color: #263548;
+      background: #fff;
+    }
+
+    .page {
+      min-width: 18px;
+      height: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 2px;
+      color: #263548;
+    }
+
+    .page.active {
+      border: 1px solid #168cff;
+      color: #168cff;
+    }
+
+    .page-size,
+    .jump {
+      height: 24px;
+      border: 1px solid #dfe5ec;
+      border-radius: 2px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+    }
+
+    .page-size { width: 72px; }
+    .jump { width: 34px; }
+
+    .feedback {
+      position: fixed;
+      right: 0;
+      top: 306px;
+      width: 22px;
+      height: 43px;
+      border-radius: 8px 0 0 8px;
+      background: #102d53;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,.22);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      z-index: 20;
+    }
+
+    .feedback::before {
+      content: "";
+      width: 15px;
+      height: 15px;
+      margin-bottom: 1px;
+      background:
+        radial-gradient(circle at 50% 50%, #fff 0 2px, transparent 3px),
+        radial-gradient(circle at 33% 36%, #fff 0 1px, transparent 2px),
+        radial-gradient(circle at 66% 36%, #fff 0 1px, transparent 2px);
+      border: 1px solid rgba(255,255,255,.8);
+      border-radius: 50%;
+    }
+
+    @media (max-width: 1260px) {
+      .global { gap: 8px; }
+      .search { width: 140px; }
+      .select-pill { min-width: 144px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <main class="main">
+      <section class="filter">
+        <div class="field small filter-control" data-dropdown>
+          <div class="label">标题</div>
+          <div class="value"><span></span><span>⌄</span></div>
+          <div class="dropdown-menu-filter">
+            <div class="dropdown-option active" data-value="标题">标题</div>
+            <div class="dropdown-option" data-value="问卷ID">问卷ID</div>
+          </div>
+        </div>
+        <div class="field status filter-control" data-dropdown>
+          <div class="label">状态：</div>
+          <div class="value"><span>不限</span><span>⌄</span></div>
+          <div class="dropdown-menu-filter">
+            <div class="dropdown-option active" data-value="不限">不限</div>
+            <div class="dropdown-option" data-value="草稿">草稿</div>
+            <div class="dropdown-option" data-value="待审批">待审批</div>
+            <div class="dropdown-option" data-value="审批不通过">审批不通过</div>
+            <div class="dropdown-option" data-value="未开始">未开始</div>
+            <div class="dropdown-option" data-value="进行中">进行中</div>
+            <div class="dropdown-option" data-value="暂停">暂停</div>
+            <div class="dropdown-option" data-value="结束">结束</div>
+          </div>
+        </div>
+        <div class="field date filter-control" data-date-picker>
+          <div class="value"><span>创建时间区间开...</span><span>→　创建时间区间结...　▣</span></div>
+          <div class="date-panel">
+            <div class="date-body">
+              <div class="calendar">
+                <div class="calendar-head">
+                  <span class="nav-arrows">‹‹</span>
+                  <span>2026年　5月</span>
+                  <span class="nav-arrows">››</span>
+                </div>
+                <div class="calendar-grid">
+                  <div class="week">一</div><div class="week">二</div><div class="week">三</div><div class="week">四</div><div class="week">五</div><div class="week">六</div><div class="week">日</div>
+                  <div class="muted">27</div><div class="muted">28</div><div class="muted">29</div><div class="muted">30</div><div class="day">1</div><div class="day">2</div><div class="day">3</div>
+                  <div class="day">4</div><div class="day">5</div><div class="day">6</div><div class="day">7</div><div class="day">8</div><div class="day">9</div><div class="day">10</div>
+                  <div class="day">11</div><div class="day">12</div><div class="day">13</div><div class="day">14</div><div class="day">15</div><div class="day">16</div><div class="day">17</div>
+                  <div class="day">18</div><div class="day">19</div><div class="day">20</div><div class="day">21</div><div class="day">22</div><div class="day">23</div><div class="day">24</div>
+                  <div class="day">25</div><div class="day">26</div><div class="day selected">27</div><div class="day">28</div><div class="day">29</div><div class="day">30</div><div class="day">31</div>
+                  <div class="muted">1</div><div class="muted">2</div><div class="muted">3</div><div class="muted">4</div><div class="muted">5</div><div class="muted">6</div><div class="muted">7</div>
+                </div>
+              </div>
+              <div class="time-columns">
+                <div class="time-column"><div>00</div><div>01</div><div>02</div><div>03</div><div>04</div><div>05</div><div>06</div><div>07</div></div>
+                <div class="time-column"><div>00</div><div>01</div><div>02</div><div>03</div><div>04</div><div>05</div><div>06</div><div>07</div></div>
+                <div class="time-column"><div>00</div><div>01</div><div>02</div><div>03</div><div>04</div><div>05</div><div>06</div><div>07</div></div>
+              </div>
+            </div>
+            <div class="date-shortcuts">
+              <span class="shortcut">今天</span>
+              <span class="shortcut">昨天</span>
+              <span class="shortcut">最近三天</span>
+              <span class="shortcut">最近一周</span>
+              <span class="shortcut">最近一个月</span>
+              <span class="shortcut">最近三个月</span>
+              <span class="shortcut">最近半年</span>
+              <span class="shortcut">最近一年</span>
+              <span class="shortcut">本周</span>
+              <span class="shortcut">本月</span>
+              <span class="shortcut">本年</span>
+              <span class="shortcut date-confirm">确定</span>
+            </div>
+          </div>
+        </div>
+        <button class="btn">查询</button>
+      </section>
+
+      <section class="content">
+        <div class="panel">
+          <div class="panel-actions">
+            <button class="btn">新 建</button>
+            <button class="btn secondary">批量审核</button>
+            <div class="tools"><span>⇩</span><span>T</span><span>⚙</span></div>
+          </div>
+          <div class="table-area">
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th class="check-col"><input type="checkbox" /></th>
+                    <th class="sort-col">排序</th>
+                    <th class="id-col">问卷ID</th>
+                    <th class="title-col">标题</th>
+                    <th class="num-col">访问量</th>
+                    <th class="num-col">访客量</th>
+                    <th class="people-col">回答人数</th>
+                    <th class="people-col">领奖人数</th>
+                    <th class="time-col">调查时间</th>
+                    <th class="award-col">问卷奖励</th>
+                    <th class="state-col">状态</th>
+                    <th class="risk-col">文本风险检测</th>
+                    <th class="last-col">最近一次操作</th>
+                    <th class="audit-col">审核信息</th>
+                    <th class="stat-col">问卷统计</th>
+                    <th class="op-col">操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="check-col"><input type="checkbox" /></td><td class="sort-col"><span class="drag">≡</span></td><td class="id-col">1797</td>
+                    <td><a href="#">《超能战争》性能表现调查问卷</a></td><td><a href="#">307</a></td><td><a href="#">145</a></td><td><a href="#">107</a></td><td><a href="#">107</a></td>
+                    <td><span class="twoline">开始：2026-05-15 00:00:00<br>结束：2026-05-24 23:59:59</span></td><td><span class="award">1个</span></td>
+                    <td class="state-ended"><span class="dot light"></span>结束</td><td><span class="risk-red">违规或嫌疑违规<br>类型：广告</span></td>
+                    <td><span class="twoline">操作人：System<br>2026-05-24 23:59:59</span></td><td><span class="twoline">操作人：袁道雄<br>2026-05-15 20:04:51</span></td>
+                    <td class="stat-col"><span class="ai-icon">AI</span><a class="analysis-link" href="stats.html">查看分析</a></td><td class="op-col"><div class="ops"><a href="stats.html">详情</a><a href="#">复制</a></div></td>
+                  </tr>
+                  <tr>
+                    <td class="check-col"><input type="checkbox" /></td><td class="sort-col"><span class="drag">≡</span></td><td class="id-col">1796</td>
+                    <td><a href="#">《超能战争》性能满意度问卷</a></td><td><a href="#">4</a></td><td><a href="#">1</a></td><td><a href="#">1</a></td><td><a href="#">1</a></td>
+                    <td><span class="twoline">开始：2026-05-15 00:00:00<br>结束：2026-05-24 23:59:59</span></td><td><span class="award">1个</span></td>
+                    <td class="state-ended"><span class="dot light"></span>结束</td><td><span class="risk-red">违规或嫌疑违规<br>类型：广告</span></td>
+                    <td><span class="twoline">操作人：System<br>2026-05-24 23:59:59</span></td><td><span class="twoline">操作人：袁道雄<br>2026-05-15 20:00:56</span></td>
+                    <td class="stat-col"><span class="ai-icon">AI</span><a class="analysis-link" href="stats.html">查看分析</a></td><td class="op-col"><div class="ops"><a href="stats.html">详情</a><a href="#">复制</a></div></td>
+                  </tr>
+                  <tr>
+                    <td class="check-col"><input type="checkbox" /></td><td class="sort-col"><span class="drag">≡</span></td><td class="id-col">1794</td>
+                    <td><a href="#">首日体验问卷</a></td><td><a href="#">0</a></td><td><a href="#">0</a></td><td><a href="#">0</a></td><td><a href="#">0</a></td>
+                    <td><span class="twoline">开始：2026-04-09 00:00:00<br>结束：2026-04-30 23:59:59</span></td><td><span class="award">1个</span></td>
+                    <td class="state-draft"><span class="dot light"></span>草稿</td><td><span class="risk-green">检测结果：合规</span></td>
+                    <td><span class="twoline">操作人：袁道雄<br>2026-05-15 18:58:46</span></td><td></td>
+                    <td class="stat-col"><span class="ai-icon">AI</span><a class="analysis-link" href="stats.html">查看分析</a></td><td class="op-col"><div class="ops"><a href="stats.html">详情</a><a href="#">编辑</a><a href="#">复制</a><a class="danger" href="#">删除</a></div></td>
+                  </tr>
+                  <tr>
+                    <td class="check-col"><input type="checkbox" /></td><td class="sort-col"><span class="drag">≡</span></td><td class="id-col">1758</td>
+                    <td><a href="#">首日体验问卷</a></td><td><a href="#">1808</a></td><td><a href="#">824</a></td><td><a href="#">691</a></td><td><a href="#">690</a></td>
+                    <td><span class="twoline">开始：2026-04-09 00:00:00<br>结束：2026-04-30 23:59:59</span></td><td><span class="award">1个</span></td>
+                    <td class="state-ended"><span class="dot light"></span>结束</td><td><span class="risk-green">检测结果：合规</span></td>
+                    <td><span class="twoline">操作人：System<br>2026-04-30 23:59:59</span></td><td><span class="twoline">操作人：袁道雄<br>2026-04-09 19:11:07</span></td>
+                    <td class="stat-col"><span class="ai-icon">AI</span><a class="analysis-link" href="stats.html">查看分析</a></td><td class="op-col"><div class="ops"><a href="stats.html">详情</a><a href="#">复制</a></div></td>
+                  </tr>
+                  <tr>
+                    <td class="check-col"><input type="checkbox" /></td><td class="sort-col"><span class="drag">≡</span></td><td class="id-col">1756</td>
+                    <td><a href="#">新手调查问卷</a></td><td><a href="#">0</a></td><td><a href="#">0</a></td><td><a href="#">0</a></td><td><a href="#">0</a></td>
+                    <td>不限</td><td><span class="award">1个</span></td><td class="state-draft"><span class="dot light"></span>草稿</td><td><span class="risk-green">检测结果：合规</span></td>
+                    <td><span class="twoline">操作人：袁道雄<br>2026-04-08 15:48:54</span></td><td></td>
+                    <td class="stat-col"><span class="ai-icon">AI</span><a class="analysis-link" href="stats.html">查看分析</a></td><td class="op-col"><div class="ops"><a href="stats.html">详情</a><a href="#">编辑</a><a href="#">复制</a><a class="danger" href="#">删除</a></div></td>
+                  </tr>
+                  <tr>
+                    <td class="check-col"><input type="checkbox" /></td><td class="sort-col"><span class="drag">≡</span></td><td class="id-col">1719</td>
+                    <td><a href="#">玩法调查问卷</a></td><td><a href="#">323</a></td><td><a href="#">261</a></td><td><a href="#">246</a></td><td><a href="#">246</a></td>
+                    <td><span class="twoline">开始：2026-03-14 00:00:00<br>结束：2026-03-18 23:59:59</span></td><td><span class="award">1个</span></td>
+                    <td class="state-ended"><span class="dot light"></span>结束</td><td><span class="risk-green">检测结果：合规</span></td>
+                    <td><span class="twoline">操作人：System<br>2026-03-18 23:59:59</span></td><td><span class="twoline">操作人：袁道雄<br>2026-03-13 21:04:53</span></td>
+                    <td class="stat-col"><span class="ai-icon">AI</span><a class="analysis-link" href="stats.html">查看分析</a></td><td class="op-col"><div class="ops"><a href="stats.html">详情</a><a href="#">复制</a></div></td>
+                  </tr>
+                  <tr>
+                    <td class="check-col"><input type="checkbox" /></td><td class="sort-col"><span class="drag">≡</span></td><td class="id-col">1718</td>
+                    <td><a href="#">玩法调查问卷</a></td><td><a href="#">2</a></td><td><a href="#">1</a></td><td><a href="#">0</a></td><td><a href="#">0</a></td>
+                    <td><span class="twoline">开始：2026-03-11 21:03:43<br>结束：2026-03-13 21:00:00</span></td><td><span class="award">1个</span></td>
+                    <td class="state-ended"><span class="dot light"></span>结束</td><td><span class="risk-green">检测结果：合规</span></td>
+                    <td><span class="twoline">操作人：袁道雄<br>2026-03-13 21:03:56</span></td><td><span class="twoline">操作人：袁道雄<br>2026-03-13 20:15:02</span></td>
+                    <td class="stat-col"><span class="ai-icon">AI</span><a class="analysis-link" href="stats.html">查看分析</a></td><td class="op-col"><div class="ops"><a href="stats.html">详情</a><a href="#">复制</a></div></td>
+                  </tr>
+                  <tr>
+                    <td class="check-col"><input type="checkbox" /></td><td class="sort-col"><span class="drag">≡</span></td><td class="id-col">1690</td>
+                    <td><a href="#"><span class="award">批量导入</span> 新手调查问卷</a></td><td><a href="#">13016</a></td><td><a href="#">8880</a></td><td><a href="#">5626</a></td><td><a href="#">5624</a></td>
+                    <td>不限</td><td><span class="award">1个</span></td><td class="state-running"><span class="dot green"></span>进行中</td><td><span class="risk-green">检测结果：合规</span></td>
+                    <td><span class="twoline">操作人：袁道雄<br>2026-02-05 22:15:42</span></td><td><span class="twoline">操作人：袁道雄<br>2026-02-05 21:33:05</span></td>
+                    <td class="stat-col"><span class="ai-icon">AI</span><a class="analysis-link" href="stats.html">查看分析</a></td><td class="op-col"><div class="ops"><a href="stats.html">详情</a><a href="#">编辑</a><a href="#">暂停</a><a href="#">复制</a></div></td>
+                  </tr>
+                  <tr>
+                    <td class="check-col"><input type="checkbox" /></td><td class="sort-col"><span class="drag">≡</span></td><td class="id-col">1652</td>
+                    <td><a href="#">新手调查问卷</a></td><td><a href="#">33</a></td><td><a href="#">15</a></td><td><a href="#">18</a></td><td><a href="#">18</a></td>
+                    <td><span class="twoline">开始：2026-01-20 00:00:00<br>结束：2026-01-31 23:59:59</span></td><td><span class="award">1个</span></td>
+                    <td class="state-ended"><span class="dot light"></span>结束</td><td><span class="risk-green">检测结果：合规</span></td>
+                    <td><span class="twoline">操作人：System<br>2026-01-31 23:59:59</span></td><td><span class="twoline">操作人：黄华金<br>2026-01-20 14:10:05</span></td>
+                    <td class="stat-col"><span class="ai-icon">AI</span><a class="analysis-link" href="stats.html">查看分析</a></td><td class="op-col"><div class="ops"><a href="stats.html">详情</a><a href="#">复制</a></div></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination">
+              <span>‹</span><span class="page active">1</span><span>›</span>
+              <span class="page-size">10 条/页⌄</span><span>跳至</span><span class="jump"></span><span>页</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div class="feedback">意见</div>
+  <script>
+    const filterControls = document.querySelectorAll(".filter-control");
+
+    function closeFilterPanels(except) {
+      filterControls.forEach(control => {
+        if (control !== except) control.classList.remove("open");
+      });
+    }
+
+    filterControls.forEach(control => {
+      control.addEventListener("click", event => {
+        event.stopPropagation();
+        const isOption = event.target.classList.contains("dropdown-option");
+        const isShortcut = event.target.classList.contains("shortcut");
+
+        closeFilterPanels(control);
+        control.classList.add("open");
+
+        if (isOption) {
+          control.querySelectorAll(".dropdown-option").forEach(option => option.classList.remove("active"));
+          event.target.classList.add("active");
+          const valueTarget = control.querySelector(".value span:first-child");
+          if (valueTarget) valueTarget.textContent = event.target.dataset.value;
+          control.classList.remove("open");
+        }
+
+        if (isShortcut && event.target.textContent.trim() !== "确定") {
+          const valueTarget = control.querySelector(".value span:first-child");
+          if (valueTarget) valueTarget.textContent = event.target.textContent.trim();
+        }
+
+        if (isShortcut && event.target.textContent.trim() === "确定") {
+          control.classList.remove("open");
+        }
+      });
+    });
+
+    document.addEventListener("click", () => closeFilterPanels());
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeFilterPanels();
+    });
+  </script>
+</body>
+</html>
+

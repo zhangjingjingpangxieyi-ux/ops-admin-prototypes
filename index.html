@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>运营后台原型管理</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 980px;
+      min-height: 100vh;
+      color: #1f2d3d;
+      background: #eef1f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+      font-size: 13px;
+    }
+
+    .page {
+      width: 1040px;
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+
+    .header {
+      margin-bottom: 18px;
+      padding: 22px 24px;
+      background: #fff;
+      border: 1px solid #e8edf3;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      font-weight: 500;
+    }
+
+    .subtitle {
+      color: #666;
+    }
+
+    .section {
+      margin-bottom: 16px;
+      background: #fff;
+      border: 1px solid #e8edf3;
+    }
+
+    .section-title {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid #eef0f3;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .item {
+      display: grid;
+      grid-template-columns: 1fr 150px 130px;
+      align-items: center;
+      min-height: 52px;
+      padding: 0 20px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .item:last-child {
+      border-bottom: 0;
+    }
+
+    .name {
+      color: #1f2d3d;
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    .name:hover {
+      color: #1890ff;
+    }
+
+    .path,
+    .date {
+      color: #8c8c8c;
+      text-align: right;
+    }
+
+    .tag {
+      display: inline-flex;
+      height: 22px;
+      align-items: center;
+      padding: 0 8px;
+      color: #1890ff;
+      border: 1px solid #91d5ff;
+      background: #e6f7ff;
+      border-radius: 2px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <h1>运营后台原型管理</h1>
+      <div class="subtitle">用于沉淀运营后台功能原型，开发评审时可直接打开对应页面。</div>
+    </header>
+
+    <section class="section">
+      <div class="section-title">回收相关</div>
+      <ul class="list">
+        <li class="item">
+          <a class="name" href="./pages/recycle/role-item-recycle.html">角色物品回收</a>
+          <span class="path">pages/recycle</span>
+          <span class="date"><span class="tag">已更新</span></span>
+        </li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <div class="section-title">问卷相关</div>
+      <ul class="list">
+        <li class="item">
+          <a class="name" href="./pages/survey/survey-questionnaire.html">调查问卷</a>
+          <span class="path">pages/survey</span>
+          <span class="date">原型页</span>
+        </li>
+        <li class="item">
+          <a class="name" href="./pages/survey/survey-stats.html">问卷数据统计</a>
+          <span class="path">pages/survey</span>
+          <span class="date">统计页</span>
+        </li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
