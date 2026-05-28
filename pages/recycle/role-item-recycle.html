@@ -505,13 +505,19 @@
 
     .summary {
       width: 485px;
-      height: 108px;
+      min-height: 108px;
       margin: 39px auto 17px;
-      padding-top: 18px;
+      padding: 18px 20px;
       background: #f5f5f5;
       text-align: center;
       color: #303030;
       line-height: 25px;
+      font-weight: 600;
+    }
+
+    .summary-warning {
+      margin-top: 4px;
+      color: #a15c00;
       font-weight: 600;
     }
 
@@ -669,9 +675,8 @@
         <div>回收区服信息： 先遣-破界之门</div>
         <div>回收角色信息： 沉默的大多数（300803）</div>
         <div>回收模式： <span id="summaryScope">常规回收</span></div>
+        <div class="summary-warning hidden" id="confirmWarning">已使用外观将从角色外观数据中移除，请再次确认。</div>
       </div>
-
-      <div class="risk-tip hidden" id="confirmWarning">本次回收的是已使用外观，提交后将从角色外观数据中移除，请再次确认。</div>
 
       <h2 class="detail-title" id="detailTitle">回收物品详情</h2>
       <table class="detail-table">
