@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>用户反馈</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      overflow: hidden;
+      background: #f3f5f7;
+      color: #111827;
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      font-size: 12px;
+    }
+
+    .page {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      padding: 10px 10px 0;
+      background:
+        repeating-linear-gradient(-28deg, transparent 0 150px, rgba(31, 41, 55, .025) 150px 152px),
+        #f4f6f8;
+    }
+
+    .watermark {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: .52;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='118' viewBox='0 0 260 118'%3E%3Cg transform='rotate(-30 130 59)' fill='%23d9dee6' fill-opacity='.38' font-family='Arial, Microsoft YaHei, sans-serif' font-size='13'%3E%3Ctext x='-8' y='53'%3Ezhangjing 测试 用户反馈%3C/text%3E%3C/g%3E%3C/svg%3E");
+      background-size: 260px 118px;
+    }
+
+    .filters,
+    .table-panel {
+      position: relative;
+      background: rgba(255, 255, 255, .98);
+      border: 1px solid #edf0f4;
+    }
+
+    .filters { z-index: 3; }
+    .table-panel { z-index: 1; }
+
+    .filters {
+      min-height: 123px;
+      padding: 14px 14px 8px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 245px 245px 245px 245px 1fr;
+      column-gap: 16px;
+      row-gap: 12px;
+      align-items: center;
+    }
+
+    .field {
+      position: relative;
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .field.date-field {
+      grid-column: span 2;
+      z-index: 5;
+    }
+
+    .label {
+      flex: 0 0 auto;
+      margin-right: 8px;
+      color: #111827;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .required::before {
+      content: "*";
+      margin-right: 3px;
+      color: #f5222d;
+      font-family: Arial, sans-serif;
+      font-weight: 700;
+    }
+
+    .control {
+      position: relative;
+      height: 28px;
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 0 30px 0 10px;
+      color: #111827;
+      background: #fff;
+      border: 1px solid #dfe3e8;
+      border-radius: 2px;
+      line-height: 28px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .control.placeholder { color: #c7cbd1; }
+
+    .control::after {
+      content: "";
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      width: 7px;
+      height: 7px;
+      border-right: 1px solid #b7bdc6;
+      border-bottom: 1px solid #b7bdc6;
+      transform: translateY(-70%) rotate(45deg);
+    }
+
+    .input::after,
+    .date-range::after { display: none; }
+
+    .small-select {
+      flex: 0 0 92px;
+      margin-right: 8px;
+    }
+
+    .date-range {
+      max-width: 266px;
+      padding-right: 34px;
+      cursor: pointer;
+    }
+
+    .date-range svg {
+      position: absolute;
+      right: 9px;
+      width: 14px;
+      height: 14px;
+      stroke: #8f98a6;
+      stroke-width: 1.7;
+      fill: none;
+    }
+
+    .error-text {
+      position: absolute;
+      left: 76px;
+      top: 31px;
+      color: #f5222d;
+      font-size: 12px;
+      display: none;
+      white-space: nowrap;
+    }
+
+    .field.error .date-range {
+      border-color: #f5222d;
+    }
+
+    .field.error .error-text {
+      display: block;
+    }
+
+    .picker {
+      position: absolute;
+      top: 36px;
+      left: 74px;
+      width: 560px;
+      padding-top: 10px;
+      display: none;
+      color: #1f2937;
+      background: #fff;
+      border: 1px solid #e7ebf0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .13);
+    }
+
+    .picker.open { display: block; }
+
+    .months {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 28px;
+      padding: 0 14px 10px;
+    }
+
+    .month-head {
+      position: relative;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #202733;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .nav {
+      position: absolute;
+      top: 6px;
+      color: #c5cbd3;
+      font-family: SimSun, serif;
+      font-size: 17px;
+      font-weight: 400;
+      letter-spacing: -4px;
+    }
+
+    .nav.left { left: 0; }
+    .nav.right { right: 0; }
+
+    .week,
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+    }
+
+    .week span {
+      height: 32px;
+      color: #111827;
+      font-size: 15px;
+      line-height: 32px;
+    }
+
+    .day {
+      height: 31px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #2d333d;
+      font-size: 14px;
+    }
+
+    .day.muted { color: #cbd1d8; }
+
+    .day.selected span {
+      width: 25px;
+      height: 25px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      background: #27a3f5;
+      border-radius: 1px;
+    }
+
+    .day.in-range {
+      background: #e7f4ff;
+    }
+
+    .preset-bar {
+      min-height: 56px;
+      padding: 8px 12px;
+      border-top: 1px solid #eef1f4;
+    }
+
+    .preset-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .preset {
+      height: 22px;
+      padding: 0 8px;
+      border: 1px solid #8ed0fb;
+      background: #f0faff;
+      color: #1689e8;
+      font-size: 12px;
+      line-height: 20px;
+    }
+
+    .preset.active {
+      background: #e8f5ff;
+      color: #d5344c;
+      font-weight: 600;
+    }
+
+    .picker-note {
+      margin-top: 7px;
+      color: #9ba4b0;
+      line-height: 18px;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      height: 28px;
+      min-width: 56px;
+      padding: 0 14px;
+      border: 1px solid #d9dde3;
+      border-radius: 2px;
+      background: #fff;
+      color: #111827;
+      font-family: inherit;
+      font-size: 12px;
+      cursor: default;
+    }
+
+    .btn.primary {
+      border-color: #1689f9;
+      background: #1689f9;
+      color: #fff;
+    }
+
+    .btn.disabled {
+      min-width: 76px;
+      color: #aeb5bf;
+      background: #f5f6f8;
+      border-color: #dfe3e8;
+    }
+
+    .table-panel {
+      height: calc(100vh - 142px);
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .toolbar {
+      height: 51px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 23px 0 13px;
+      border-bottom: 1px solid #ebeef2;
+    }
+
+    .bulk {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .icon-tools {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: #111827;
+    }
+
+    .icon-btn {
+      width: 12px;
+      height: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke: #111827;
+      stroke-width: 1.8;
+      fill: none;
+    }
+
+    .table-wrap {
+      position: relative;
+      height: calc(100% - 51px);
+      overflow: hidden;
+    }
+
+    table {
+      width: 1230px;
+      border-collapse: collapse;
+      table-layout: fixed;
+      background: rgba(255, 255, 255, .96);
+    }
+
+    thead th {
+      height: 39px;
+      padding: 0 7px;
+      color: #111827;
+      background: #fbfbfc;
+      border-right: 1px solid #ebeef2;
+      border-bottom: 1px solid #ebeef2;
+      font-weight: 600;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    tbody td {
+      height: 116px;
+      padding: 0 7px;
+      border-right: 1px solid #ebeef2;
+      border-bottom: 1px solid #ebeef2;
+      color: #111827;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+    }
+
+    .check-col {
+      width: 57px;
+      text-align: center;
+    }
+
+    .check {
+      width: 14px;
+      height: 14px;
+      display: inline-block;
+      border: 1px solid #d8dde4;
+      border-radius: 2px;
+      background: #fff;
+      vertical-align: middle;
+    }
+
+    .link {
+      color: #1689f9;
+      text-decoration: none;
+      margin-right: 7px;
+      font-weight: 500;
+    }
+
+    .scrollbar {
+      position: absolute;
+      top: 39px;
+      right: 12px;
+      width: 5px;
+      height: 230px;
+      border-radius: 8px;
+      background: #c9c9c9;
+    }
+
+    .feedback-tab {
+      position: fixed;
+      right: -2px;
+      bottom: 163px;
+      z-index: 2;
+      width: 22px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      background: #1c2f4a;
+      border-radius: 8px 0 0 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .22);
+      font-size: 10px;
+      line-height: 12px;
+      writing-mode: vertical-rl;
+      letter-spacing: 0;
+    }
+
+    .col-record { width: 84px; }
+    .col-role-id { width: 126px; }
+    .col-role-name { width: 128px; }
+    .col-vip { width: 84px; }
+    .col-ice { width: 103px; }
+    .col-zone { width: 103px; }
+    .col-channel { width: 85px; }
+    .col-user { width: 86px; }
+    .col-new { width: 103px; }
+    .col-type { width: 83px; }
+    .col-summary { width: 55px; }
+    .col-op { width: 86px; }
+
+    @media (max-width: 1100px) {
+      .filter-grid {
+        grid-template-columns: repeat(3, minmax(210px, 1fr));
+      }
+
+      .field.date-field {
+        grid-column: span 2;
+      }
+
+      .table-panel {
+        height: calc(100vh - 182px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="watermark"></div>
+
+    <section class="filters" aria-label="查询条件">
+      <div class="filter-grid">
+        <div class="field">
+          <span class="label required">平台:</span>
+          <div class="control">海外平台</div>
+        </div>
+
+        <div class="field date-field" id="dateField">
+          <span class="label required">记录时间:</span>
+          <button class="control date-range" id="dateRange" type="button" data-value="2026-05-27,2026-06-02">
+            <span id="dateText">近一周</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="4" y="5" width="16" height="15" rx="1.5"></rect>
+              <path d="M8 3v4M16 3v4M4 10h16"></path>
+            </svg>
+          </button>
+          <span class="error-text" id="dateError">请选择记录时间</span>
+
+          <div class="picker" id="datePicker">
+            <div class="months">
+              <div class="month">
+                <div class="month-head">
+                  <span class="nav left">&lt;&lt;&nbsp;&lt;</span>
+                  2026年&nbsp;6月
+                </div>
+                <div class="week">
+                  <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+                </div>
+                <div class="days" data-month="6">
+                  <div class="day"><span>1</span></div>
+                  <div class="day selected"><span>2</span></div>
+                  <div class="day in-range"><span>3</span></div>
+                  <div class="day in-range"><span>4</span></div>
+                  <div class="day in-range"><span>5</span></div>
+                  <div class="day in-range"><span>6</span></div>
+                  <div class="day in-range"><span>7</span></div>
+                  <div class="day"><span>8</span></div>
+                  <div class="day"><span>9</span></div>
+                  <div class="day"><span>10</span></div>
+                  <div class="day"><span>11</span></div>
+                  <div class="day"><span>12</span></div>
+                  <div class="day"><span>13</span></div>
+                  <div class="day"><span>14</span></div>
+                  <div class="day"><span>15</span></div>
+                  <div class="day"><span>16</span></div>
+                  <div class="day"><span>17</span></div>
+                  <div class="day"><span>18</span></div>
+                  <div class="day"><span>19</span></div>
+                  <div class="day"><span>20</span></div>
+                  <div class="day"><span>21</span></div>
+                  <div class="day"><span>22</span></div>
+                  <div class="day"><span>23</span></div>
+                  <div class="day"><span>24</span></div>
+                  <div class="day"><span>25</span></div>
+                  <div class="day"><span>26</span></div>
+                  <div class="day"><span>27</span></div>
+                  <div class="day"><span>28</span></div>
+                  <div class="day"><span>29</span></div>
+                  <div class="day"><span>30</span></div>
+                  <div class="day muted"><span>1</span></div>
+                  <div class="day muted"><span>2</span></div>
+                  <div class="day muted"><span>3</span></div>
+                  <div class="day muted"><span>4</span></div>
+                  <div class="day muted"><span>5</span></div>
+                  <div class="day muted"><span>6</span></div>
+                  <div class="day muted"><span>7</span></div>
+                  <div class="day muted"><span>8</span></div>
+                  <div class="day muted"><span>9</span></div>
+                  <div class="day muted"><span>10</span></div>
+                  <div class="day muted"><span>11</span></div>
+                  <div class="day muted"><span>12</span></div>
+                </div>
+              </div>
+
+              <div class="month">
+                <div class="month-head">
+                  2026年&nbsp;7月
+                  <span class="nav right">&gt;&nbsp;&gt;&gt;</span>
+                </div>
+                <div class="week">
+                  <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+                </div>
+                <div class="days" data-month="7">
+                  <div class="day muted"><span>29</span></div>
+                  <div class="day muted"><span>30</span></div>
+                  <div class="day"><span>1</span></div>
+                  <div class="day"><span>2</span></div>
+                  <div class="day"><span>3</span></div>
+                  <div class="day"><span>4</span></div>
+                  <div class="day"><span>5</span></div>
+                  <div class="day"><span>6</span></div>
+                  <div class="day"><span>7</span></div>
+                  <div class="day"><span>8</span></div>
+                  <div class="day"><span>9</span></div>
+                  <div class="day"><span>10</span></div>
+                  <div class="day"><span>11</span></div>
+                  <div class="day"><span>12</span></div>
+                  <div class="day"><span>13</span></div>
+                  <div class="day"><span>14</span></div>
+                  <div class="day"><span>15</span></div>
+                  <div class="day"><span>16</span></div>
+                  <div class="day"><span>17</span></div>
+                  <div class="day"><span>18</span></div>
+                  <div class="day"><span>19</span></div>
+                  <div class="day"><span>20</span></div>
+                  <div class="day"><span>21</span></div>
+                  <div class="day"><span>22</span></div>
+                  <div class="day"><span>23</span></div>
+                  <div class="day"><span>24</span></div>
+                  <div class="day"><span>25</span></div>
+                  <div class="day"><span>26</span></div>
+                  <div class="day"><span>27</span></div>
+                  <div class="day"><span>28</span></div>
+                  <div class="day"><span>29</span></div>
+                  <div class="day"><span>30</span></div>
+                  <div class="day"><span>31</span></div>
+                  <div class="day muted"><span>1</span></div>
+                  <div class="day muted"><span>2</span></div>
+                  <div class="day muted"><span>3</span></div>
+                  <div class="day muted"><span>4</span></div>
+                  <div class="day muted"><span>5</span></div>
+                  <div class="day muted"><span>6</span></div>
+                  <div class="day muted"><span>7</span></div>
+                  <div class="day muted"><span>8</span></div>
+                  <div class="day muted"><span>9</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="preset-bar">
+              <div class="preset-row">
+                <button class="preset" type="button" data-range="today">今天</button>
+                <button class="preset" type="button" data-range="yesterday">昨天</button>
+                <button class="preset" type="button" data-range="three">最近三天</button>
+                <button class="preset active" type="button" data-range="week">最近一周</button>
+                <button class="preset" type="button" data-range="half-month">最近半月</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="control small-select">当前区服</div>
+          <div class="control input placeholder">请选择区服</div>
+        </div>
+
+        <div class="field">
+          <div class="control small-select">记录ID</div>
+          <div class="control input placeholder">请输入</div>
+        </div>
+
+        <div class="field">
+          <span class="label">处理状态:</span>
+          <div class="control">所有类型</div>
+        </div>
+
+        <div class="field">
+          <span class="label">用户类型:</span>
+          <div class="control">登录后用户</div>
+        </div>
+
+        <div class="field">
+          <div class="control small-select placeholder">反馈类型</div>
+          <div class="control input placeholder">反馈摘要</div>
+        </div>
+
+        <div class="field">
+          <span class="label">问题描述:</span>
+          <div class="control input placeholder">问题描述</div>
+        </div>
+
+        <div class="field">
+          <span class="label">紧急程度:</span>
+          <div class="control">所有类型</div>
+        </div>
+
+        <div class="field">
+          <span class="label">重要程度:</span>
+          <div class="control">所有类型</div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" id="queryBtn" type="button">查询</button>
+          <button class="btn" type="button">收起</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="table-panel" aria-label="用户反馈列表">
+      <div class="toolbar">
+        <div class="bulk">
+          <button class="btn disabled">批量处理</button>
+          <button class="btn disabled">批量删除</button>
+          <button class="btn disabled">批量设置类型</button>
+        </div>
+        <div class="icon-tools" aria-label="表格工具">
+          <span class="icon-btn" title="下载">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 20h14"/></svg>
+          </span>
+          <span class="icon-btn" title="密度">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h12M8 12h8M6 19h12M12 5v14"/></svg>
+          </span>
+          <span class="icon-btn" title="设置">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Z"/><path d="m19 12 .02-1.2 2-1.55-2-3.46-2.5 1a8.2 8.2 0 0 0-1-.58L15.1 3h-4.2l-.42 3.21a8.2 8.2 0 0 0-1 .58l-2.5-1-2 3.46 2 1.55L7 12l-.02 1.2-2 1.55 2 3.46 2.5-1c.31.22.65.41 1 .58l.42 3.21h4.2l.42-3.21c.35-.17.69-.36 1-.58l2.5 1 2-3.46-2-1.55L19 12Z"/></svg>
+          </span>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="check-col"><span class="check"></span></th>
+              <th class="col-record">记录ID</th>
+              <th class="col-role-id">角色ID</th>
+              <th class="col-role-name">角色名称</th>
+              <th class="col-vip">VIP等级</th>
+              <th class="col-ice">冰川通行证ID</th>
+              <th class="col-zone">创角区服</th>
+              <th class="col-zone">当前区服</th>
+              <th class="col-channel">渠道ID</th>
+              <th class="col-user">用户类型</th>
+              <th class="col-new">是否新用户</th>
+              <th class="col-type">反馈类型</th>
+              <th class="col-summary">反馈摘要</th>
+              <th class="col-op">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="check-col"><span class="check"></span></td>
+              <td>2165327</td>
+              <td>56696518</td>
+              <td>Traveler56223935</td>
+              <td>3</td>
+              <td>56223935</td>
+              <td>S496(10496)</td>
+              <td>S496(10496)</td>
+              <td>21621007</td>
+              <td>登录后用户</td>
+              <td>否</td>
+              <td>AI客服</td>
+              <td>auto se</td>
+              <td><a class="link" href="#">处理</a><a class="link" href="#">详情</a></td>
+            </tr>
+            <tr>
+              <td class="check-col"><span class="check"></span></td>
+              <td>2165323</td>
+              <td>44385380</td>
+              <td>...Ya...</td>
+              <td>12</td>
+              <td>21009433</td>
+              <td>S398(10398)</td>
+              <td>S398(10398)</td>
+              <td>21621006</td>
+              <td>登录后用户</td>
+              <td>否</td>
+              <td>AI客服</td>
+              <td>auto se</td>
+              <td><a class="link" href="#">处理</a><a class="link" href="#">详情</a></td>
+            </tr>
+            <tr>
+              <td class="check-col"><span class="check"></span></td>
+              <td>2165320</td>
+              <td>57526463</td>
+              <td>Traveler56989758</td>
+              <td>1</td>
+              <td>1250230901</td>
+              <td>S503(10503)</td>
+              <td>S503(10503)</td>
+              <td>21621007</td>
+              <td>登录后用户</td>
+              <td>否</td>
+              <td>错误报告</td>
+              <td>can not</td>
+              <td><a class="link" href="#">处理</a><a class="link" href="#">详情</a></td>
+            </tr>
+            <tr>
+              <td class="check-col"><span class="check"></span></td>
+              <td>2165318</td>
+              <td>57524432</td>
+              <td>Traveler56987904</td>
+              <td>1</td>
+              <td>56987904</td>
+              <td>S499(10499)</td>
+              <td>S499(10499)</td>
+              <td>21621007</td>
+              <td>登录后用户</td>
+              <td>否</td>
+              <td>AI客服</td>
+              <td>auto se</td>
+              <td><a class="link" href="#">处理</a><a class="link" href="#">详情</a></td>
+            </tr>
+            <tr>
+              <td class="check-col"><span class="check"></span></td>
+              <td>2165317</td>
+              <td>57524110</td>
+              <td>Traveler56987420</td>
+              <td>1</td>
+              <td>56987420</td>
+              <td>S499(10499)</td>
+              <td>S499(10499)</td>
+              <td>21621007</td>
+              <td>登录后用户</td>
+              <td>否</td>
+              <td>AI客服</td>
+              <td>auto se</td>
+              <td><a class="link" href="#">处理</a><a class="link" href="#">详情</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="scrollbar" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <div class="feedback-tab">意见反馈</div>
+  </main>
+
+  <script>
+    const dateField = document.getElementById("dateField");
+    const dateRange = document.getElementById("dateRange");
+    const dateText = document.getElementById("dateText");
+    const datePicker = document.getElementById("datePicker");
+    const queryBtn = document.getElementById("queryBtn");
+    const presets = document.querySelectorAll(".preset");
+    const days = document.querySelectorAll(".day:not(.muted)");
+    let pendingStart = null;
+
+    const ranges = {
+      today: ["今天", "2026-06-02,2026-06-02"],
+      yesterday: ["昨天", "2026-06-01,2026-06-01"],
+      three: ["最近三天", "2026-05-31,2026-06-02"],
+      week: ["近一周", "2026-05-27,2026-06-02"],
+      "half-month": ["最近半月", "2026-05-20,2026-06-02"]
+    };
+
+    function setRange(label, value) {
+      dateText.textContent = label;
+      dateRange.dataset.value = value;
+      dateField.classList.remove("error");
+    }
+
+    function daysBetween(value) {
+      const parts = value.split(",");
+      const start = new Date(parts[0]);
+      const end = new Date(parts[1]);
+      return Math.round((end - start) / 86400000) + 1;
+    }
+
+    function formatDisplay(date) {
+      return date.replaceAll("-", "/");
+    }
+
+    function syncDayDates() {
+      document.querySelectorAll(".days").forEach(function (grid) {
+        const month = grid.dataset.month.padStart(2, "0");
+        grid.querySelectorAll(".day:not(.muted)").forEach(function (day) {
+          const date = String(day.textContent.trim()).padStart(2, "0");
+          day.dataset.date = "2026-" + month + "-" + date;
+        });
+      });
+    }
+
+    function clearDayState() {
+      days.forEach(function (item) {
+        item.classList.remove("selected");
+        item.classList.remove("in-range");
+      });
+    }
+
+    function paintRange(start, end) {
+      const startTime = new Date(start).getTime();
+      const endTime = new Date(end).getTime();
+      clearDayState();
+      days.forEach(function (day) {
+        const dayTime = new Date(day.dataset.date).getTime();
+        if (dayTime === startTime || dayTime === endTime) {
+          day.classList.add("selected");
+        } else if (dayTime > startTime && dayTime < endTime) {
+          day.classList.add("in-range");
+        }
+      });
+    }
+
+    dateRange.addEventListener("click", function () {
+      datePicker.classList.toggle("open");
+    });
+
+    presets.forEach(function (preset) {
+      preset.addEventListener("click", function () {
+        const range = ranges[preset.dataset.range];
+        pendingStart = null;
+        presets.forEach(function (item) { item.classList.remove("active"); });
+        preset.classList.add("active");
+        setRange(range[0], range[1]);
+      });
+    });
+
+    days.forEach(function (day) {
+      day.addEventListener("click", function () {
+        presets.forEach(function (item) { item.classList.remove("active"); });
+        const clickedDate = day.dataset.date;
+
+        if (!pendingStart) {
+          pendingStart = clickedDate;
+          clearDayState();
+          day.classList.add("selected");
+          setRange(formatDisplay(clickedDate) + " 至 " + formatDisplay(clickedDate), clickedDate + "," + clickedDate);
+          return;
+        }
+
+        let start = pendingStart;
+        let end = clickedDate;
+        if (new Date(start) > new Date(end)) {
+          start = clickedDate;
+          end = pendingStart;
+        }
+
+        const value = start + "," + end;
+        if (daysBetween(value) > 14) {
+          dateField.classList.add("error");
+          document.getElementById("dateError").textContent = "最多选择连续14天";
+          pendingStart = null;
+          clearDayState();
+          return;
+        }
+
+        paintRange(start, end);
+        setRange(formatDisplay(start) + " 至 " + formatDisplay(end), value);
+        pendingStart = null;
+      });
+    });
+
+    document.addEventListener("click", function (event) {
+      if (!dateField.contains(event.target)) {
+        datePicker.classList.remove("open");
+      }
+    });
+
+    queryBtn.addEventListener("click", function () {
+      if (!dateRange.dataset.value) {
+        dateField.classList.add("error");
+        return;
+      }
+
+      if (daysBetween(dateRange.dataset.value) > 14) {
+        dateField.classList.add("error");
+        document.getElementById("dateError").textContent = "最多选择连续14天";
+        return;
+      }
+
+      dateField.classList.remove("error");
+      document.getElementById("dateError").textContent = "请选择记录时间";
+    });
+
+    syncDayDates();
+  </script>
+</body>
+</html>
