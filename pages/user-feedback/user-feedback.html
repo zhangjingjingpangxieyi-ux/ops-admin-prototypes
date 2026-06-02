@@ -52,14 +52,14 @@
     .table-panel { z-index: 1; }
 
     .filters {
-      min-height: 123px;
-      padding: 14px 14px 8px;
+      min-height: 112px;
+      padding: 14px 14px 10px;
     }
 
     .filter-grid {
       display: grid;
-      grid-template-columns: 245px 245px 245px 245px 1fr;
-      column-gap: 16px;
+      grid-template-columns: 1fr 1.28fr 1fr 1fr 1fr;
+      column-gap: 14px;
       row-gap: 12px;
       align-items: center;
     }
@@ -72,7 +72,7 @@
     }
 
     .field.date-field {
-      grid-column: span 2;
+      grid-column: span 1;
       z-index: 5;
     }
 
@@ -110,6 +110,10 @@
       text-overflow: ellipsis;
     }
 
+    .field .control:first-child:not(:only-child) {
+      flex: 0 0 84px;
+    }
+
     .control.placeholder { color: #c7cbd1; }
 
     .control::after {
@@ -128,12 +132,13 @@
     .date-range::after { display: none; }
 
     .small-select {
-      flex: 0 0 92px;
+      flex: 0 0 84px;
       margin-right: 8px;
     }
 
     .date-range {
-      max-width: 266px;
+      width: 100%;
+      max-width: none;
       padding-right: 34px;
       cursor: pointer;
     }
@@ -319,7 +324,7 @@
     }
 
     .table-panel {
-      height: calc(100vh - 142px);
+      height: calc(100vh - 132px);
       margin-top: 10px;
       overflow: hidden;
     }
@@ -369,7 +374,7 @@
     }
 
     table {
-      width: 1230px;
+      width: 100%;
       border-collapse: collapse;
       table-layout: fixed;
       background: rgba(255, 255, 255, .96);
@@ -377,7 +382,7 @@
 
     thead th {
       height: 39px;
-      padding: 0 7px;
+      padding: 0 8px;
       color: #111827;
       background: #fbfbfc;
       border-right: 1px solid #ebeef2;
@@ -388,8 +393,8 @@
     }
 
     tbody td {
-      height: 116px;
-      padding: 0 7px;
+      height: 106px;
+      padding: 0 8px;
       border-right: 1px solid #ebeef2;
       border-bottom: 1px solid #ebeef2;
       color: #111827;
@@ -424,7 +429,7 @@
     .scrollbar {
       position: absolute;
       top: 39px;
-      right: 12px;
+      right: 7px;
       width: 5px;
       height: 230px;
       border-radius: 8px;
@@ -451,26 +456,26 @@
       letter-spacing: 0;
     }
 
-    .col-record { width: 84px; }
-    .col-role-id { width: 126px; }
-    .col-role-name { width: 128px; }
-    .col-vip { width: 84px; }
-    .col-ice { width: 103px; }
-    .col-zone { width: 103px; }
-    .col-channel { width: 85px; }
-    .col-user { width: 86px; }
-    .col-new { width: 103px; }
-    .col-type { width: 83px; }
-    .col-summary { width: 55px; }
-    .col-op { width: 86px; }
+    .col-record { width: 6.8%; }
+    .col-role-id { width: 9.8%; }
+    .col-role-name { width: 11.4%; }
+    .col-vip { width: 6.6%; }
+    .col-ice { width: 8.8%; }
+    .col-zone { width: 8.4%; }
+    .col-channel { width: 7.3%; }
+    .col-user { width: 7.1%; }
+    .col-new { width: 8.3%; }
+    .col-type { width: 6.9%; }
+    .col-summary { width: 5.8%; }
+    .col-op { width: 6.8%; }
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1180px) {
       .filter-grid {
-        grid-template-columns: repeat(3, minmax(210px, 1fr));
+        grid-template-columns: repeat(3, minmax(220px, 1fr));
       }
 
       .field.date-field {
-        grid-column: span 2;
+        grid-column: span 1;
       }
 
       .table-panel {
