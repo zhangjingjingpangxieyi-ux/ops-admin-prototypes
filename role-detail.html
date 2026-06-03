@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>角色详情</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-width:1280px;font:14px/1.5 "PingFang SC","Microsoft YaHei",Arial,sans-serif;color:#202733;background:#f4f6f8}
+    button{font:inherit}
+    .page{min-height:100vh;background:#f4f6f8}
+    .summary{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:18px 24px;border-bottom:1px solid #edf0f5;background:#fff}
+    .identity{min-width:0}
+    .name-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .role-name{font-size:18px;font-weight:600;color:#202733;line-height:1.3}
+    .status{display:inline-flex;min-height:22px;align-items:center;border-radius:3px;padding:2px 8px;font-size:12px;background:#eaf7ee;color:#1f8f43}
+    .status.offline{background:#f2f4f7;color:#667085}
+    .meta-grid{display:flex;flex-wrap:wrap;gap:8px 22px;color:#596273}
+    .meta-item{white-space:nowrap}
+    .meta-label{color:#8a94a6}
+    .actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;min-width:360px}
+    .btn{height:32px;border:1px solid #d9dde6;border-radius:3px;padding:0 14px;color:#202733;cursor:pointer;background:#fff}
+    .btn:hover{border-color:#1677ff;color:#1677ff}
+    .btn.primary{border-color:#1677ff;color:#fff;background:#1677ff}
+    .btn.primary:hover{background:#4096ff}
+    .btn.danger{border-color:#ff4d4f;color:#fff;background:#ff4d4f}
+    .btn.danger:hover{border-color:#ff7875;color:#fff;background:#ff7875}
+    .tabs{display:flex;align-items:center;gap:2px;overflow-x:auto;padding:0 24px;border-bottom:1px solid #edf0f5;background:#fff}
+    .tab{height:44px;border:0;border-bottom:2px solid transparent;padding:0 14px;color:#596273;white-space:nowrap;cursor:pointer;background:transparent}
+    .tab:hover{color:#1677ff}
+    .tab.active{color:#1677ff;border-bottom-color:#1677ff;font-weight:500}
+    .content{padding:16px 24px}
+    .panel{border:1px solid #edf0f5;background:#fff}
+    .panel-head{display:flex;align-items:center;justify-content:space-between;min-height:44px;padding:0 16px;border-bottom:1px solid #edf0f5;background:#fbfcfe}
+    .panel-title{font-weight:500;color:#202733}
+    .table-wrap{overflow:auto}
+    table{width:100%;border-collapse:collapse;background:#fff}
+    th,td{border:1px solid #edf0f5;padding:12px 16px;text-align:left;white-space:nowrap}
+    th{color:#202733;font-weight:500;background:#f7f9fc}
+    td{color:#596273;background:#fff}
+    .detail-table{min-width:1120px}
+    .detail-table th{width:9%;color:#202733;background:#fafafa}
+    .detail-table td{width:16%;color:#202733}
+    .link-text{color:#1677ff}.status-online{color:#24a148}.status-offline{color:#8a94a6}
+    .empty-state{display:flex;min-height:280px;align-items:center;justify-content:center;color:#98a2b3;background:#fff}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="summary">
+      <div class="identity" id="summary"></div>
+      <div class="actions">
+        <button class="btn primary" onclick="showTip('数据导出')">数据导出</button>
+        <button class="btn primary" onclick="showTip('改名日志')">改名日志</button>
+        <button class="btn primary" onclick="showTip('改名限制')">改名限制</button>
+        <button class="btn danger" onclick="showTip('物品回收')">物品回收</button>
+      </div>
+    </section>
+    <nav class="tabs" id="tabs"></nav>
+    <main class="content" id="content"></main>
+  </div>
+  <script>
+    const columns = [
+      "区服ID","区服名称","角色ID","角色名称","游戏账号ID","冰川通行证ID",
+      "渠道ID","联盟ID","联盟名称","是否内部号","角色等级","角色创建时间",
+      "在线状态","累计充值金额（元）","实际充值金额（元）","最后登录时间","最后离线时间"
+    ];
+
+    const rows = [
+      ["10001","S1","57602993","Traveler57029158795","57029158","1250952861","452154","-","-","否","4","2024-01-15 14:30:22","离线","5999.00","4899.50","2026-06-02 18:45:30","2025-01-16 17:25:43"],
+      ["10001","S1","57597525","Traveler54838086294","54838086","1213100691","564565","29","Atlantis","否","1","2024-02-10 09:15:45","离线","12999.00","10999.00","2026-06-03 10:22:15","2026-06-03 11:30:00"],
+      ["10001","S1","57579878","Traveler52364155899","52364155","984705302","45435","-","-","否","3","2024-03-05 16:50:33","在线","1999.00","1599.99","2026-06-01 15:30:45","2026-06-01 17:45:20"],
+      ["10001","S1","57556258","Traveler54633648958","54633648","1209230971","5435435","29","Atlantis","否","4","2024-04-20 12:20:10","离线","8999.00","7899.50","2026-06-03 11:05:30","2026-06-03 12:15:00"],
+      ["10001","S1","57547144","Traveler9076456","9076456","515346003","453443","-","-","否","1","2024-05-08 08:35:55","在线","3499.00","2999.99","2026-06-02 22:10:15","2026-06-02 23:50:40"],
+      ["10001","S1","57527873","Traveler53738043","53738043","988753742","435434","-","-","否","1","2024-06-12 14:45:20","离线","2999.00","2499.99","2026-05-30 10:20:30","2026-05-30 12:00:00"],
+      ["10001","S1","57523568","Traveler56985843008","56985843","1250144191","453534","-","-","否","4","2024-07-05 11:15:45","在线","4999.00","4199.99","2026-06-03 09:30:15","-"],
+      ["10001","S1","57482863","Traveler56490459641","56490459","1241197611","454353","-","-","否","4","2024-08-18 09:20:10","离线","6999.00","5999.99","2026-06-02 16:45:30","2026-06-02 18:30:00"],
+      ["10001","S1","57470155","谷歌谷","55753490","1230828561","543543","-","-","否","2","2024-09-22 13:50:25","在线","1599.00","1299.99","2026-06-03 14:15:20","-"],
+      ["10001","S1","57467530","SS724","37862583","613212803","545343","52","Freedom#","否","1","2024-10-10 10:30:40","离线","9999.00","8999.99","2026-06-01 20:15:45","2026-06-01 22:00:00"],
+      ["10002","S2","58602001","DragonSlayer","57129200","1250952864","渠道A","-","-","否","3","2024-11-05 11:45:30","在线","8999.00","7899.50","2026-06-03 13:22:45","-"]
+    ];
+
+    const tabNames = ["总览","背包-物品","背包-装备","皮肤","建筑","英雄","关卡","邮件","联盟","神兽-属性","神兽-印记","幸存者"];
+
+    const roleId = new URLSearchParams(location.search).get("roleId");
+    const role = rows.find(item => item[2] === roleId) || rows[0];
+    let activeTab = "总览";
+
+    function renderSummary() {
+      const statusClass = role[12] === "在线" ? "status" : "status offline";
+      const statusText = role[12] === "离线" && role[16] !== "-" ? `离线（离线时间:${role[16]}）` : role[12];
+      document.getElementById("summary").innerHTML = `
+        <div class="name-row">
+          <div class="role-name">${role[3]}</div>
+          <span class="${statusClass}">${statusText}</span>
+        </div>
+        <div class="meta-grid">
+          <span class="meta-item"><span class="meta-label">角色ID：</span>${role[2]}</span>
+          <span class="meta-item"><span class="meta-label">区服：</span>${role[1]}（${role[0]}）</span>
+          <span class="meta-item"><span class="meta-label">游戏账号ID：</span>${role[4]}</span>
+          <span class="meta-item"><span class="meta-label">冰川通行证ID：</span>${role[5]}</span>
+          <span class="meta-item"><span class="meta-label">渠道ID：</span>${role[6]}</span>
+        </div>`;
+    }
+
+    function renderTabs() {
+      document.getElementById("tabs").innerHTML = tabNames.map(name => `
+        <button class="tab ${name === activeTab ? "active" : ""}" onclick="switchTab('${name}')">${name}</button>
+      `).join("");
+    }
+
+    function renderOverview() {
+      const fields = columns.map((name, index) => ({ name, value: role[index] || "-" }));
+      const rowsHtml = [];
+
+      for (let i = 0; i < fields.length; i += 4) {
+        const group = fields.slice(i, i + 4);
+        while (group.length < 4) group.push({ name: "", value: "" });
+
+        rowsHtml.push(`<tr>${group.map(field => {
+          if (!field.name) return `<th></th><td></td>`;
+          let value = field.value;
+          const fieldIndex = columns.indexOf(field.name);
+          if (fieldIndex === 8 && value !== "-") value = `<span class="link-text">${value}</span>`;
+          if (fieldIndex === 12) {
+            const status = value === "在线" ? "status-online" : "status-offline";
+            value = `<span class="${status}">${value}</span>`;
+          }
+          return `<th>${field.name}</th><td>${value}</td>`;
+        }).join("")}</tr>`);
+      }
+
+      document.getElementById("content").innerHTML = `
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">总览信息</div>
+          </div>
+          <div class="table-wrap">
+            <table class="detail-table">
+              <tbody>${rowsHtml.join("")}</tbody>
+            </table>
+          </div>
+        </section>`;
+    }
+
+    function renderEmptyTab() {
+      document.getElementById("content").innerHTML = `
+        <section class="panel">
+          <div class="panel-head"><div class="panel-title">${activeTab}</div></div>
+          <div class="empty-state">暂无数据</div>
+        </section>`;
+    }
+
+    function switchTab(name) {
+      activeTab = name;
+      renderTabs();
+      if (name === "总览") renderOverview();
+      else renderEmptyTab();
+    }
+
+    function showTip(action) {
+      alert(`${action}: 角色 ${role[2]}`);
+    }
+
+    renderSummary();
+    renderTabs();
+    renderOverview();
+  </script>
+</body>
+</html>

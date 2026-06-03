@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>区服角色查询</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-width:1280px;font:14px/1.5 "PingFang SC","Microsoft YaHei",Arial,sans-serif;color:#202733;background:#f4f6f8}
+    button,input,select{font:inherit}
+    .container{display:flex;min-height:100vh;flex-direction:column;background:#fff}
+    .search-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 20px;border-bottom:1px solid #edf0f5;background:#fff}
+    .search-item{display:flex;align-items:center;gap:8px}.search-label{white-space:nowrap;font-weight:500}.required{margin-right:4px;color:#f04142}
+    .search-select,.search-input,.date-input{height:32px;border:1px solid #d9dde6;border-radius:3px;padding:5px 11px;color:#202733;background:#fff;outline:0}
+    .search-select:focus,.search-input:focus,.date-input:focus{border-color:#1677ff;box-shadow:0 0 0 2px rgba(22,119,255,.12)}
+    .search-select{min-width:120px;padding-right:28px;cursor:pointer;appearance:none;background:#fff url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a94a6' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 9px center}
+    .search-input{width:170px}.search-input::placeholder{color:#a8b0bf}.date-label{color:#596273;font-size:13px;white-space:nowrap}.date-range{display:flex;align-items:center;gap:8px}.date-input{width:130px;cursor:pointer}.date-arrow{color:#98a2b3}
+    .btn-query{height:32px;border:0;border-radius:3px;padding:0 24px;color:#fff;font-weight:500;cursor:pointer;background:#1677ff}.btn-query:hover{background:#4096ff}
+    .table-toolbar{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:10px 20px;border-bottom:1px solid #edf0f5;background:#fbfcfe}.record-count{color:#596273}.toolbar-right{display:flex;gap:10px}
+    .toolbar-icon{display:inline-flex;width:28px;height:28px;align-items:center;justify-content:center;border:1px solid transparent;border-radius:3px;color:#596273;cursor:pointer;background:transparent}.toolbar-icon:hover{border-color:#d9dde6;color:#1677ff;background:#fff}
+    .table-container{flex:1;overflow:auto}table{width:100%;min-width:1880px;border-collapse:collapse;background:#fff}th,td{border-bottom:1px solid #edf0f5;padding:12px 16px;text-align:left;white-space:nowrap}
+    th{position:sticky;top:0;z-index:3;color:#202733;font-weight:500;background:#f7f9fc}th:last-child,td:last-child{position:sticky;right:0;min-width:190px;border-left:1px solid #edf0f5}th:last-child{z-index:4;background:#f7f9fc}
+    td{color:#596273;background:#fff}tr:hover td{background:#f8fbff}.link-text{color:#1677ff}.status-online{color:#24a148}.status-offline{color:#8a94a6}
+    .action-buttons{display:flex;gap:14px}.action-btn{border:0;padding:0;color:#1677ff;cursor:pointer;background:transparent}.action-btn:hover{color:#0958d9;text-decoration:underline}
+    .empty-state{display:flex;min-height:300px;flex-direction:column;align-items:center;justify-content:center;color:#98a2b3}.empty-icon{display:flex;width:80px;height:80px;align-items:center;justify-content:center;margin-bottom:14px;border:1px solid #edf0f5;border-radius:6px;color:#b7bfcc;font-size:34px;background:#f7f9fc}
+    .pagination{display:flex;min-height:54px;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-top:1px solid #edf0f5;background:#fbfcfe}.pagination-info{margin-right:12px;color:#596273}
+    .page-btn,.page-number{min-width:32px;height:30px;border:1px solid #d9dde6;border-radius:3px;padding:0 10px;color:#596273;cursor:pointer;background:#fff}.page-number.active{border-color:#1677ff;color:#fff;background:#1677ff}.page-btn:disabled{color:#b7bfcc;cursor:not-allowed;background:#f2f4f7}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="search-bar" id="searchBar"></div>
+    <div class="table-toolbar" id="toolbar"></div>
+    <div class="table-container" id="tableWrap"></div>
+    <div class="pagination" id="pager"></div>
+  </div>
+  <script>
+    const columns = [
+      "区服ID","区服名称","角色ID","角色名称","游戏账号ID","冰川通行证ID",
+      "渠道ID","联盟ID","联盟名称","是否内部号","角色等级","角色创建时间",
+      "在线状态","累计充值金额（元）","实际充值金额（元）","最后登录时间","最后离线时间","操作"
+    ];
+
+    const rows = [
+      ["10001","S1","57602993","Traveler57029158795","57029158","1250952861","452154","-","-","否","4","2024-01-15 14:30:22","在线","5999.00","4899.50","2026-06-02 18:45:30","2026-06-02 20:15:10"],
+      ["10001","S1","57597525","Traveler54838086294","54838086","1213100691","564565","29","Atlantis","否","1","2024-02-10 09:15:45","离线","12999.00","10999.00","2026-06-03 10:22:15","2026-06-03 11:30:00"],
+      ["10001","S1","57579878","Traveler52364155899","52364155","984705302","45435","-","-","否","3","2024-03-05 16:50:33","在线","1999.00","1599.99","2026-06-01 15:30:45","2026-06-01 17:45:20"],
+      ["10001","S1","57556258","Traveler54633648958","54633648","1209230971","5435435","29","Atlantis","否","4","2024-04-20 12:20:10","离线","8999.00","7899.50","2026-06-03 11:05:30","2026-06-03 12:15:00"],
+      ["10001","S1","57547144","Traveler9076456","9076456","515346003","453443","-","-","否","1","2024-05-08 08:35:55","在线","3499.00","2999.99","2026-06-02 22:10:15","2026-06-02 23:50:40"],
+      ["10001","S1","57527873","Traveler53738043","53738043","988753742","435434","-","-","否","1","2024-06-12 14:45:20","离线","2999.00","2499.99","2026-05-30 10:20:30","2026-05-30 12:00:00"],
+      ["10001","S1","57523568","Traveler56985843008","56985843","1250144191","453534","-","-","否","4","2024-07-05 11:15:45","在线","4999.00","4199.99","2026-06-03 09:30:15","-"],
+      ["10001","S1","57482863","Traveler56490459641","56490459","1241197611","454353","-","-","否","4","2024-08-18 09:20:10","离线","6999.00","5999.99","2026-06-02 16:45:30","2026-06-02 18:30:00"],
+      ["10001","S1","57470155","谷歌谷","55753490","1230828561","543543","-","-","否","2","2024-09-22 13:50:25","在线","1599.00","1299.99","2026-06-03 14:15:20","-"],
+      ["10001","S1","57467530","SS724","37862583","613212803","545343","52","Freedom#","否","1","2024-10-10 10:30:40","离线","9999.00","8999.99","2026-06-01 20:15:45","2026-06-01 22:00:00"],
+      ["10001","S1","57462018","Traveler55120673","55120673","1192067312","451209","-","-","否","2","2024-10-18 15:21:06","在线","2599.00","2199.00","2026-06-03 08:42:16","-"],
+      ["10001","S1","57458902","Traveler56390821","56390821","1197630821","452780","31","Aurora","否","3","2024-10-26 19:36:48","离线","5399.00","4999.00","2026-06-02 21:11:05","2026-06-02 22:08:17"],
+      ["10001","S1","57451036","Traveler52918470","52918470","1182918470","463512","-","-","否","1","2024-11-03 10:05:33","在线","799.00","699.00","2026-06-03 12:23:44","-"],
+      ["10001","S1","57448891","Traveler54270618","54270618","1184270618","467845","31","Aurora","否","4","2024-11-11 07:48:19","离线","11999.00","9999.00","2026-06-01 18:30:12","2026-06-01 19:45:00"],
+      ["10001","S1","57443027","Traveler51739045","51739045","1171739045","471356","-","-","否","2","2024-11-19 22:17:54","在线","3299.00","2899.00","2026-06-03 16:05:22","-"],
+      ["10001","S1","57439864","Traveler50561290","50561290","1160561290","478901","44","Starlight","否","3","2024-11-27 13:41:08","离线","6299.00","5299.00","2026-06-02 13:33:28","2026-06-02 15:02:49"],
+      ["10001","S1","57436082","Traveler59083711","59083711","1159083711","482670","-","-","否","1","2024-12-05 09:12:37","在线","1299.00","999.00","2026-06-03 07:50:11","-"],
+      ["10001","S1","57431875","Traveler53862044","53862044","1153862044","489224","44","Starlight","否","4","2024-12-13 18:56:02","离线","7599.00","6799.00","2026-06-01 23:18:35","2026-06-02 00:10:24"],
+      ["10001","S1","57428039","Traveler57492018","57492018","1147492018","493618","-","-","否","2","2024-12-21 11:28:16","在线","4599.00","3999.00","2026-06-03 15:31:09","-"],
+      ["10001","S1","57424611","Traveler56631472","56631472","1146631472","497530","57","Northwind","否","3","2024-12-29 20:44:51","离线","8899.00","7699.00","2026-06-02 17:09:40","2026-06-02 18:22:13"],
+      ["10002","S2","58602001","DragonSlayer","57129200","1250952864","渠道A","-","-","否","3","2024-11-05 11:45:30","在线","8999.00","7899.50","2026-06-03 13:22:45","-"]
+    ];
+
+    const searchBar = document.getElementById("searchBar");
+    searchBar.innerHTML = `
+      <div class="search-item">
+        <span class="search-label"><span class="required">*</span>区服选择:</span>
+        <select class="search-select" id="serverSelect" style="width:140px">
+          <option value="10001">S1(10001)</option>
+          <option value="10002">S2(10002)</option>
+          <option value="10003">S3(10003)</option>
+        </select>
+      </div>
+      <div class="search-item">
+        <select class="search-select" id="queryTypeSelect" style="width:130px">
+          <option value="2">角色ID</option>
+          <option value="3">角色名称</option>
+          <option value="5">通行证ID</option>
+          <option value="4">游戏账号ID</option>
+        </select>
+      </div>
+      <div class="search-item"><input class="search-input" id="queryInput" placeholder="请输入"></div>
+      <div class="search-item">
+        <span class="date-label">创角开始时间</span>
+        <div class="date-range"><input type="date" class="date-input"><span class="date-arrow">至</span><input type="date" class="date-input"></div>
+      </div>
+      <button class="btn-query" id="queryBtn">查询</button>`;
+
+    document.getElementById("toolbar").innerHTML = `
+      <div class="record-count" id="recordCount"></div>
+      <div class="toolbar-right">
+        <button class="toolbar-icon" title="下载">↓</button>
+        <button class="toolbar-icon" title="打印">⎙</button>
+        <button class="toolbar-icon" title="设置">⚙</button>
+      </div>`;
+
+    document.getElementById("tableWrap").innerHTML = `
+      <table>
+        <thead><tr>${columns.map(name => `<th>${name}</th>`).join("")}</tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>`;
+
+    document.getElementById("pager").innerHTML = `
+      <div class="pagination-info" id="paginationInfo"></div>
+      <button class="page-btn" disabled>上一页</button>
+      <button class="page-number active">1</button>
+      <button class="page-btn" disabled>下一页</button>`;
+
+    function emptyState(text) {
+      document.getElementById("tableBody").innerHTML = `
+        <tr>
+          <td colspan="18">
+            <div class="empty-state"><div class="empty-icon">--</div><div>${text}</div></div>
+          </td>
+        </tr>`;
+      document.getElementById("recordCount").textContent = "";
+      document.getElementById("paginationInfo").textContent = "";
+    }
+
+    function renderTable(data) {
+      if (!data.length) {
+        emptyState("未找到相关数据");
+        document.getElementById("recordCount").textContent = "";
+        return;
+      }
+
+      document.getElementById("tableBody").innerHTML = data.map(item => {
+        const statusClass = item[12] === "在线" ? "status-online" : "status-offline";
+        const alliance = item[8] === "-" ? "-" : `<span class="link-text">${item[8]}</span>`;
+        return `
+          <tr>
+            ${item.slice(0, 8).map(value => `<td>${value}</td>`).join("")}
+            <td>${alliance}</td>
+            ${item.slice(9, 12).map(value => `<td>${value}</td>`).join("")}
+            <td><span class="${statusClass}">${item[12]}</span></td>
+            <td>${item[13]}</td>
+            <td>${item[14]}</td>
+            <td>${item[15]}</td>
+            <td>${item[16]}</td>
+            <td><div class="action-buttons">
+              <button class="action-btn" onclick="goDetail('${item[2]}')">详情</button>
+              <button class="action-btn" onclick="showTip('数据导出','${item[2]}')">数据导出</button>
+              <button class="action-btn" onclick="showTip('物品回收','${item[2]}')">物品回收</button>
+            </div></td>
+          </tr>`;
+      }).join("");
+      document.getElementById("recordCount").textContent = "";
+      document.getElementById("paginationInfo").textContent = `共 ${data.length} 条`;
+    }
+
+    function handleQuery() {
+      const serverId = document.getElementById("serverSelect").value;
+      const fieldIndex = Number(document.getElementById("queryTypeSelect").value);
+      const keyword = document.getElementById("queryInput").value.trim();
+      const result = rows.filter(item => item[0] === serverId && (!keyword || item[fieldIndex].includes(keyword)));
+      renderTable(result);
+    }
+
+    function showTip(action, roleId) {
+      alert(`${action}: 角色 ${roleId}`);
+    }
+
+    function goDetail(roleId) {
+      window.location.href = `role-detail.html?roleId=${encodeURIComponent(roleId)}`;
+    }
+
+    document.getElementById("queryBtn").addEventListener("click", handleQuery);
+    document.getElementById("queryInput").addEventListener("keydown", event => {
+      if (event.key === "Enter") handleQuery();
+    });
+    emptyState("请先点击“查询”按钮加载数据");
+  </script>
+</body>
+</html>
