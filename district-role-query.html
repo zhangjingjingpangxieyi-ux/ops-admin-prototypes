@@ -7,8 +7,11 @@
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{min-width:1280px;font:14px/1.5 "PingFang SC","Microsoft YaHei",Arial,sans-serif;color:#202733;background:#f4f6f8}
+    body.mobile-mode{min-width:0}
     button,input,select{font:inherit}
     .container{display:flex;min-height:100vh;flex-direction:column;background:#fff}
+    .mode-switch{position:sticky;top:0;z-index:20;display:flex;justify-content:flex-end;gap:8px;padding:8px 20px;border-bottom:1px solid #edf0f5;background:#fff}
+    .mode-btn{height:28px;border:1px solid #d9dde6;border-radius:3px;padding:0 12px;color:#596273;cursor:pointer;background:#fff}.mode-btn.active{border-color:#1677ff;color:#fff;background:#1677ff}
     .search-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 20px;border-bottom:1px solid #edf0f5;background:#fff}
     .search-item{display:flex;align-items:center;gap:8px}.search-label{white-space:nowrap;font-weight:500}.required{margin-right:4px;color:#f04142}
     .search-select,.search-input,.date-input{height:32px;border:1px solid #d9dde6;border-radius:3px;padding:5px 11px;color:#202733;background:#fff;outline:0}
@@ -25,10 +28,34 @@
     .empty-state{display:flex;min-height:300px;flex-direction:column;align-items:center;justify-content:center;color:#98a2b3}.empty-icon{display:flex;width:80px;height:80px;align-items:center;justify-content:center;margin-bottom:14px;border:1px solid #edf0f5;border-radius:6px;color:#b7bfcc;font-size:34px;background:#f7f9fc}
     .pagination{display:flex;min-height:54px;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-top:1px solid #edf0f5;background:#fbfcfe}.pagination-info{margin-right:12px;color:#596273}
     .page-btn,.page-number{min-width:32px;height:30px;border:1px solid #d9dde6;border-radius:3px;padding:0 10px;color:#596273;cursor:pointer;background:#fff}.page-number.active{border-color:#1677ff;color:#fff;background:#1677ff}.page-btn:disabled{color:#b7bfcc;cursor:not-allowed;background:#f2f4f7}
+    body.mobile-mode .container{max-width:430px;min-height:100vh;margin:0 auto;border-left:1px solid #edf0f5;border-right:1px solid #edf0f5}
+    body.mobile-mode .mode-switch{padding:8px 12px}
+    body.mobile-mode .search-bar{display:block;padding:12px}
+    body.mobile-mode .search-item{margin-bottom:10px;align-items:flex-start}
+    body.mobile-mode .search-label{width:78px;padding-top:5px}
+    body.mobile-mode .search-select,body.mobile-mode .search-input{width:100%!important;min-width:0}
+    body.mobile-mode .date-label{display:block;margin-bottom:6px}
+    body.mobile-mode .date-range{width:100%}
+    body.mobile-mode .date-input{width:100%;min-width:0}
+    body.mobile-mode .btn-query{width:100%;height:34px}
+    body.mobile-mode .table-toolbar{min-height:40px;padding:8px 12px}
+    body.mobile-mode .toolbar-right{display:none}
+    body.mobile-mode .table-container{overflow:auto;background:#fff;-webkit-overflow-scrolling:touch}
+    body.mobile-mode table{min-width:1320px}
+    body.mobile-mode th,body.mobile-mode td{padding:10px 12px}
+    body.mobile-mode th:last-child,body.mobile-mode td:last-child{position:static;min-width:170px;border-left:0}
+    body.mobile-mode .action-buttons{gap:10px}
+    body.mobile-mode .pagination{overflow-x:auto;justify-content:flex-start;padding:10px 12px;-webkit-overflow-scrolling:touch}
+    body.mobile-mode .pagination-info{margin-right:4px;white-space:nowrap}
+    body.mobile-mode .page-btn,body.mobile-mode .page-number{flex:0 0 auto;min-width:28px;height:28px;padding:0 8px}
   </style>
 </head>
 <body>
   <div class="container">
+    <div class="mode-switch">
+      <button class="mode-btn active" id="pcModeBtn" onclick="setMode('pc')">PC端</button>
+      <button class="mode-btn" id="mobileModeBtn" onclick="setMode('mobile')">移动端</button>
+    </div>
     <div class="search-bar" id="searchBar"></div>
     <div class="table-toolbar" id="toolbar"></div>
     <div class="table-container" id="tableWrap"></div>
@@ -65,6 +92,9 @@
       ["10002","S2","58602001","DragonSlayer","57129200","1250952864","渠道A","-","-","否","3","2024-11-05 11:45:30","在线","8999.00","7899.50","2026-06-03 13:22:45","-"]
     ];
 
+    let viewMode = "pc";
+    let currentData = null;
+
     const searchBar = document.getElementById("searchBar");
     searchBar.innerHTML = `
       <div class="search-item">
@@ -98,11 +128,15 @@
         <button class="toolbar-icon" title="设置">⚙</button>
       </div>`;
 
-    document.getElementById("tableWrap").innerHTML = `
-      <table>
-        <thead><tr>${columns.map(name => `<th>${name}</th>`).join("")}</tr></thead>
-        <tbody id="tableBody"></tbody>
-      </table>`;
+    function renderTableShell() {
+      document.getElementById("tableWrap").innerHTML = `
+        <table>
+          <thead><tr>${columns.map(name => `<th>${name}</th>`).join("")}</tr></thead>
+          <tbody id="tableBody"></tbody>
+        </table>`;
+    }
+
+    renderTableShell();
 
     document.getElementById("pager").innerHTML = `
       <div class="pagination-info" id="paginationInfo"></div>
@@ -111,12 +145,17 @@
       <button class="page-btn" disabled>下一页</button>`;
 
     function emptyState(text) {
-      document.getElementById("tableBody").innerHTML = `
-        <tr>
-          <td colspan="18">
-            <div class="empty-state"><div class="empty-icon">--</div><div>${text}</div></div>
-          </td>
-        </tr>`;
+      if (viewMode === "mobile") {
+        document.getElementById("tableWrap").innerHTML = `<div class="empty-state"><div class="empty-icon">--</div><div>${text}</div></div>`;
+      } else {
+        renderTableShell();
+        document.getElementById("tableBody").innerHTML = `
+          <tr>
+            <td colspan="18">
+              <div class="empty-state"><div class="empty-icon">--</div><div>${text}</div></div>
+            </td>
+          </tr>`;
+      }
       document.getElementById("recordCount").textContent = "";
       document.getElementById("paginationInfo").textContent = "";
     }
@@ -128,6 +167,7 @@
         return;
       }
 
+      renderTableShell();
       document.getElementById("tableBody").innerHTML = data.map(item => {
         const statusClass = item[12] === "在线" ? "status-online" : "status-offline";
         const alliance = item[8] === "-" ? "-" : `<span class="link-text">${item[8]}</span>`;
@@ -157,6 +197,7 @@
       const fieldIndex = Number(document.getElementById("queryTypeSelect").value);
       const keyword = document.getElementById("queryInput").value.trim();
       const result = rows.filter(item => item[0] === serverId && (!keyword || item[fieldIndex].includes(keyword)));
+      currentData = result;
       renderTable(result);
     }
 
@@ -166,6 +207,16 @@
 
     function goDetail(roleId) {
       window.location.href = `role-detail.html?roleId=${encodeURIComponent(roleId)}`;
+    }
+
+    function setMode(mode) {
+      viewMode = mode;
+      document.body.classList.toggle("mobile-mode", mode === "mobile");
+      document.body.classList.toggle("pc-mode", mode === "pc");
+      document.getElementById("pcModeBtn").classList.toggle("active", mode === "pc");
+      document.getElementById("mobileModeBtn").classList.toggle("active", mode === "mobile");
+      if (currentData) renderTable(currentData);
+      else emptyState("请先点击“查询”按钮加载数据");
     }
 
     document.getElementById("queryBtn").addEventListener("click", handleQuery);
