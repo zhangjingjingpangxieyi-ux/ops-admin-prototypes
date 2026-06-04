@@ -7,8 +7,12 @@
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{min-width:1280px;font:14px/1.5 "PingFang SC","Microsoft YaHei",Arial,sans-serif;color:#202733;background:#f4f6f8}
+    body.mobile-mode{min-width:0}
     button{font:inherit}
     .page{min-height:100vh;background:#f4f6f8}
+    .mode-switch{position:sticky;top:0;z-index:10;display:flex;justify-content:flex-end;gap:8px;padding:8px 24px;border-bottom:1px solid #edf0f5;background:#fff}
+    .mode-btn{height:28px;border:1px solid #d9dde6;border-radius:3px;padding:0 12px;color:#596273;cursor:pointer;background:#fff}
+    .mode-btn.active{border-color:#1677ff;color:#fff;background:#1677ff}
     .summary{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:18px 24px;border-bottom:1px solid #edf0f5;background:#fff}
     .identity{min-width:0}
     .name-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
@@ -43,10 +47,36 @@
     .detail-table td{width:16%;color:#202733}
     .link-text{color:#1677ff}.status-online{color:#24a148}.status-offline{color:#8a94a6}
     .empty-state{display:flex;min-height:280px;align-items:center;justify-content:center;color:#98a2b3;background:#fff}
+    body.mobile-mode .page{max-width:430px;margin:0 auto;border-left:1px solid #edf0f5;border-right:1px solid #edf0f5}
+    body.mobile-mode .mode-switch{padding:8px 12px}
+    body.mobile-mode .summary{display:block;padding:14px 12px}
+    body.mobile-mode .name-row{align-items:center;justify-content:flex-start;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+    body.mobile-mode .role-name{font-size:16px;word-break:break-all}
+    body.mobile-mode .status{max-width:none;justify-content:center;text-align:center;line-height:1.35;white-space:nowrap}
+    body.mobile-mode .meta-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 12px;color:#596273}
+    body.mobile-mode .meta-item{min-width:0;white-space:nowrap}
+    body.mobile-mode .actions{justify-content:flex-start;min-width:0;margin-top:12px}
+    body.mobile-mode .btn{height:30px;padding:0 10px}
+    body.mobile-mode .tabs{padding:0 12px}
+    body.mobile-mode .tab{height:40px;padding:0 10px}
+    body.mobile-mode .content{padding:12px}
+    body.mobile-mode .panel-head{min-height:40px;padding:0 12px}
+    body.mobile-mode .detail-table{min-width:0}
+    body.mobile-mode .detail-table th{width:38%;white-space:normal}
+    body.mobile-mode .detail-table td{width:62%;white-space:normal;word-break:break-all}
+    body.mobile-mode th,body.mobile-mode td{padding:10px 12px}
+    @media (max-width:380px){
+      body.mobile-mode .meta-grid{grid-template-columns:1fr}
+      body.mobile-mode .status{white-space:normal}
+    }
   </style>
 </head>
-<body>
+<body class="pc-mode">
   <div class="page">
+    <div class="mode-switch">
+      <button class="mode-btn active" id="pcModeBtn" onclick="setMode('pc')">PC端</button>
+      <button class="mode-btn" id="mobileModeBtn" onclick="setMode('mobile')">移动端</button>
+    </div>
     <section class="summary">
       <div class="identity" id="summary"></div>
       <div class="actions">
@@ -85,10 +115,11 @@
     const roleId = new URLSearchParams(location.search).get("roleId");
     const role = rows.find(item => item[2] === roleId) || rows[0];
     let activeTab = "总览";
+    let viewMode = "pc";
 
     function renderSummary() {
       const statusClass = role[12] === "在线" ? "status" : "status offline";
-      const statusText = role[12] === "离线" && role[16] !== "-" ? `离线（离线时间:${role[16]}）` : role[12];
+      const statusText = role[12] === "离线" && role[16] !== "-" ? `离线 离线时间：${role[16]}` : role[12];
       document.getElementById("summary").innerHTML = `
         <div class="name-row">
           <div class="role-name">${role[3]}</div>
@@ -112,10 +143,11 @@
     function renderOverview() {
       const fields = columns.map((name, index) => ({ name, value: role[index] || "-" }));
       const rowsHtml = [];
+      const groupSize = viewMode === "mobile" ? 1 : 4;
 
-      for (let i = 0; i < fields.length; i += 4) {
-        const group = fields.slice(i, i + 4);
-        while (group.length < 4) group.push({ name: "", value: "" });
+      for (let i = 0; i < fields.length; i += groupSize) {
+        const group = fields.slice(i, i + groupSize);
+        while (group.length < groupSize) group.push({ name: "", value: "" });
 
         rowsHtml.push(`<tr>${group.map(field => {
           if (!field.name) return `<th></th><td></td>`;
@@ -160,6 +192,15 @@
 
     function showTip(action) {
       alert(`${action}: 角色 ${role[2]}`);
+    }
+
+    function setMode(mode) {
+      viewMode = mode;
+      document.body.classList.toggle("mobile-mode", mode === "mobile");
+      document.body.classList.toggle("pc-mode", mode === "pc");
+      document.getElementById("pcModeBtn").classList.toggle("active", mode === "pc");
+      document.getElementById("mobileModeBtn").classList.toggle("active", mode === "mobile");
+      if (activeTab === "总览") renderOverview();
     }
 
     renderSummary();
