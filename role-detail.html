@@ -47,6 +47,26 @@
     .detail-table td{width:16%;color:#202733}
     .link-text{color:#1677ff}.status-online{color:#24a148}.status-offline{color:#8a94a6}
     .empty-state{display:flex;min-height:280px;align-items:center;justify-content:center;color:#98a2b3;background:#fff}
+    .module-note{min-width:0;color:#8a94a6;font-size:12px;text-align:right}
+    .item-list-wrap{overflow:visible}
+    .item-table{min-width:880px}.item-table th,.item-table td{height:56px}
+    .item-cell{display:flex;align-items:center;gap:10px}
+    .item-preview{position:relative;display:inline-flex;align-items:center;color:#1677ff;cursor:default}
+    .item-icon{position:relative;display:inline-flex;width:36px;height:36px;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(32,39,51,.08);border-radius:6px;padding:0;color:#fff;font-weight:700;line-height:1;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+    .item-icon img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .rarity-legend{background:linear-gradient(135deg,#6f8cff,#2f54eb)}.rarity-epic{background:linear-gradient(135deg,#a66cff,#6d28d9)}.rarity-rare{background:linear-gradient(135deg,#20c997,#087f5b)}.rarity-common{background:linear-gradient(135deg,#8a94a6,#596273)}
+    .item-popover{position:absolute;left:46px;top:-10px;z-index:30;display:none;width:280px;border:1px solid #d9dde6;border-radius:6px;padding:12px;background:#fff;box-shadow:0 10px 30px rgba(32,39,51,.16);white-space:normal}
+    .item-preview.text-trigger .item-popover{left:0;top:26px}
+    .item-preview:hover .item-popover,.item-preview:focus-within .item-popover{display:block}
+    .popover-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #edf0f5}
+    .popover-title{font-weight:600;color:#202733}.popover-sub{margin-top:2px;color:#8a94a6;font-size:12px}
+    .attr-grid{display:grid;grid-template-columns:78px 1fr;gap:6px 10px}.attr-label{color:#8a94a6}.attr-value{min-width:0;color:#202733;word-break:break-all}
+    .detail-btn{border:0;padding:0;color:#1677ff;cursor:pointer;background:transparent}.detail-btn:hover{text-decoration:underline}
+    .tag-pill{display:inline-flex;height:22px;align-items:center;border-radius:3px;padding:0 8px;color:#596273;background:#f2f4f7}
+    .float-mask{position:fixed;inset:0;z-index:40;background:rgba(32,39,51,.16)}
+    .float-card{position:fixed;right:24px;top:92px;z-index:41;width:360px;max-width:calc(100vw - 48px);border:1px solid #d9dde6;border-radius:6px;background:#fff;box-shadow:0 18px 48px rgba(32,39,51,.22)}
+    .float-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid #edf0f5}.float-title{font-weight:600}
+    .float-close{border:0;color:#8a94a6;cursor:pointer;background:transparent}.float-body{padding:16px}
     body.mobile-mode .page{max-width:430px;margin:0 auto;border-left:1px solid #edf0f5;border-right:1px solid #edf0f5}
     body.mobile-mode .mode-switch{padding:8px 12px}
     body.mobile-mode .summary{display:block;padding:14px 12px}
@@ -64,6 +84,10 @@
     body.mobile-mode .detail-table{min-width:0}
     body.mobile-mode .detail-table th{width:38%;white-space:normal}
     body.mobile-mode .detail-table td{width:62%;white-space:normal;word-break:break-all}
+    body.mobile-mode .item-list-wrap{overflow:auto}
+    body.mobile-mode .item-table{min-width:720px}
+    body.mobile-mode .item-popover{display:none!important}
+    body.mobile-mode .float-card{left:12px;right:12px;top:auto;bottom:12px;width:auto;max-width:none}
     body.mobile-mode th,body.mobile-mode td{padding:10px 12px}
     @media (max-width:380px){
       body.mobile-mode .meta-grid{grid-template-columns:1fr}
@@ -111,11 +135,59 @@
     ];
 
     const tabNames = ["总览","背包-物品","背包-装备","皮肤","建筑","英雄","关卡","邮件","联盟","神兽-属性","神兽-印记","幸存者"];
+    const itemSamples = {
+      "背包-物品": [
+        { id:"100101", name:"凤凰之翼", count:1, icon:"翼", rarity:"legend", ext:{ "品质":"传说", "需要等级":"79", "需要职业":"天师", "翅膀成长":"经验 5 / 当前成长 120 / 成长度上限 120", "宝石槽":"蓝：所有属性 +2；蓝：攻击 +6；红：暴击 +2%", "羽灵养成":"幼年羽灵：22级；成长度：180；灵力：攻击 +108" } },
+        { id:"100102", name:"九转还魂丹", count:5, icon:"丹", rarity:"epic", ext:{ "类型":"消耗品", "品质":"史诗", "回复效果":"复活并恢复 35% 生命值", "冷却时间":"60 秒", "绑定状态":"角色绑定" } },
+        { id:"100203", name:"龙鳞甲胚料", count:32, icon:"材", rarity:"rare", ext:{ "类型":"强化材料", "用途":"装备升阶", "适用部位":"护甲", "来源":"副本掉落 / 活动兑换" } },
+        { id:"100308", name:"真元秘宝箱", count:2, icon:"箱", rarity:"epic", ext:{ "类型":"宝箱", "开启限制":"角色等级 >= 60", "可能获得":"真元、强化石、稀有材料", "过期时间":"2026-07-01 00:00:00" } },
+        { id:"100527", name:"强化石六阶", count:76, icon:"石", rarity:"common", ext:{ "类型":"强化材料", "强化等级":"六阶", "成功率加成":"+6%", "可交易":"否" } }
+      ],
+      "背包-装备": [
+        { id:"200019", name:"赤霄长剑", count:1, icon:"剑", rarity:"legend", ext:{ "装备类型":"武器", "品质":"传说", "强化等级":"+12", "穿戴英雄":"龙骑士", "基础属性":"攻击 +3680；暴击 +8%", "附加属性":"破甲 +120；技能伤害 +5%" } },
+        { id:"200088", name:"玄武战甲", count:1, icon:"甲", rarity:"epic", ext:{ "装备类型":"护甲", "品质":"史诗", "强化等级":"+8", "耐久度":"86/100", "基础属性":"生命 +12600；防御 +880" } },
+        { id:"200126", name:"疾风戒指", count:2, icon:"戒", rarity:"rare", ext:{ "装备类型":"饰品", "品质":"稀有", "套装":"疾风 2/4", "基础属性":"攻速 +6%；闪避 +3%" } }
+      ],
+      "皮肤": [
+        { id:"300211", name:"仲夏夜之梦", count:1, icon:"肤", rarity:"epic", ext:{ "适用对象":"英雄", "品质":"史诗", "有效期":"永久", "属性加成":"生命 +2%；攻击 +1%" } },
+        { id:"300302", name:"雪境行者", count:1, icon:"雪", rarity:"rare", ext:{ "适用对象":"角色", "品质":"稀有", "有效期":"30 天", "获取来源":"节日活动" } }
+      ],
+      "建筑": [
+        { id:"410002", name:"联盟仓库", count:1, icon:"仓", rarity:"rare", ext:{ "建筑等级":"12", "容量":"250000", "耐久":"9200/10000", "驻守状态":"无" } },
+        { id:"410118", name:"炼金工坊", count:1, icon:"坊", rarity:"epic", ext:{ "建筑等级":"8", "产出类型":"强化材料", "当前队列":"3/5", "升级条件":"木材 12000；金币 8000" } }
+      ]
+    };
+    const genericTables = {
+      "邮件": {
+        note:"邮件类 Tab 使用普通表格展示实际字段，无拓展字段时不展示图标和详情浮层。",
+        columns:["邮件ID","邮件标题","邮件类型","发送时间","领取状态"],
+        rows:[
+          ["M20260610001","赛季补偿奖励","系统邮件","2026-06-10 09:30:00","已领取"],
+          ["M20260608016","联盟战结算","活动邮件","2026-06-08 22:15:30","未领取"]
+        ]
+      },
+      "联盟": {
+        note:"联盟类 Tab 字段较少时直接展示业务字段，不强制出现拓展详情列。",
+        columns:["联盟ID","联盟名称","职位","联盟等级","加入时间"],
+        rows:[
+          ["29","Atlantis","成员","18","2025-12-16 11:24:09"]
+        ]
+      }
+    };
+    const tabConfigs = {
+      "背包-物品": { type:"itemList", title:"背包-物品", note:"通用物品类展示：基础列固定为图标、ID、名称、数量；项目自定义字段收进浮层。" },
+      "背包-装备": { type:"itemList", title:"背包-装备", note:"装备类同样复用物品列表，装备属性、强化、穿戴对象等作为拓展字段。" },
+      "皮肤": { type:"itemList", title:"皮肤", note:"皮肤、建筑等可复用物品类模板；无拓展字段时详情入口自动隐藏。" },
+      "建筑": { type:"itemList", title:"建筑", note:"建筑等级、容量、耐久等项目字段放在拓展详情中展示。" },
+      "邮件": { type:"table", title:"邮件" },
+      "联盟": { type:"table", title:"联盟" }
+    };
 
     const roleId = new URLSearchParams(location.search).get("roleId");
     const role = rows.find(item => item[2] === roleId) || rows[0];
     let activeTab = "总览";
     let viewMode = "pc";
+    let activeItemDetail = null;
 
     function renderSummary() {
       const statusClass = role[12] === "在线" ? "status" : "status offline";
@@ -183,11 +255,160 @@
         </section>`;
     }
 
+    function rarityClass(item) {
+      return `rarity-${item.rarity || "common"}`;
+    }
+
+    function defaultIconText(item) {
+      return (item.name || "物").slice(-1);
+    }
+
+    function defaultIconStyle(item) {
+      const seed = `${item.id || ""}${item.name || ""}`;
+      const colors = ["#1677ff", "#13a8a8", "#52c41a", "#fa8c16", "#722ed1", "#eb2f96", "#2f54eb", "#a0d911"];
+      let hash = 0;
+      for (let i = 0; i < seed.length; i += 1) hash = (hash * 31 + seed.charCodeAt(i)) % colors.length;
+      const color = colors[Math.abs(hash)];
+      return `background:${color};border-color:${color}`;
+    }
+
+    function itemIconHtml(item) {
+      const image = item.image || "";
+      const fallback = defaultIconText(item);
+      return `
+        <span class="item-icon" style="${defaultIconStyle(item)}">
+          <span>${fallback}</span>
+          ${image ? `<img src="${image}" alt="${item.name}图标" onerror="this.remove()">` : ""}
+        </span>`;
+    }
+
+    function detailBlock(item) {
+      return `
+        <div class="popover-head">
+          ${itemIconHtml(item)}
+          <div>
+            <div class="popover-title">${item.name}</div>
+            <div class="popover-sub">ID：${item.id} / 数量：${item.count}</div>
+          </div>
+        </div>
+        <div class="attr-grid">
+          ${Object.entries(item.ext || {}).map(([label, value]) => `
+            <div class="attr-label">${label}</div>
+            <div class="attr-value">${value}</div>
+          `).join("")}
+        </div>`;
+    }
+
+    function renderItemList(config) {
+      const data = itemSamples[activeTab] || [];
+      document.getElementById("content").innerHTML = `
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">${config.title}</div>
+            <div class="module-note">${config.note}</div>
+          </div>
+          <div class="table-wrap item-list-wrap">
+            <table class="item-table">
+              <thead>
+                <tr>
+                  <th>物品图标</th>
+                  <th>物品ID</th>
+                  <th>物品名称</th>
+                  <th>数量</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.map(item => {
+                  const hasExt = item.ext && Object.keys(item.ext).length > 0;
+                  return `
+                    <tr>
+                      <td>
+                        <div class="item-cell">
+                          <span class="item-preview">
+                            <span onclick="${hasExt ? `openItemDetail('${activeTab}','${item.id}')` : ""}">${itemIconHtml(item)}</span>
+                            ${hasExt ? `<div class="item-popover">${detailBlock(item)}</div>` : ""}
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        ${hasExt ? `
+                          <span class="item-preview text-trigger" onclick="openItemDetail('${activeTab}','${item.id}')">
+                            ${item.id}
+                            <div class="item-popover">${detailBlock(item)}</div>
+                          </span>` : item.id}
+                      </td>
+                      <td>
+                        ${hasExt ? `
+                          <span class="item-preview text-trigger" onclick="openItemDetail('${activeTab}','${item.id}')">
+                            ${item.name}
+                            <div class="item-popover">${detailBlock(item)}</div>
+                          </span>` : item.name}
+                      </td>
+                      <td>${item.count}</td>
+                    </tr>`;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <div id="floatDetail"></div>`;
+    }
+
+    function renderGenericTable(config) {
+      const table = genericTables[activeTab];
+      document.getElementById("content").innerHTML = `
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">${config.title}</div>
+            <div class="module-note">${table.note}</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>${table.columns.map(name => `<th>${name}</th>`).join("")}</tr></thead>
+              <tbody>
+                ${table.rows.map(row => `<tr>${row.map(value => `<td>${value}</td>`).join("")}</tr>`).join("")}
+              </tbody>
+            </table>
+          </div>
+        </section>`;
+    }
+
+    function renderActiveTab() {
+      const config = tabConfigs[activeTab];
+      if (activeTab === "总览") renderOverview();
+      else if (config?.type === "itemList") renderItemList(config);
+      else if (config?.type === "table") renderGenericTable(config);
+      else renderEmptyTab();
+    }
+
     function switchTab(name) {
       activeTab = name;
+      activeItemDetail = null;
       renderTabs();
-      if (name === "总览") renderOverview();
-      else renderEmptyTab();
+      renderActiveTab();
+    }
+
+    function openItemDetail(tabName, itemId) {
+      const item = (itemSamples[tabName] || []).find(entry => entry.id === itemId);
+      if (!item) return;
+      activeItemDetail = item;
+      const mount = document.getElementById("floatDetail");
+      if (!mount) return;
+      mount.innerHTML = `
+        <div class="float-mask" onclick="closeItemDetail()"></div>
+        <aside class="float-card">
+          <div class="float-head">
+            <div class="float-title">拓展字段详情</div>
+            <button class="float-close" onclick="closeItemDetail()">关闭</button>
+          </div>
+          <div class="float-body">${detailBlock(item)}</div>
+        </aside>`;
+    }
+
+    function closeItemDetail() {
+      activeItemDetail = null;
+      const mount = document.getElementById("floatDetail");
+      if (mount) mount.innerHTML = "";
     }
 
     function showTip(action) {
@@ -200,7 +421,7 @@
       document.body.classList.toggle("pc-mode", mode === "pc");
       document.getElementById("pcModeBtn").classList.toggle("active", mode === "pc");
       document.getElementById("mobileModeBtn").classList.toggle("active", mode === "mobile");
-      if (activeTab === "总览") renderOverview();
+      renderActiveTab();
     }
 
     renderSummary();
