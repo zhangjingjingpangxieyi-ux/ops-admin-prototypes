@@ -67,7 +67,7 @@ table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff;fon
 th,td{height:39px;padding:0 10px;border:1px solid #edf0f5;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 th{background:#fbfbfc;font-weight:700}
 td{background:#fff;font-weight:400}
-col.c0{width:142px}col.c1{width:124px}col.c2{width:130px}col.c3{width:82px}col.c4{width:108px}col.c5{width:126px}col.c12{width:80px}
+col.c0{width:142px}col.c1{width:124px}col.c2{width:130px}col.c3{width:82px}col.c4{width:108px}col.c5{width:126px}col.c13{width:80px}
 .fb{position:fixed;right:0;top:347px;z-index:2;width:28px;height:52px;overflow:hidden;border-radius:8px 0 0 8px;background:#082a58;color:#fff;text-align:center;font-size:12px;box-shadow:0 2px 8px rgba(5,27,61,.45)}
 .fb:before{content:"";display:block;width:23px;height:23px;margin:3px auto -1px;border-radius:50%;background:radial-gradient(circle at 12px 8px,#fff 0 2px,transparent 3px),radial-gradient(circle at 8px 9px,#fff 0 1px,transparent 2px),linear-gradient(135deg,#cce5ff,#3b91ff)}
 .fb span{display:block;transform:scale(.88);line-height:14px}
@@ -152,8 +152,8 @@ col.c0{width:142px}col.c1{width:124px}col.c2{width:130px}col.c3{width:82px}col.c
 <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
 </div>
 <table>
-<colgroup><col class="c0"><col class="c1"><col class="c2"><col class="c3"><col class="c4"><col class="c5"><col><col><col><col><col><col class="c12"></colgroup>
-<thead><tr><th>&#21382;&#21490;&#25968;&#25454;&#24211;(&#26102;&#38388;)</th><th>&#32463;&#20856;&#28216;&#25103;&#19990;&#30028;</th><th>&#36828;&#24449;&#21306;&#26381;</th><th>&#25991;&#26126;&#31561;&#32423;</th><th>&#30331;&#24405;&#36134;&#21495;&#25968;</th><th>&#24403;&#21069;&#22312;&#32447;&#35282;&#33394;&#25968;</th><th>&#24189;&#24030;&#35282;&#33394;&#25968;</th><th>&#38647;&#24030;&#35282;&#33394;&#25968;</th><th>&#20113;&#24030;&#35282;&#33394;&#25968;</th><th>&#27494;&#22307;</th><th>&#22825;&#24072;</th><th>&#24189;&#20901;</th></tr></thead>
+<colgroup><col class="c0"><col class="c1"><col class="c2"><col class="c3"><col class="c4"><col class="c5"><col><col><col><col><col><col><col class="c13"></colgroup>
+<thead><tr><th>&#21382;&#21490;&#25968;&#25454;&#24211;(&#26102;&#38388;)</th><th>&#32463;&#20856;&#28216;&#25103;&#19990;&#30028;</th><th>&#36828;&#24449;&#21306;&#26381;</th><th>&#25991;&#26126;&#31561;&#32423;</th><th>&#30331;&#24405;&#36134;&#21495;&#25968;</th><th>&#24403;&#21069;&#22312;&#32447;&#35282;&#33394;&#25968;</th><th>&#24189;&#24030;&#35282;&#33394;&#25968;</th><th>&#38647;&#24030;&#35282;&#33394;&#25968;</th><th>&#20113;&#24030;&#35282;&#33394;&#25968;</th><th>&#27494;&#22307;</th><th>&#22825;&#24072;</th><th>&#24189;&#20901;</th><th>&#21073;&#20185;</th></tr></thead>
 <tbody></tbody>
 </table>
 </main>
@@ -162,10 +162,10 @@ col.c0{width:142px}col.c1{width:124px}col.c2{width:130px}col.c3{width:82px}col.c
 </div>
 <script>
 var servers=[
-  {id:"3038",name:"\u9f99\u817e(3038)",base:12,state:[5,4,3],job:[4,3,3]},
-  {id:"538",name:"\u4e94\u4e09\u516b(538)",base:8,state:[3,3,2],job:[3,2,3]},
-  {id:"3208",name:"\u4e09\u4e8c\u96f6\u516b(3208)",base:15,state:[6,5,4],job:[5,6,4]},
-  {id:"3230",name:"\u4e09\u4e8c\u4e09\u96f6(3230)",base:6,state:[2,2,2],job:[2,2,2]}
+  {id:"3038",name:"\u9f99\u817e(3038)",base:12,state:[5,4,3],job:[4,3,3,4]},
+  {id:"538",name:"\u4e94\u4e09\u516b(538)",base:8,state:[3,3,2],job:[3,2,3,2]},
+  {id:"3208",name:"\u4e09\u4e8c\u96f6\u516b(3208)",base:15,state:[6,5,4],job:[5,6,4,5]},
+  {id:"3230",name:"\u4e09\u4e8c\u4e09\u96f6(3230)",base:6,state:[2,2,2],job:[2,2,2,2]}
 ];
 var days=["260603","260604","260605","260606","260607","260608","260609","260610","260611","260612","260613","260614","260615","260616","260617"];
 var state={selected:["all"],db:"range15",dbLabel:"\u8fd115\u5929"};
@@ -180,6 +180,14 @@ function minuteValue(serverIndex,pointIndex){
 }
 function labelShort(name){return name.replace(/\(.+\)/,"");}
 function esc(text){return String(text).replace(/[&<>"']/g,function(s){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[s];});}
+function splitStateCount(server,online){
+  var weights=server.state,total=weights.reduce(function(sum,n){return sum+n;},0),left=online;
+  return weights.map(function(weight,index){
+    var value=index===weights.length-1?left:Math.round(online*weight/total);
+    left-=value;
+    return value;
+  });
+}
 function buildTrend(){
   var chosen=selectedServers();
   if(state.db==="range15"){
@@ -214,28 +222,33 @@ function renderTable(){
       var di=days.indexOf(day);
       chosen.forEach(function(s){
         var si=servers.indexOf(s),online=dayValue(si,di),login=Math.max(1,online-1);
-        rows.push([day+"\u6570\u636e\u5e93","\u4ee3\u53f7\u7ecf\u5178",s.name,1,login,online,s.state[0],s.state[1],s.state[2],s.job[0],s.job[1],s.job[2]]);
+        var stateCounts=splitStateCount(s,online);
+        rows.push([day+"\u6570\u636e\u5e93","\u4ee3\u53f7\u7ecf\u5178",s.name,1,login,stateCounts[0]+stateCounts[1]+stateCounts[2],stateCounts[0],stateCounts[1],stateCounts[2],s.job[0],s.job[1],s.job[2],s.job[3]]);
       });
     });
   }else{
     chosen.forEach(function(s){
       var si=servers.indexOf(s),online=minuteValue(si,23),login=Math.max(1,online-1);
-      rows.push([state.dbLabel+" 23:59","\u4ee3\u53f7\u7ecf\u5178",s.name,1,login,online,s.state[0],s.state[1],s.state[2],s.job[0],s.job[1],s.job[2]]);
+      var stateCounts=splitStateCount(s,online);
+      rows.push([state.dbLabel+" 23:59","\u4ee3\u53f7\u7ecf\u5178",s.name,1,login,stateCounts[0]+stateCounts[1]+stateCounts[2],stateCounts[0],stateCounts[1],stateCounts[2],s.job[0],s.job[1],s.job[2],s.job[3]]);
     });
   }
   document.querySelector("tbody").innerHTML=rows.map(function(row){return "<tr>"+row.map(function(cell){return "<td>"+esc(cell)+"</td>";}).join("")+"</tr>";}).join("");
+  return rows;
 }
 function render(){
   var chosen=selectedServers(),trend=buildTrend(),latest=trend[trend.length-1],peak=trend.reduce(function(a,b){return a.y>b.y?a:b;});
   document.querySelector("#scopeText").textContent="\u5f53\u524d\u53e3\u5f84: "+(state.selected.indexOf("all")>-1?"\u5168\u90e8\u8fdc\u5f81\u533a\u670d":chosen.map(function(s){return labelShort(s.name);}).join("、"))+" / "+(state.db==="range15"?"\u8fd115\u5929\u6bcf\u65e5\u6570\u636e":"\u5355\u65e51\u5206\u949f\u4e0a\u62a5\u6570\u636e");
   document.querySelector("#modeText").textContent=state.db==="range15"?"\u6bcf\u65e5\u8d8b\u52bf":"1\u5206\u949f\u8d8b\u52bf";
   document.querySelector("#axisText").textContent=state.db==="range15"?"X\u8f74: \u65e5\u671f / Y\u8f74: \u5728\u7ebf\u89d2\u8272\u6570":"X\u8f74: \u4e0a\u62a5\u65f6\u95f4\u70b9 / Y\u8f74: \u5728\u7ebf\u89d2\u8272\u6570";
+  renderChart(trend);
+  var rows=renderTable(),tableTotal=rows.reduce(function(sum,row){return sum+Number(row[5]||0);},0);
   var m=document.querySelectorAll(".metric");
-  m[0].querySelector(".num").textContent=latest.y;m[0].querySelector(".hint").textContent=state.db==="range15"?"\u6700\u65b0\u65e5\u671f "+latest.x:"\u6700\u8fd1\u4e0a\u62a5 "+latest.x;
+  m[0].querySelector(".num").textContent=tableTotal;m[0].querySelector(".hint").textContent="\u5217\u8868\u5f53\u524d\u5728\u7ebf\u89d2\u8272\u6570\u6c47\u603b";
   m[1].querySelector(".num").textContent=peak.y;m[1].querySelector(".hint").textContent="\u5cf0\u503c\u65f6\u95f4 "+peak.x;
   m[2].querySelector(".num").textContent=chosen.length;m[2].querySelector(".hint").textContent=state.selected.indexOf("all")>-1?"\u5168\u90e8\u8fdc\u5f81\u533a\u670d":"\u5df2\u9009 "+chosen.length+" \u4e2a\u533a\u670d";
   m[3].querySelector(".num").textContent=state.db==="range15"?"\u5929":"1\u5206\u949f";m[3].querySelector(".hint").textContent=state.dbLabel;
-  renderChart(trend);renderTable();bindChartHover();
+  bindChartHover();
 }
 function updateServerLabel(){
   var value=document.querySelector(".field.server .value"),boxes=[].slice.call(document.querySelectorAll(".field.server input:not([value=all])")),checked=boxes.filter(function(b){return b.checked;});
