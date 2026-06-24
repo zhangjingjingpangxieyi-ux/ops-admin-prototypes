@@ -1,0 +1,972 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>角色物品回收 - 新项目</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --blue: #1890ff;
+      --border: #e8e8e8;
+      --soft-border: #eeeeee;
+      --text: #1f2d3d;
+      --muted: #8c8c8c;
+      --page-bg: #eef1f5;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-width: 1260px;
+      min-height: 100vh;
+      color: var(--text);
+      background: var(--page-bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: .46;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='168' height='88' viewBox='0 0 168 88'%3E%3Ctext x='14' y='54' transform='rotate(-30 80 44)' font-family='Arial, Microsoft YaHei' font-size='12' fill='%23cfd5dd' fill-opacity='.5'%3Ezhangjing%20%E5%BC%A0%E6%99%AF%20%E8%A7%92%E8%89%B2%E5%9B%9E%E6%94%B6%3C/text%3E%3C/svg%3E");
+      background-size: 168px 88px;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      padding: 9px 8px 0;
+    }
+
+    .top-card {
+      height: 86px;
+      padding: 18px 18px;
+      background: #fff;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      color: #202020;
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 1.25;
+    }
+
+    .notice {
+      color: #111;
+      font-size: 12px;
+    }
+
+    .notice strong {
+      color: #ff0000;
+      font-weight: 600;
+    }
+
+    .panel {
+      margin-top: 17px;
+      background: #fff;
+    }
+
+    .panel.step-one {
+      min-height: 321px;
+      padding-top: 32px;
+    }
+
+    .panel.step-two {
+      min-height: 647px;
+      padding-top: 32px;
+    }
+
+    .panel.step-three {
+      min-height: 360px;
+      padding: 32px 16px 16px;
+    }
+
+    .stepper {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      align-items: center;
+      width: 1080px;
+      height: 28px;
+      margin: 0 auto;
+      color: #8c8c8c;
+      font-size: 14px;
+    }
+
+    .step {
+      position: relative;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .step.center {
+      justify-content: center;
+    }
+
+    .step.right {
+      justify-content: flex-end;
+    }
+
+    .step::after {
+      content: "";
+      position: absolute;
+      top: 14px;
+      left: 123px;
+      right: 46px;
+      height: 1px;
+      background: #f0f0f0;
+    }
+
+    .step.center::after {
+      left: 124px;
+      right: -25px;
+    }
+
+    .step.right::after {
+      display: none;
+    }
+
+    .step.done::after {
+      background: var(--blue);
+    }
+
+    .dot {
+      display: inline-flex;
+      width: 26px;
+      height: 26px;
+      margin-right: 8px;
+      align-items: center;
+      justify-content: center;
+      color: #bfbfbf;
+      border: 1px solid #d9d9d9;
+      border-radius: 50%;
+      background: #fff;
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .active .dot {
+      color: #fff;
+      border-color: var(--blue);
+      background: var(--blue);
+    }
+
+    .done .dot {
+      color: var(--blue);
+      border-color: var(--blue);
+      background: #fff;
+      font-size: 18px;
+    }
+
+    .active .label,
+    .done .label {
+      color: #262626;
+      font-weight: 500;
+    }
+
+    .form-box {
+      width: 596px;
+      margin: 56px auto 0;
+    }
+
+    .field {
+      display: grid;
+      grid-template-columns: 66px 1fr;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      padding-top: 5px;
+      text-align: right;
+      color: #303030;
+    }
+
+    .field label::before {
+      content: "*";
+      margin-right: 3px;
+      color: #ff0000;
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+      font-family: inherit;
+      font-size: 12px;
+    }
+
+    input,
+    textarea,
+    select {
+      outline: 0;
+    }
+
+    .control {
+      width: 530px;
+      height: 26px;
+      padding: 3px 10px;
+      color: #b7b7b7;
+      border: 1px solid #d9d9d9;
+      border-radius: 2px;
+      background: #f2f2f2;
+    }
+
+    textarea.control {
+      height: 43px;
+      resize: none;
+      color: #333;
+      background: #fff;
+    }
+
+    .actions {
+      text-align: center;
+    }
+
+    .step-one .actions {
+      margin-top: 15px;
+    }
+
+    .btn {
+      min-width: 58px;
+      height: 26px;
+      padding: 0 13px;
+      color: #333;
+      border: 1px solid #d9d9d9;
+      border-radius: 2px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      color: #fff;
+      border-color: var(--blue);
+      background: var(--blue);
+    }
+
+    .btn + .btn {
+      margin-left: 6px;
+    }
+
+    .material-wrap {
+      width: 966px;
+      margin: 37px auto 0;
+    }
+
+    .role-info {
+      margin-bottom: 12px;
+      padding-bottom: 9px;
+      border-bottom: 1px solid var(--soft-border);
+      color: #333;
+    }
+
+    .risk-tip {
+      margin: 10px 0 0;
+      padding: 9px 12px;
+      color: #a15c00;
+      border: 1px solid #ffe1a6;
+      background: #fff7e6;
+      line-height: 1.6;
+    }
+
+    .table-tools {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      height: 32px;
+      padding-right: 9px;
+      border-top: 1px solid #f2f2f2;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      color: #222;
+    }
+
+    .mini-check {
+      width: 14px;
+      height: 14px;
+      margin: 0 5px;
+      vertical-align: -2px;
+      appearance: none;
+      border: 1px solid #d9d9d9;
+      border-radius: 2px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .mini-check:checked {
+      border-color: var(--blue);
+      background: var(--blue);
+      box-shadow: inset 0 0 0 2px #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .data-table {
+      min-width: 1500px;
+      border: 1px solid var(--border);
+      color: #273849;
+    }
+
+    .data-table th {
+      position: relative;
+      height: 49px;
+      color: #222;
+      font-weight: 500;
+      background: #fafafa;
+    }
+
+    .data-table td {
+      height: 56px;
+      background: rgba(255, 255, 255, .86);
+    }
+
+    .data-table th,
+    .data-table td {
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .data-table th:last-child,
+    .data-table td:last-child {
+      border-right: 0;
+    }
+
+    .th-content {
+      position: relative;
+      display: flex;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      padding: 0 28px 0 8px;
+    }
+
+    .column-search-btn {
+      position: absolute;
+      right: 8px;
+      display: inline-flex;
+      width: 18px;
+      height: 18px;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .column-search-btn:hover,
+    .column-search-btn.active {
+      background: #edf6ff;
+    }
+
+    .search-icon {
+      position: relative;
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      border: 1px solid #bfbfbf;
+      border-radius: 50%;
+    }
+
+    .search-icon::after {
+      content: "";
+      position: absolute;
+      right: -4px;
+      bottom: -3px;
+      width: 6px;
+      height: 1px;
+      background: #bfbfbf;
+      transform: rotate(45deg);
+      transform-origin: left center;
+    }
+
+    .column-search-btn.active .search-icon {
+      border-color: var(--blue);
+    }
+
+    .column-search-btn.active .search-icon::after {
+      background: var(--blue);
+    }
+
+    .column-search-popover {
+      position: absolute;
+      z-index: 5;
+      width: 236px;
+      padding: 12px;
+      border: 1px solid #d9e8ff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .14);
+      background: #fff;
+    }
+
+    .column-search-title {
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .column-search-input {
+      width: 100%;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--blue);
+      border-radius: 2px;
+      color: #333;
+    }
+
+    .column-search-actions {
+      display: flex;
+      margin-top: 8px;
+      gap: 8px;
+    }
+
+    .column-search-actions .btn {
+      height: 28px;
+      min-width: 74px;
+    }
+
+    .empty-cell {
+      height: 336px !important;
+      color: #999;
+      background: rgba(255, 255, 255, .72) !important;
+    }
+
+    .col-check {
+      width: 80px;
+    }
+
+    .col-type {
+      width: 160px;
+    }
+
+    .col-id {
+      width: 120px;
+    }
+
+    .col-name {
+      width: 150px;
+    }
+
+    .col-num {
+      width: 90px;
+    }
+
+    .table-scroll {
+      position: relative;
+      height: 456px;
+      overflow: auto;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .table-scroll::after {
+      content: "";
+      position: absolute;
+      top: 50px;
+      right: 1px;
+      width: 6px;
+      height: 14px;
+      border-radius: 4px;
+      background: #d9d9d9;
+    }
+
+    .step-two .actions {
+      margin-top: 4px;
+    }
+
+    .summary {
+      width: 485px;
+      min-height: 108px;
+      margin: 39px auto 17px;
+      padding: 18px 20px;
+      background: #f5f5f5;
+      text-align: center;
+      color: #303030;
+      line-height: 25px;
+      font-weight: 600;
+    }
+
+    .summary-warning {
+      margin-top: 4px;
+      color: #a15c00;
+      font-weight: 600;
+    }
+
+    .detail-title {
+      margin: 0 0 15px;
+      font-size: 20px;
+      font-weight: 500;
+      color: #1f2d3d;
+    }
+
+    .detail-table {
+      border: 1px solid var(--border);
+      color: #222;
+    }
+
+    .detail-table th,
+    .detail-table td {
+      height: 38px;
+      padding: 0 7px;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-weight: 500;
+    }
+
+    .detail-table th {
+      background: #fafafa;
+    }
+
+    .detail-table td {
+      background: rgba(255, 255, 255, .88);
+      font-weight: 400;
+    }
+
+    .number-input {
+      width: 73px;
+      height: 27px;
+      padding: 0 9px;
+      border: 1px solid #d9d9d9;
+      border-radius: 1px;
+      color: #333;
+    }
+
+    .step-three .actions {
+      margin-top: 18px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="top-card">
+      <h1>角色物品回收 - 新项目</h1>
+      <div class="notice">对角色物品进行回收， <strong>数据库直接移除，请谨慎操作!</strong></div>
+    </header>
+
+    <section class="panel step-one" data-page="1">
+      <div class="stepper" aria-label="回收步骤">
+        <div class="step active"><span class="dot">1</span><span class="label">区服角色确认</span></div>
+        <div class="step center"><span class="dot">2</span><span class="label">回收物品确认</span></div>
+        <div class="step right"><span class="dot">3</span><span class="label">确认信息</span></div>
+      </div>
+
+      <div class="form-box">
+        <div class="field">
+          <label>游戏世界:</label>
+          <input class="control" value="先遣 - 破界之门" disabled>
+        </div>
+        <div class="field">
+          <label>回收角色:</label>
+          <input class="control" value="沉默的大多数（300803）" disabled>
+        </div>
+        <div class="field">
+          <label>回收原因:</label>
+          <textarea class="control">1</textarea>
+        </div>
+        <div class="actions">
+          <button class="btn" type="button" data-next>下一步</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel step-two hidden" data-page="2">
+      <div class="stepper" aria-label="回收步骤">
+        <div class="step done"><span class="dot">✓</span><span class="label">区服角色确认</span></div>
+        <div class="step center active"><span class="dot">2</span><span class="label">回收物品确认</span></div>
+        <div class="step right"><span class="dot">3</span><span class="label">确认信息</span></div>
+      </div>
+
+      <div class="material-wrap">
+        <div class="role-info">当前角色信息：沉默的大多数 - 破界之门</div>
+        <div class="table-tools">
+          <span id="selectedCount">总共已选中0个</span>
+          <input class="mini-check" id="checkAll" type="checkbox">
+          <label for="checkAll">当前全选</label>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <colgroup id="dataColgroup">
+              <col class="col-check">
+              <col class="col-type">
+              <col style="width: 130px">
+              <col class="col-id">
+              <col class="col-name">
+              <col style="width: 120px">
+              <col style="width: 180px">
+              <col style="width: 180px">
+              <col style="width: 180px">
+              <col style="width: 100px">
+              <col class="col-num">
+            </colgroup>
+            <thead id="dataHead">
+              <tr>
+                <th>按钮</th>
+                <th>类型</th>
+                <th>唯一ID</th>
+                <th>物品ID</th>
+                <th>物品名称</th>
+                <th>词条ID</th>
+                <th>基础属性</th>
+                <th>附加属性</th>
+                <th>特殊效果</th>
+                <th>状态</th>
+                <th>数量</th>
+              </tr>
+            </thead>
+            <tbody id="dataBody"></tbody>
+          </table>
+          <div class="column-search-popover hidden" id="columnSearchPopover">
+            <div class="column-search-title" id="columnSearchTitle">查询</div>
+            <input class="column-search-input" id="columnSearchInput" placeholder="请输入查询内容">
+            <div class="column-search-actions">
+              <button class="btn" type="button" id="columnSearchReset">重置</button>
+              <button class="btn primary" type="button" id="columnSearchConfirm">确定</button>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn" type="button" data-prev>上一步</button>
+          <button class="btn primary" type="button" data-next>下一步</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel step-three hidden" data-page="3">
+      <div class="stepper" aria-label="回收步骤">
+        <div class="step done"><span class="dot">✓</span><span class="label">区服角色确认</span></div>
+        <div class="step center done"><span class="dot">✓</span><span class="label">回收物品确认</span></div>
+        <div class="step right active"><span class="dot">3</span><span class="label">确认信息</span></div>
+      </div>
+
+      <div class="summary">
+        <div>回收区服信息： 先遣-破界之门</div>
+        <div>回收角色信息： 沉默的大多数（300803）</div>
+        <div>回收模式： <span id="summaryScope">常规物品回收</span></div>
+        <div class="summary-warning hidden" id="confirmWarning">已使用物品将从角色数据中移除，请再次确认。</div>
+      </div>
+
+      <h2 class="detail-title" id="detailTitle">回收物品详情</h2>
+      <table class="detail-table">
+        <colgroup id="detailColgroup">
+          <col style="width: 20%">
+          <col style="width: 20%">
+          <col style="width: 20%">
+          <col style="width: 20%">
+          <col style="width: 20%">
+        </colgroup>
+        <thead id="detailHead">
+          <tr>
+            <th>类型</th>
+            <th>物品id</th>
+            <th>物品名称</th>
+            <th>物品数量（件）</th>
+            <th>回收数量（件）</th>
+          </tr>
+        </thead>
+        <tbody id="detailBody"></tbody>
+      </table>
+
+      <div class="actions">
+        <button class="btn" type="button" data-prev>上一步</button>
+        <button class="btn primary" id="submitBtn" type="button">提交</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const pages = Array.from(document.querySelectorAll("[data-page]"));
+    const selectedCount = document.querySelector("#selectedCount");
+    const checkAll = document.querySelector("#checkAll");
+    const dataColgroup = document.querySelector("#dataColgroup");
+    const dataHead = document.querySelector("#dataHead");
+    const dataBody = document.querySelector("#dataBody");
+    const summaryScope = document.querySelector("#summaryScope");
+    const confirmWarning = document.querySelector("#confirmWarning");
+    const detailTitle = document.querySelector("#detailTitle");
+    const detailColgroup = document.querySelector("#detailColgroup");
+    const detailHead = document.querySelector("#detailHead");
+    const detailBody = document.querySelector("#detailBody");
+    const submitBtn = document.querySelector("#submitBtn");
+    const columnSearchPopover = document.querySelector("#columnSearchPopover");
+    const columnSearchTitle = document.querySelector("#columnSearchTitle");
+    const columnSearchInput = document.querySelector("#columnSearchInput");
+    const columnSearchReset = document.querySelector("#columnSearchReset");
+    const columnSearchConfirm = document.querySelector("#columnSearchConfirm");
+    let current = 1;
+    let scope = "bag";
+    let activeSearchField = "";
+    const columnFilters = {};
+
+    const dataMap = {
+      bag: {
+        label: "常规物品回收",
+        columns: ["按钮", "类型", "唯一ID", "物品ID", "物品名称", "词条ID", "基础属性", "附加属性", "特殊效果", "状态", "数量"],
+        fields: ["select", "type", "uniqueId", "id", "name", "entryId", "baseAttr", "extraAttr", "specialEffect", "status", "amount"],
+        colWidths: ["80px", "120px", "130px", "120px", "150px", "120px", "180px", "180px", "180px", "100px", "90px"],
+        items: [
+          { type: "材料", uniqueId: "", id: "83301", name: "洛神碎片", entryId: "", baseAttr: "", extraAttr: "", specialEffect: "", status: "", amount: "279" },
+          { type: "符文", uniqueId: "10084801001", id: "84801", name: "xx符文", entryId: "XW-001", baseAttr: "", extraAttr: "", specialEffect: "", status: "已装备/未装备", amount: "1" },
+          { type: "装备", uniqueId: "10000520001", id: "520", name: "xx装备", entryId: "", baseAttr: "突破材料", extraAttr: "灵宠通用", specialEffect: "可选择灵宠使用", status: "已装备/未装备", amount: "1" },
+          { type: "", uniqueId: "10095003001", id: "95003", name: "冬日挂画", entryId: "DR-003", baseAttr: "装饰度+5", extraAttr: "家园氛围+1", specialEffect: "家园展示", status: "未使用", amount: "1" },
+          { type: "", uniqueId: "10084302001", id: "84302", name: "姜子牙碎片", entryId: "JZY-001", baseAttr: "攻击+10", extraAttr: "命中+1%", specialEffect: "集齐后可合成", status: "未使用", amount: "20" },
+          { type: "", uniqueId: "10084603001", id: "84603", name: "雷声天尊碎片", entryId: "LSTZ-001", baseAttr: "攻击+18", extraAttr: "暴击+1%", specialEffect: "集齐后可合成", status: "未使用", amount: "6" },
+          { type: "", uniqueId: "10000309001", id: "309", name: "自选优品功法", entryId: "GF-309", baseAttr: "功法材料", extraAttr: "品质优品", specialEffect: "可自选功法", status: "未使用", amount: "1" }
+        ]
+      },
+      appearance: {
+        label: "已使用物品回收",
+        columns: ["按钮", "类型", "唯一ID", "物品ID", "物品名称", "词条ID", "基础属性", "附加属性", "特殊效果", "状态", "数量"],
+        fields: ["select", "type", "uniqueId", "id", "name", "entryId", "baseAttr", "extraAttr", "specialEffect", "status", "amount"],
+        colWidths: ["80px", "120px", "130px", "120px", "150px", "120px", "180px", "180px", "180px", "100px", "90px"],
+        items: [
+          { type: "时装", uniqueId: "20090001001", id: "90001", name: "赤焰披风", entryId: "FZ-001", baseAttr: "气血+120", extraAttr: "火抗+2%", specialEffect: "外观已激活", status: "已使用", amount: "1" },
+          { type: "头像框", uniqueId: "20090008001", id: "90008", name: "星河头像框", entryId: "TXK-008", baseAttr: "魅力+5", extraAttr: "无", specialEffect: "头像框已激活", status: "已使用", amount: "1" },
+          { type: "坐骑外观", uniqueId: "20091012001", id: "91012", name: "霜翼灵鹿", entryId: "ZQ-012", baseAttr: "移速+3%", extraAttr: "冰抗+1%", specialEffect: "坐骑外观已激活", status: "已使用", amount: "1" }
+        ]
+      }
+    };
+
+    function showPage(page) {
+      current = Math.max(1, Math.min(3, page));
+      pages.forEach(section => {
+        section.classList.toggle("hidden", Number(section.dataset.page) !== current);
+      });
+      window.scrollTo(0, 0);
+    }
+
+    function getCurrentItems() {
+      return dataMap[scope].items;
+    }
+
+    function getFilteredItems() {
+      return getCurrentItems().filter(item => {
+        return Object.entries(columnFilters).every(([field, keyword]) => {
+          if (!keyword) {
+            return true;
+          }
+          return String(item[field] ?? "").includes(keyword);
+        });
+      });
+    }
+
+    function getCheckedRows() {
+      const checkedIds = Array.from(document.querySelectorAll(".item-check:checked")).map(input => input.dataset.id);
+      const rows = getCurrentItems().filter(item => checkedIds.includes(item.id));
+      return rows.length ? rows : getCurrentItems().slice(0, 1);
+    }
+
+    function updateCount() {
+      const itemChecks = Array.from(document.querySelectorAll(".item-check"));
+      const count = itemChecks.filter(input => input.checked).length;
+      selectedCount.textContent = `总共已选中${count}个`;
+      checkAll.checked = itemChecks.length > 0 && count === itemChecks.length;
+    }
+
+    function bindRowChecks() {
+      document.querySelectorAll(".item-check").forEach(input => {
+        input.addEventListener("change", updateCount);
+      });
+    }
+
+    function renderHeader(config) {
+      return `<tr>${config.columns.map((column, index) => {
+        const field = config.fields[index];
+        if (field === "select") {
+          return `<th>${column}</th>`;
+        }
+        const activeClass = columnFilters[field] ? " active" : "";
+        return `
+          <th>
+            <span class="th-content">
+              <span>${column}</span>
+              <button class="column-search-btn${activeClass}" type="button" data-field="${field}" data-label="${column}" aria-label="查询${column}" title="查询${column}">
+                <span class="search-icon" aria-hidden="true"></span>
+              </button>
+            </span>
+          </th>
+        `;
+      }).join("")}</tr>`;
+    }
+
+    function renderRow(item) {
+      return `
+        <tr>
+          <td><input class="mini-check item-check" type="checkbox" data-id="${item.id}"></td>
+          <td>${item.type}</td>
+          <td>${item.uniqueId}</td>
+          <td>${item.id}</td>
+          <td>${item.name}</td>
+          <td>${item.entryId}</td>
+          <td>${item.baseAttr}</td>
+          <td>${item.extraAttr}</td>
+          <td>${item.specialEffect}</td>
+          <td>${item.status}</td>
+          <td>${item.amount}</td>
+        </tr>
+      `;
+    }
+
+    function bindColumnSearch() {
+      document.querySelectorAll(".column-search-btn").forEach(button => {
+        button.addEventListener("click", event => {
+          event.stopPropagation();
+          activeSearchField = button.dataset.field;
+          columnSearchTitle.textContent = `查询${button.dataset.label}`;
+          columnSearchInput.value = columnFilters[activeSearchField] || "";
+          const scrollBox = button.closest(".table-scroll");
+          const scrollRect = scrollBox.getBoundingClientRect();
+          const buttonRect = button.getBoundingClientRect();
+          columnSearchPopover.style.left = `${Math.max(8, buttonRect.left - scrollRect.left + scrollBox.scrollLeft - 110)}px`;
+          columnSearchPopover.style.top = `${buttonRect.bottom - scrollRect.top + scrollBox.scrollTop + 8}px`;
+          columnSearchPopover.classList.remove("hidden");
+          columnSearchInput.focus();
+        });
+      });
+    }
+
+    function renderMainTable() {
+      const config = dataMap[scope];
+      const items = getFilteredItems();
+      dataColgroup.innerHTML = config.colWidths.map(width => `<col style="width: ${width}">`).join("");
+      dataHead.innerHTML = renderHeader(config);
+
+      if (!items.length) {
+        dataBody.innerHTML = `<tr><td class="empty-cell" colspan="${config.columns.length}">暂无可回收物品数据</td></tr>`;
+      } else {
+        dataBody.innerHTML = items.map(renderRow).join("");
+      }
+
+      checkAll.checked = false;
+      bindRowChecks();
+      bindColumnSearch();
+      updateCount();
+    }
+
+    function renderDetail() {
+      const rows = getCheckedRows();
+      const config = dataMap[scope];
+      summaryScope.textContent = config.label;
+      confirmWarning.classList.toggle("hidden", scope !== "appearance");
+
+      if (scope === "bag") {
+        detailTitle.textContent = "回收物品详情";
+        submitBtn.textContent = "提交";
+        detailColgroup.innerHTML = Array.from({ length: 5 }, () => `<col style="width: 20%">`).join("");
+        detailHead.innerHTML = `
+          <tr>
+            <th>类型</th>
+            <th>物品id</th>
+            <th>物品名称</th>
+            <th>物品数量（件）</th>
+            <th>回收数量（件）</th>
+          </tr>
+        `;
+        detailBody.innerHTML = rows.map(item => `
+          <tr>
+            <td>${item.type}</td>
+            <td>${item.id}</td>
+            <td>${item.name}</td>
+            <td>${item.amount}</td>
+            <td><input class="number-input" value="0"></td>
+          </tr>
+        `).join("");
+      } else {
+        detailTitle.textContent = "回收物品详情";
+        submitBtn.textContent = "确认移除已使用物品";
+        detailColgroup.innerHTML = Array.from({ length: 5 }, () => `<col style="width: 20%">`).join("");
+        detailHead.innerHTML = `
+          <tr>
+            <th>类型</th>
+            <th>物品id</th>
+            <th>物品名称</th>
+            <th>物品数量（件）</th>
+            <th>回收数量（件）</th>
+          </tr>
+        `;
+        detailBody.innerHTML = rows.map(item => `
+          <tr>
+            <td>${item.type}</td>
+            <td>${item.id}</td>
+            <td>${item.name}</td>
+            <td>${item.amount}</td>
+            <td>${item.amount}</td>
+          </tr>
+        `).join("");
+      }
+    }
+
+    document.querySelectorAll("[data-next]").forEach(button => {
+      button.addEventListener("click", () => {
+        if (current === 2) {
+          renderDetail();
+        }
+        showPage(current + 1);
+      });
+    });
+
+    document.querySelectorAll("[data-prev]").forEach(button => {
+      button.addEventListener("click", () => showPage(current - 1));
+    });
+
+    checkAll.addEventListener("change", () => {
+      document.querySelectorAll(".item-check").forEach(input => {
+        input.checked = checkAll.checked;
+      });
+      updateCount();
+    });
+
+    columnSearchConfirm.addEventListener("click", () => {
+      const keyword = columnSearchInput.value.trim();
+      if (activeSearchField && keyword) {
+        columnFilters[activeSearchField] = keyword;
+      } else if (activeSearchField) {
+        delete columnFilters[activeSearchField];
+      }
+      columnSearchPopover.classList.add("hidden");
+      renderMainTable();
+    });
+
+    columnSearchReset.addEventListener("click", () => {
+      if (activeSearchField) {
+        delete columnFilters[activeSearchField];
+      }
+      columnSearchInput.value = "";
+      columnSearchPopover.classList.add("hidden");
+      renderMainTable();
+    });
+
+    columnSearchInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        columnSearchConfirm.click();
+      }
+    });
+
+    document.addEventListener("click", event => {
+      if (!columnSearchPopover.contains(event.target) && !event.target.closest(".column-search-btn")) {
+        columnSearchPopover.classList.add("hidden");
+      }
+    });
+
+    renderMainTable();
+    renderDetail();
+  </script>
+</body>
+</html>
