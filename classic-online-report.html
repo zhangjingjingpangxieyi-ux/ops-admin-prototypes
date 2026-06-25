@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>&#20195;&#21495;&#32463;&#20856;&#23454;&#26102;&#22312;&#32447;&#25253;&#34920;</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;min-height:100%;overflow:auto}
+body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;color:#17233d;background:#f1f4f8;font-size:13px}
+.page{position:relative;width:100%;min-width:1180px;min-height:100vh;padding-bottom:28px;background:#f1f4f8}
+.marks{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.mark{position:absolute;color:#dfe5ed;opacity:.44;font-size:15px;white-space:nowrap;transform:rotate(-28deg)}
+.bar{position:relative;z-index:30;height:66px;padding:21px 12px 0;background:rgba(255,255,255,.97);display:flex;align-items:flex-start}
+.field{position:relative;height:32px;display:flex;align-items:center;margin-right:11px}
+.field label{font-weight:700;margin-right:7px;white-space:nowrap;line-height:32px}
+.required{color:#f04d5d;margin-right:3px}
+.select{width:190px;height:32px;border:1px solid #d9dde5;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 12px;color:#182337;cursor:pointer}
+.field.server .select{width:205px}
+.field.db .select{width:185px}
+.field.open .select{border-color:#2d9cff;box-shadow:0 0 0 1px rgba(45,156,255,.12)}
+.value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.clear{display:flex;align-items:center;justify-content:center;width:15px;height:15px;margin-left:auto;margin-right:8px;border-radius:50%;background:#c8ccd2;color:#fff;font-style:normal;font-size:12px;line-height:15px}
+.arr{width:8px;height:8px;border-right:1px solid #a8afbb;border-bottom:1px solid #a8afbb;transform:rotate(45deg) translateY(-2px);flex:0 0 auto}
+.menu{display:none;position:absolute;left:calc(100% - 190px);top:32px;z-index:60;width:190px;max-height:275px;overflow-y:auto;background:#fff;border:1px solid #e4e8ee;box-shadow:0 10px 24px rgba(20,32,48,.18)}
+.field.server .menu{left:calc(100% - 205px);width:205px}
+.field.db .menu{left:calc(100% - 185px);width:185px}
+.field.open .menu{display:block}
+.option{height:40px;padding:0 14px;display:flex;align-items:center;color:#111827;background:#fff;cursor:pointer;font-size:14px}
+.option:hover,.option.active{background:#e2f5ff;font-weight:700}
+.option input{margin:0 8px 0 0}
+.menu::-webkit-scrollbar{width:8px}
+.menu::-webkit-scrollbar-thumb{border-radius:8px;background:#cfd4dc}
+.menu::-webkit-scrollbar-track{background:#f4f6f8}
+.query{width:64px;height:32px;margin-left:-4px;border:1px solid #168cff;background:#178fff;color:#fff;font-size:13px;line-height:30px;cursor:pointer}
+.query.loading{opacity:.72}
+.gap{position:relative;z-index:1;height:10px;background:#edf1f6}
+.dashboard{position:relative;z-index:1;margin:10px 12px 0;padding:16px;background:rgba(255,255,255,.97)}
+.dashboard.refreshing,.tablebox.refreshing{filter:blur(.6px);opacity:.72}
+.dash-head{display:flex;align-items:center;justify-content:space-between;height:34px;margin-bottom:14px}
+.dash-title{font-size:16px;font-weight:700;color:#17233d}
+.dash-sub{margin-left:10px;color:#7b8797;font-size:12px;font-weight:400}
+.mode{height:26px;padding:0 10px;border:1px solid #cfe5ff;background:#eef7ff;color:#168cff;line-height:24px;font-weight:700}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.metric{height:82px;padding:13px 16px;border:1px solid #eef1f5;background:#fff}
+.metric .name{color:#687386;font-size:12px}
+.metric .num{margin-top:10px;font-size:26px;font-weight:700;color:#17233d;line-height:1}
+.metric .hint{margin-top:8px;color:#8b96a8;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.panel{position:relative;padding:14px;border:1px solid #eef1f5;background:#fff}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.panel-title{height:24px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:700}
+.panel-title span{font-size:12px;color:#8b96a8;font-weight:400}
+.trend{width:100%;height:310px}
+.axis{stroke:#e8edf4;stroke-width:1}
+.line{fill:none;stroke:#168cff;stroke-width:3}
+.area{fill:#168cff;opacity:.1}
+.dot{fill:#168cff;stroke:#fff;stroke-width:2}
+.active-dot{fill:#f05b72;stroke:#fff;stroke-width:3}
+.label{fill:#8b96a8;font-size:12px}
+.chart-tip{display:none;position:absolute;z-index:10;min-width:150px;padding:10px 12px;border-radius:3px;background:#fff;color:#17233d;box-shadow:0 6px 18px rgba(20,32,48,.18);font-size:12px;pointer-events:none}
+.chart-tip .time{margin-bottom:8px;color:#7b8797}
+.chart-tip .value:before{content:"";display:inline-block;width:8px;height:8px;margin-right:7px;border-radius:50%;background:#168cff}
+.hover-line{display:none;stroke:#aab4c3;stroke-width:1;stroke-dasharray:4 4}
+.hover-dot{display:none;fill:#168cff;stroke:#fff;stroke-width:2}
+.tablebox{position:relative;z-index:1;min-height:154px;margin:10px 12px 0;padding:53px 12px 16px;background:rgba(255,255,255,.97)}
+.tools{position:absolute;top:22px;right:96px;display:flex;gap:18px;color:#111827}
+.tools svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff;font-size:13px}
+th,td{height:39px;padding:0 10px;border:1px solid #edf0f5;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+th{background:#fbfbfc;font-weight:700}
+td{background:#fff;font-weight:400}
+col.c0{width:142px}col.c1{width:124px}col.c2{width:130px}col.c3{width:82px}col.c4{width:108px}col.c5{width:126px}col.c13{width:80px}
+.fb{position:fixed;right:0;top:347px;z-index:2;width:28px;height:52px;overflow:hidden;border-radius:8px 0 0 8px;background:#082a58;color:#fff;text-align:center;font-size:12px;box-shadow:0 2px 8px rgba(5,27,61,.45)}
+.fb:before{content:"";display:block;width:23px;height:23px;margin:3px auto -1px;border-radius:50%;background:radial-gradient(circle at 12px 8px,#fff 0 2px,transparent 3px),radial-gradient(circle at 8px 9px,#fff 0 1px,transparent 2px),linear-gradient(135deg,#cce5ff,#3b91ff)}
+.fb span{display:block;transform:scale(.88);line-height:14px}
+.toast{display:none;position:fixed;left:50%;top:82px;z-index:80;transform:translateX(-50%);height:34px;padding:0 18px;border-radius:3px;background:rgba(23,35,61,.88);color:#fff;line-height:34px;box-shadow:0 6px 18px rgba(20,32,48,.22)}
+.toast.show{display:block}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="marks">
+<span class="mark" style="left:-35px;top:48px">zhangjing&nbsp;&nbsp;&#24352;&#38745;&nbsp;&nbsp;&#20195;&#21495;&#32463;&#20856;&#22312;&#32447;&#30417;&#25511;</span>
+<span class="mark" style="left:245px;top:35px">zhangjing&nbsp;&nbsp;&#24352;&#38745;&nbsp;&nbsp;&#20195;&#21495;&#32463;&#20856;&#22312;&#32447;&#30417;&#25511;</span>
+<span class="mark" style="left:525px;top:35px">zhangjing&nbsp;&nbsp;&#24352;&#38745;&nbsp;&nbsp;&#20195;&#21495;&#32463;&#20856;&#22312;&#32447;&#30417;&#25511;</span>
+<span class="mark" style="left:805px;top:35px">zhangjing&nbsp;&nbsp;&#24352;&#38745;&nbsp;&nbsp;&#20195;&#21495;&#32463;&#20856;&#22312;&#32447;&#30417;&#25511;</span>
+<span class="mark" style="left:1085px;top:35px">zhangjing&nbsp;&nbsp;&#24352;&#38745;&nbsp;&nbsp;&#20195;&#21495;&#32463;&#20856;&#22312;&#32447;&#30417;&#25511;</span>
+<span class="mark" style="left:-35px;top:225px">zhangjing&nbsp;&nbsp;&#24352;&#38745;&nbsp;&nbsp;&#20195;&#21495;&#32463;&#20856;&#22312;&#32447;&#30417;&#25511;</span>
+<span class="mark" style="left:245px;top:225px">zhangjing&nbsp;&nbsp;&#24352;&#38745;&nbsp;&nbsp;&#20195;&#21495;&#32463;&#20856;&#22312;&#32447;&#30417;&#25511;</span>
+<span class="mark" style="left:525px;top:225px">zhangjing&nbsp;&nbsp;&#24352;&#38745;&nbsp;&nbsp;&#20195;&#21495;&#32463;&#20856;&#22312;&#32447;&#30417;&#25511;</span>
+<span class="mark" style="left:805px;top:225px">zhangjing&nbsp;&nbsp;&#24352;&#38745;&nbsp;&nbsp;&#20195;&#21495;&#32463;&#20856;&#22312;&#32447;&#30417;&#25511;</span>
+<span class="mark" style="left:1085px;top:225px">zhangjing&nbsp;&nbsp;&#24352;&#38745;&nbsp;&nbsp;&#20195;&#21495;&#32463;&#20856;&#22312;&#32447;&#30417;&#25511;</span>
+<span class="mark" style="left:-35px;top:405px">zhangjing&nbsp;&nbsp;&#24352;&#38745;&nbsp;&nbsp;&#20195;&#21495;&#32463;&#20856;&#22312;&#32447;&#30417;&#25511;</span>
+<span class="mark" style="left:245px;top:405px">zhangjing&nbsp;&nbsp;&#24352;&#38745;&nbsp;&nbsp;&#20195;&#21495;&#32463;&#20856;&#22312;&#32447;&#30417;&#25511;</span>
+<span class="mark" style="left:525px;top:405px">zhangjing&nbsp;&nbsp;&#24352;&#38745;&nbsp;&nbsp;&#20195;&#21495;&#32463;&#20856;&#22312;&#32447;&#30417;&#25511;</span>
+<span class="mark" style="left:805px;top:405px">zhangjing&nbsp;&nbsp;&#24352;&#38745;&nbsp;&nbsp;&#20195;&#21495;&#32463;&#20856;&#22312;&#32447;&#30417;&#25511;</span>
+<span class="mark" style="left:1085px;top:405px">zhangjing&nbsp;&nbsp;&#24352;&#38745;&nbsp;&nbsp;&#20195;&#21495;&#32463;&#20856;&#22312;&#32447;&#30417;&#25511;</span>
+</div>
+<section class="bar">
+<div class="field game">
+<label><span class="required">*</span>&#32463;&#20856;&#28216;&#25103;&#19990;&#30028;:</label>
+<div class="select" role="button" tabindex="0"><span class="value">&#20195;&#21495;&#32463;&#20856;</span><i class="arr"></i></div>
+<div class="menu"><div class="option active">&#20195;&#21495;&#32463;&#20856;</div></div>
+</div>
+<div class="field server">
+<label>&#36828;&#24449;&#21306;&#26381;:</label>
+<div class="select" role="button" tabindex="0"><span class="value">&#20840;&#37096;&#36828;&#24449;&#21306;&#26381;</span><i class="clear">&times;</i><i class="arr"></i></div>
+<div class="menu">
+<label class="option"><input type="checkbox" value="all" checked> &#20840;&#37096;&#36828;&#24449;&#21306;&#26381;</label>
+<label class="option"><input type="checkbox" value="3038"> &#40857;&#33150;(3038)</label>
+<label class="option"><input type="checkbox" value="538"> &#20116;&#19977;&#20843;(538)</label>
+<label class="option"><input type="checkbox" value="3208"> &#19977;&#20108;&#38646;&#20843;(3208)</label>
+<label class="option"><input type="checkbox" value="3230"> &#19977;&#20108;&#19977;&#38646;(3230)</label>
+</div>
+</div>
+<div class="field db">
+<label>&#21382;&#21490;&#25968;&#25454;&#24211;:</label>
+<div class="select" role="button" tabindex="0"><span class="value">&#36817;15&#22825;</span><i class="clear">&times;</i><i class="arr"></i></div>
+<div class="menu">
+<div class="option active" data-db="range15">&#36817;15&#22825;</div>
+<div class="option" data-db="today">&#24403;&#26085;&#25968;&#25454;&#24211;</div>
+<div class="option" data-db="yesterday">&#26152;&#26085;&#25968;&#25454;&#24211;</div>
+<div class="option" data-db="260617">260617&#25968;&#25454;&#24211;</div>
+<div class="option" data-db="260616">260616&#25968;&#25454;&#24211;</div>
+<div class="option" data-db="260615">260615&#25968;&#25454;&#24211;</div>
+<div class="option" data-db="260614">260614&#25968;&#25454;&#24211;</div>
+<div class="option" data-db="260613">260613&#25968;&#25454;&#24211;</div>
+</div>
+</div>
+<button class="query">&#26597;&#35810;</button>
+</section>
+<div class="gap"></div>
+<section class="dashboard">
+<div class="dash-head">
+<div class="dash-title">&#20195;&#21495;&#32463;&#20856;&#22312;&#32447;&#35282;&#33394;&#25968;&#30417;&#25511;<span class="dash-sub" id="scopeText">&#24403;&#21069;&#21475;&#24452;: &#20840;&#37096;&#36828;&#24449;&#21306;&#26381;</span></div>
+<div class="mode">&#21452;&#25968;&#25454;&#28304;</div>
+</div>
+<div class="metrics">
+<div class="metric"><div class="name">&#27719;&#24635;&#22312;&#32447;&#35282;&#33394;&#25968;</div><div class="num">0</div><div class="hint"></div></div>
+<div class="metric"><div class="name">&#21382;&#21490;&#32047;&#35745;&#23792;&#20540;</div><div class="num">0</div><div class="hint">&#23792;&#20540;&#26085;&#26399;</div></div>
+<div class="metric"><div class="name">&#24403;&#26085;&#20998;&#38047;&#23792;&#20540;</div><div class="num">0</div><div class="hint">&#23792;&#20540;&#26102;&#38388;</div></div>
+<div class="metric"><div class="name">&#26597;&#35810;&#21306;&#26381;&#33539;&#22260;</div><div class="num">4</div><div class="hint">&#26410;&#36873;&#25321;&#26102;&#40664;&#35748;&#20840;&#37096;</div></div>
+</div>
+<div class="chart-grid">
+<div class="panel">
+<div class="panel-title">&#21382;&#21490;&#32047;&#35745;&#22312;&#32447;&#36235;&#21183;<span id="historyCaption">&#25968;&#25454;&#28304;: &#21382;&#21490;&#25968;&#25454;&#24211; / &#36817;15&#22825;&#27599;&#26085;&#25968;&#25454;</span></div>
+<svg class="trend" id="historyTrend" viewBox="0 0 1040 310" preserveAspectRatio="none" aria-label="history online trend"></svg>
+<div class="chart-tip" id="historyTip"><div class="time"></div><div class="value"></div></div>
+</div>
+<div class="panel">
+<div class="panel-title">&#20998;&#38047;&#32423;&#22312;&#32447;&#36235;&#21183;<span id="minuteCaption">&#24403;&#21069;&#23637;&#31034;: 260617&#25968;&#25454;&#24211; / 1&#20998;&#38047;&#31890;&#24230;</span></div>
+<svg class="trend" id="realtimeTrend" viewBox="0 0 1040 310" preserveAspectRatio="none" aria-label="realtime online trend"></svg>
+<div class="chart-tip" id="realtimeTip"><div class="time"></div><div class="value"></div></div>
+</div>
+</div>
+</section>
+<main class="tablebox">
+<div class="tools">
+<svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M5 21h14"/></svg>
+<svg viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M8 7h8"/><path d="M8 17h8"/></svg>
+<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+</div>
+<table>
+<colgroup><col class="c0"><col class="c1"><col class="c2"><col class="c3"><col class="c4"><col class="c5"><col><col><col><col><col><col><col class="c13"></colgroup>
+<thead><tr><th>&#21382;&#21490;&#25968;&#25454;&#24211;(&#26102;&#38388;)</th><th>&#32463;&#20856;&#28216;&#25103;&#19990;&#30028;</th><th>&#36828;&#24449;&#21306;&#26381;</th><th>&#25991;&#26126;&#31561;&#32423;</th><th>&#30331;&#24405;&#36134;&#21495;&#25968;</th><th>&#24403;&#21069;&#22312;&#32447;&#35282;&#33394;&#25968;</th><th>&#24189;&#24030;&#35282;&#33394;&#25968;</th><th>&#38647;&#24030;&#35282;&#33394;&#25968;</th><th>&#20113;&#24030;&#35282;&#33394;&#25968;</th><th>&#27494;&#22307;</th><th>&#22825;&#24072;</th><th>&#24189;&#20901;</th><th>&#21073;&#20185;</th></tr></thead>
+<tbody></tbody>
+</table>
+</main>
+<div class="fb"><span>&#24847;&#35265;</span></div>
+<div class="toast" id="toast">&#26597;&#35810;&#24050;&#26356;&#26032;</div>
+</div>
+<script>
+var servers=[
+  {id:"3038",name:"\u9f99\u817e(3038)",base:12,state:[5,4,3],job:[4,3,3,4]},
+  {id:"538",name:"\u4e94\u4e09\u516b(538)",base:8,state:[3,3,2],job:[3,2,3,2]},
+  {id:"3208",name:"\u4e09\u4e8c\u96f6\u516b(3208)",base:15,state:[6,5,4],job:[5,6,4,5]},
+  {id:"3230",name:"\u4e09\u4e8c\u4e09\u96f6(3230)",base:6,state:[2,2,2],job:[2,2,2,2]}
+];
+var days=["260603","260604","260605","260606","260607","260608","260609","260610","260611","260612","260613","260614","260615","260616","260617"];
+var state={selected:["all"],db:"range15",dbLabel:"\u8fd115\u5929",minuteDay:"260617"};
+function selectedServers(){return state.selected.indexOf("all")>-1?servers:servers.filter(function(s){return state.selected.indexOf(s.id)>-1;});}
+function dayValue(serverIndex,dayIndex){var s=servers[serverIndex];return Math.max(0,s.base+Math.round(Math.sin((dayIndex+serverIndex)*.9)*3)+dayIndex%4);}
+function dbDayFromState(){
+  if(state.db==="range15"||state.db==="today"){return days[days.length-1];}
+  if(state.db==="yesterday"){return days[days.length-2];}
+  return state.db;
+}
+function minuteValue(serverIndex,pointIndex,day){
+  var s=servers[serverIndex],hour=pointIndex/60;
+  var dayIndex=Math.max(0,days.indexOf(day));
+  var dayCurve=Math.sin((hour-7)/24*Math.PI)*8+Math.max(0,hour-17)*1.2;
+  var ripple=Math.sin(pointIndex*.37+serverIndex+dayIndex*.4)*3+Math.cos(pointIndex*.11+serverIndex*2+dayIndex)*2;
+  var jag=((pointIndex*37+serverIndex*19+dayIndex*13)%11)-5;
+  return Math.max(0,Math.round(s.base+dayCurve+ripple+jag));
+}
+function labelShort(name){return name.replace(/\(.+\)/,"");}
+function esc(text){return String(text).replace(/[&<>"']/g,function(s){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[s];});}
+function splitStateCount(server,online){
+  var weights=server.state,total=weights.reduce(function(sum,n){return sum+n;},0),left=online;
+  return weights.map(function(weight,index){
+    var value=index===weights.length-1?left:Math.round(online*weight/total);
+    left-=value;
+    return value;
+  });
+}
+function buildHistoryTrend(){
+  var chosen=selectedServers();
+  if(state.db!=="range15"){
+    var day=dbDayFromState(),di=Math.max(0,days.indexOf(day));
+    return [{x:day,y:chosen.reduce(function(sum,s){return sum+dayValue(servers.indexOf(s),di);},0)}];
+  }
+  return days.map(function(day,di){return {x:day,y:chosen.reduce(function(sum,s){return sum+dayValue(servers.indexOf(s),di);},0)};});
+}
+function buildRealtimeTrend(day){
+  var chosen=selectedServers();
+  var points=[];
+  for(var i=0;i<1440;i++){
+    var hh=String(Math.floor(i/60)).padStart(2,"0"),mm=String(i%60).padStart(2,"0");
+    points.push({x:hh+":"+mm,y:chosen.reduce(function(sum,s){return sum+minuteValue(servers.indexOf(s),i,day);},0),day:day});
+  }
+  return points;
+}
+function renderChart(svgSelector,data,activeX){
+  var max=Math.max.apply(null,data.map(function(p){return p.y;}).concat([1]));
+  var w=1040,h=310,left=48,right=24,top=24,bottom=44,plotW=w-left-right,plotH=h-top-bottom;
+  var pts=data.map(function(p,i){return [left+(data.length===1?plotW/2:i*(plotW/Math.max(1,data.length-1))),top+plotH-(p.y/max)*plotH,p];});
+  var line=pts.map(function(p,i){return (i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1);}).join(" ");
+  var area=line+" L"+(w-right)+" "+(h-bottom)+" L"+left+" "+(h-bottom)+" Z";
+  var grid='<path class="axis" d="M48 24H1016M48 84H1016M48 145H1016M48 205H1016M48 266H1016M48 24V266"/>';
+  var yLabels='<text class="label" x="12" y="29">'+max+'</text><text class="label" x="18" y="150">'+Math.round(max/2)+'</text><text class="label" x="28" y="270">0</text>';
+  var step=data.length>100?240:Math.ceil(data.length/6);
+  var xLabels=pts.filter(function(_,i){return i%step===0||i===pts.length-1;}).map(function(p){return '<text class="label" x="'+(p[0]-16).toFixed(1)+'" y="300">'+p[2].x+'</text>';}).join("");
+  var dots=data.length>100?"":pts.filter(function(_,i){return i%step===0||i===pts.length-1;}).map(function(p){return '<circle class="dot" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="4"><title>'+p[2].x+" "+p[2].y+'</title></circle>';}).join("");
+  var active=activeX?pts.filter(function(p){return p[2].x===activeX;}).map(function(p){return '<circle class="active-dot" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="6"></circle>';}).join(""):"";
+  var svg=document.querySelector(svgSelector);
+  svg.__chartPoints=pts;
+  svg.innerHTML=grid+yLabels+'<path class="area" d="'+area+'"/><path class="line" d="'+line+'"/>'+dots+active+'<line class="hover-line" x1="0" y1="24" x2="0" y2="266"/><circle class="hover-dot" cx="0" cy="0" r="5"/>'+xLabels;
+}
+function renderTable(){
+  var chosen=selectedServers(),rows=[];
+  if(state.db==="range15"){
+    days.slice().reverse().forEach(function(day,diRev){
+      var di=days.indexOf(day);
+      chosen.forEach(function(s){
+        var si=servers.indexOf(s),online=dayValue(si,di),login=Math.max(1,online-1);
+        var stateCounts=splitStateCount(s,online);
+        rows.push([day+"\u6570\u636e\u5e93","\u4ee3\u53f7\u7ecf\u5178",s.name,1,login,stateCounts[0]+stateCounts[1]+stateCounts[2],stateCounts[0],stateCounts[1],stateCounts[2],s.job[0],s.job[1],s.job[2],s.job[3]]);
+      });
+    });
+  }else{
+    var tableDay=dbDayFromState(),di=Math.max(0,days.indexOf(tableDay));
+    chosen.forEach(function(s){
+      var si=servers.indexOf(s),online=dayValue(si,di),login=Math.max(1,online-1);
+      var stateCounts=splitStateCount(s,online);
+      rows.push([tableDay+"\u6570\u636e\u5e93","\u4ee3\u53f7\u7ecf\u5178",s.name,1,login,stateCounts[0]+stateCounts[1]+stateCounts[2],stateCounts[0],stateCounts[1],stateCounts[2],s.job[0],s.job[1],s.job[2],s.job[3]]);
+    });
+  }
+  document.querySelector("tbody").innerHTML=rows.map(function(row){return "<tr>"+row.map(function(cell){return "<td>"+esc(cell)+"</td>";}).join("")+"</tr>";}).join("");
+  return rows;
+}
+/* legacy single-chart renderer disabled after splitting history and realtime charts
+function render(){
+  var chosen=selectedServers(),trend=buildTrend(),latest=trend[trend.length-1],peak=trend.reduce(function(a,b){return a.y>b.y?a:b;});
+  document.querySelector("#scopeText").textContent="\u5f53\u524d\u53e3\u5f84: "+(state.selected.indexOf("all")>-1?"\u5168\u90e8\u8fdc\u5f81\u533a\u670d":chosen.map(function(s){return labelShort(s.name);}).join("、"))+" / "+(state.db==="range15"?"\u8fd115\u5929\u6bcf\u65e5\u6570\u636e":"\u5355\u65e51\u5206\u949f\u4e0a\u62a5\u6570\u636e");
+  document.querySelector("#modeText").textContent=state.db==="range15"?"\u6bcf\u65e5\u8d8b\u52bf":"1\u5206\u949f\u8d8b\u52bf";
+  document.querySelector("#axisText").textContent=state.db==="range15"?"X\u8f74: \u65e5\u671f / Y\u8f74: \u5728\u7ebf\u89d2\u8272\u6570":"X\u8f74: \u4e0a\u62a5\u65f6\u95f4\u70b9 / Y\u8f74: \u5728\u7ebf\u89d2\u8272\u6570";
+  renderChart(trend);
+  var rows=renderTable(),tableTotal=rows.reduce(function(sum,row){return sum+Number(row[5]||0);},0);
+  var m=document.querySelectorAll(".metric");
+  m[0].querySelector(".num").textContent=tableTotal;m[0].querySelector(".hint").textContent="\u5217\u8868\u5f53\u524d\u5728\u7ebf\u89d2\u8272\u6570\u6c47\u603b";
+  m[1].querySelector(".num").textContent=peak.y;m[1].querySelector(".hint").textContent="\u5cf0\u503c\u65f6\u95f4 "+peak.x;
+  m[2].querySelector(".num").textContent=chosen.length;m[2].querySelector(".hint").textContent=state.selected.indexOf("all")>-1?"\u5168\u90e8\u8fdc\u5f81\u533a\u670d":"\u5df2\u9009 "+chosen.length+" \u4e2a\u533a\u670d";
+  m[3].querySelector(".num").textContent=state.db==="range15"?"\u5929":"1\u5206\u949f";m[3].querySelector(".hint").textContent=state.dbLabel;
+  bindChartHover();
+}
+function updateServerLabel(){
+  var value=document.querySelector(".field.server .value"),boxes=[].slice.call(document.querySelectorAll(".field.server input:not([value=all])")),checked=boxes.filter(function(b){return b.checked;});
+  if(state.selected.indexOf("all")>-1||checked.length===0){value.textContent="\u5168\u90e8\u8fdc\u5f81\u533a\u670d";return;}
+  value.textContent=checked.length===1?checked[0].parentNode.textContent.trim():"\u5df2\u9009 "+checked.length+" \u4e2a\u533a\u670d";
+}
+function bindChartHover(){
+  var svg=document.querySelector(".trend"),tip=document.getElementById("chartTip"),line=svg.querySelector(".hover-line"),dot=svg.querySelector(".hover-dot");
+  svg.onmousemove=function(event){
+    if(!window.chartPoints||!window.chartPoints.length){return;}
+    var rect=svg.getBoundingClientRect(),viewX=(event.clientX-rect.left)/rect.width*1040;
+    var left=48,right=1016,index=Math.round((viewX-left)/(right-left)*(window.chartPoints.length-1));
+    index=Math.max(0,Math.min(window.chartPoints.length-1,index));
+    var p=window.chartPoints[index],item=p[2];
+    line.style.display="block";dot.style.display="block";
+    line.setAttribute("x1",p[0]);line.setAttribute("x2",p[0]);
+    dot.setAttribute("cx",p[0]);dot.setAttribute("cy",p[1]);
+    tip.querySelector(".time").textContent=(state.db==="range15"?item.x+"\u6570\u636e\u5e93":state.dbLabel+" "+item.x);
+    tip.querySelector(".value").textContent="\u5728\u7ebf\u89d2\u8272\u6570 "+item.y;
+    tip.style.display="block";
+    var panel=svg.parentNode.getBoundingClientRect(),x=event.clientX-panel.left+14,y=event.clientY-panel.top-42;
+    if(x+170>panel.width){x=event.clientX-panel.left-178;}
+    if(y<42){y=event.clientY-panel.top+18;}
+    tip.style.left=x+"px";tip.style.top=y+"px";
+  };
+  svg.onmouseleave=function(){
+    tip.style.display="none";
+    line.style.display="none";
+    dot.style.display="none";
+  };
+}
+*/
+function render(){
+  if(state.db!=="range15"){state.minuteDay=dbDayFromState();}
+  if(state.db==="range15"&&days.indexOf(state.minuteDay)===-1){state.minuteDay=days[days.length-1];}
+  var chosen=selectedServers(),historyTrend=buildHistoryTrend(),realtimeTrend=buildRealtimeTrend(state.minuteDay);
+  var latestRealtime=realtimeTrend[realtimeTrend.length-1];
+  var historyPeak=historyTrend.reduce(function(a,b){return a.y>b.y?a:b;});
+  var realtimePeak=realtimeTrend.reduce(function(a,b){return a.y>b.y?a:b;});
+  document.querySelector("#scopeText").textContent="\u5f53\u524d\u53e3\u5f84: "+(state.selected.indexOf("all")>-1?"\u5168\u90e8\u8fdc\u5f81\u533a\u670d":chosen.map(function(s){return labelShort(s.name);}).join("\u3001"));
+  document.querySelector("#historyCaption").textContent=state.db==="range15"?"\u6570\u636e\u6e90: \u5386\u53f2\u6570\u636e\u5e93 / \u8fd115\u5929\u6bcf\u65e5\u6570\u636e":"\u6570\u636e\u6e90: \u5386\u53f2\u6570\u636e\u5e93 / \u6240\u9009\u65e5\u671f\u5355\u70b9\u6570\u636e";
+  document.querySelector("#minuteCaption").textContent="\u5f53\u524d\u5c55\u793a: "+state.minuteDay+"\u6570\u636e\u5e93 / 1\u5206\u949f\u7c92\u5ea6";
+  renderChart("#historyTrend",historyTrend,state.minuteDay);
+  renderChart("#realtimeTrend",realtimeTrend);
+  var rows=renderTable(),tableTotal=rows.reduce(function(sum,row){return sum+Number(row[5]||0);},0);
+  var m=document.querySelectorAll(".metric");
+  m[0].querySelector(".num").textContent=tableTotal;m[0].querySelector(".hint").textContent="";
+  m[1].querySelector(".num").textContent=historyPeak.y;m[1].querySelector(".hint").textContent="\u5cf0\u503c\u65e5\u671f "+historyPeak.x;
+  m[2].querySelector(".num").textContent=realtimePeak.y;m[2].querySelector(".hint").textContent="\u5cf0\u503c\u65f6\u95f4 "+realtimePeak.x;
+  m[3].querySelector(".num").textContent=chosen.length;m[3].querySelector(".hint").textContent=state.selected.indexOf("all")>-1?"\u5168\u90e8\u8fdc\u5f81\u533a\u670d":"\u5df2\u9009 "+chosen.length+" \u4e2a\u533a\u670d";
+  bindChartHover("#historyTrend","#historyTip","\u5386\u53f2\u6570\u636e\u5e93",function(item){state.minuteDay=item.x;render();});
+  bindChartHover("#realtimeTrend","#realtimeTip","\u5f53\u65e5db\u5e93");
+}
+function updateServerLabel(){
+  var value=document.querySelector(".field.server .value"),boxes=[].slice.call(document.querySelectorAll(".field.server input:not([value=all])")),checked=boxes.filter(function(b){return b.checked;});
+  if(state.selected.indexOf("all")>-1||checked.length===0){value.textContent="\u5168\u90e8\u8fdc\u5f81\u533a\u670d";return;}
+  value.textContent=checked.length===1?checked[0].parentNode.textContent.trim():"\u5df2\u9009 "+checked.length+" \u4e2a\u533a\u670d";
+}
+function bindChartHover(svgSelector,tipSelector,sourceLabel,onPointClick){
+  var svg=document.querySelector(svgSelector),tip=document.querySelector(tipSelector),line=svg.querySelector(".hover-line"),dot=svg.querySelector(".hover-dot");
+  var activeItem=null;
+  svg.onmousemove=function(event){
+    var pts=svg.__chartPoints;
+    if(!pts||!pts.length){return;}
+    var rect=svg.getBoundingClientRect(),viewX=(event.clientX-rect.left)/rect.width*1040;
+    var left=48,right=1016,index=Math.round((viewX-left)/(right-left)*(pts.length-1));
+    index=Math.max(0,Math.min(pts.length-1,index));
+    var p=pts[index],item=p[2];
+    activeItem=item;
+    line.style.display="block";dot.style.display="block";
+    line.setAttribute("x1",p[0]);line.setAttribute("x2",p[0]);
+    dot.setAttribute("cx",p[0]);dot.setAttribute("cy",p[1]);
+    tip.querySelector(".time").textContent=sourceLabel+" "+item.x;
+    tip.querySelector(".value").textContent="\u5728\u7ebf\u89d2\u8272\u6570 "+item.y;
+    tip.style.display="block";
+    var panel=svg.parentNode.getBoundingClientRect(),x=event.clientX-panel.left+14,y=event.clientY-panel.top-42;
+    if(x+170>panel.width){x=event.clientX-panel.left-178;}
+    if(y<42){y=event.clientY-panel.top+18;}
+    tip.style.left=x+"px";tip.style.top=y+"px";
+  };
+  svg.onmouseleave=function(){
+    tip.style.display="none";
+    line.style.display="none";
+    dot.style.display="none";
+  };
+  svg.onclick=function(){
+    if(activeItem&&onPointClick){onPointClick(activeItem);}
+  };
+}
+document.querySelectorAll(".menu").forEach(function(menu){
+  menu.addEventListener("click",function(event){event.stopPropagation();});
+});
+document.querySelectorAll(".field").forEach(function(field){
+  var select=field.querySelector(".select");
+  select.addEventListener("click",function(event){event.stopPropagation();document.querySelectorAll(".field.open").forEach(function(openField){if(openField!==field){openField.classList.remove("open");}});field.classList.toggle("open");});
+});
+document.querySelectorAll(".field.game .option").forEach(function(option){option.addEventListener("click",function(event){event.stopPropagation();document.querySelector(".field.game .value").textContent=option.textContent;document.querySelector(".field.game").classList.remove("open");});});
+document.querySelectorAll(".field.db .option").forEach(function(option){option.addEventListener("click",function(event){event.stopPropagation();document.querySelectorAll(".field.db .option").forEach(function(item){item.classList.remove("active");});option.classList.add("active");state.db=option.getAttribute("data-db");state.dbLabel=option.textContent;state.minuteDay=dbDayFromState();document.querySelector(".field.db .value").textContent=option.textContent;document.querySelector(".field.db").classList.remove("open");});});
+document.querySelectorAll(".field.server input").forEach(function(box){
+  box.addEventListener("click",function(event){event.stopPropagation();});
+  box.addEventListener("change",function(){
+    var all=document.querySelector('.field.server input[value="all"]'),boxes=[].slice.call(document.querySelectorAll(".field.server input:not([value=all])"));
+    if(box.value==="all"){boxes.forEach(function(b){b.checked=box.checked;});state.selected=["all"];}
+    else{all.checked=false;var checked=boxes.filter(function(b){return b.checked;});state.selected=checked.length?checked.map(function(b){return b.value;}):["all"];if(!checked.length){all.checked=true;}}
+    updateServerLabel();
+  });
+});
+document.querySelector(".query").addEventListener("click",function(){
+  var btn=this,dash=document.querySelector(".dashboard"),table=document.querySelector(".tablebox"),toast=document.getElementById("toast");
+  btn.classList.add("loading");btn.textContent="\u67e5\u8be2\u4e2d";dash.classList.add("refreshing");table.classList.add("refreshing");
+  window.setTimeout(function(){render();btn.classList.remove("loading");btn.textContent="\u67e5\u8be2";dash.classList.remove("refreshing");table.classList.remove("refreshing");toast.classList.add("show");window.setTimeout(function(){toast.classList.remove("show");},1200);},420);
+});
+document.addEventListener("click",function(){document.querySelectorAll(".field.open").forEach(function(field){field.classList.remove("open");});});
+render();
+</script>
+</body>
+</html>
