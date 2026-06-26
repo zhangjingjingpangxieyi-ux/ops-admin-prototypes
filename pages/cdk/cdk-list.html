@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>兑换码列表原型</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#eef2f6;color:#1f2d3d;font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;font-size:13px}
+button,input,select{font:inherit}
+.page{min-height:100vh;padding:0 12px 28px;background:#eef2f6}
+.content{position:relative;z-index:1}
+.tabs{height:38px;display:flex;align-items:flex-end;gap:28px;padding:0 0 0 2px;background:#fff;border-bottom:1px solid #eef1f5}
+.tab{position:relative;height:38px;border:0;background:transparent;color:#1f2d3d;cursor:pointer}
+.tab.active{color:#168cff;font-weight:700}
+.tab.active:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#168cff}
+.filter{display:flex;align-items:center;gap:10px;min-height:54px;padding:10px 0;background:#fff;border-bottom:10px solid #eef2f6}
+.input{width:170px;height:32px;border:1px solid #d9dee8;background:#fff;padding:0 10px;outline:0}
+.select{width:178px;height:32px;border:1px solid #d9dee8;background:#fff;color:#5f6b7a;padding:0 31px 0 10px;appearance:none;background-image:linear-gradient(45deg,transparent 50%,#9aa4b3 50%),linear-gradient(135deg,#9aa4b3 50%,transparent 50%);background-position:calc(100% - 17px) 13px,calc(100% - 12px) 13px;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.label{font-weight:700;white-space:nowrap}
+.primary,.default{height:32px;padding:0 16px;border-radius:2px;cursor:pointer}
+.primary{border:1px solid #168cff;background:#168cff;color:#fff}
+.default{border:1px solid #d9dee8;background:#fff;color:#1f2d3d}
+.primary:disabled,.default:disabled{border-color:#d9dee8;background:#f4f5f7;color:#b8c0cc;cursor:not-allowed}
+.table-card{position:relative;min-height:224px;background:#fff}
+.toolbar{display:flex;align-items:center;justify-content:space-between;min-height:56px;padding:12px 14px 10px}
+.left-actions,.right-actions{display:flex;align-items:center;gap:10px}
+.icon-btn{width:28px;height:28px;border:0;background:#fff;color:#1f2d3d;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.icon-btn svg{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.table-scroll{position:relative;overflow-x:auto;border-top:1px solid #edf0f5;border-bottom:1px solid #edf0f5}
+table{width:100%;min-width:2260px;border-collapse:collapse;table-layout:fixed;background:#fff}
+th,td{height:52px;padding:0 12px;border-right:1px solid #edf0f5;border-bottom:1px solid #edf0f5;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+th{background:#fbfcfd;color:#1f2d3d;font-weight:700}
+td{background:#fff;color:#283548;line-height:20px}
+.sort{display:inline-flex;flex-direction:column;gap:2px;margin-left:4px;vertical-align:middle}
+.sort i{width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent}
+.sort i:first-child{border-bottom:4px solid #c2cad5}
+.sort i:last-child{border-top:4px solid #c2cad5}
+.dot{display:inline-block;width:6px;height:6px;margin-right:6px;border-radius:50%;vertical-align:middle}
+.dot.on{background:#39c66a}.dot.off{background:#8ba0b6}.dot.wait{background:#f5a623}
+.tag{display:inline-block;min-width:28px;height:20px;padding:0 6px;border:1px solid #9ce57a;background:#f3ffe8;color:#52b331;line-height:18px;text-align:center;border-radius:2px}
+.name-badge{display:inline-block;height:20px;margin-left:6px;padding:0 6px;border:1px solid #9ce57a;background:#f3ffe8;color:#52b331;line-height:18px;border-radius:2px;vertical-align:middle}
+.actions a{margin-right:7px;color:#168cff;text-decoration:none}
+.metric-link{color:#168cff;text-decoration:none}
+.metric-link:hover,.actions a:hover{text-decoration:underline}
+.empty{display:none;height:132px;flex-direction:column;align-items:center;justify-content:center;color:#a4adba}
+.scrollbar{height:8px;background:#e1e4e9}
+.scrollbar span{display:block;width:52%;height:8px;background:#c6ccd5;border-radius:6px}
+.pager{height:46px;display:flex;align-items:center;justify-content:flex-end;gap:8px;background:#fff;color:#5f6b7a}
+.page-btn{height:24px;min-width:24px;padding:0 7px;border:1px solid #d9dee8;background:#fff;color:#5f6b7a;border-radius:2px}
+.page-btn.active{border-color:#168cff;color:#168cff}
+.size{height:26px;border:1px solid #d9dee8;background:#fff;color:#1f2d3d}
+.feedback{position:fixed;right:0;top:346px;z-index:3;width:28px;height:52px;border-radius:8px 0 0 8px;background:#092e61;color:#fff;text-align:center;font-size:12px;box-shadow:0 2px 9px rgba(4,26,59,.35)}
+.feedback span{display:block;padding-top:9px;line-height:15px;transform:scale(.88)}
+.toast{display:none;position:fixed;top:76px;left:50%;z-index:10;transform:translateX(-50%);height:34px;padding:0 18px;background:rgba(31,45,61,.92);color:#fff;line-height:34px;border-radius:3px}
+.toast.show{display:block}
+.detail-mask{display:none;position:fixed;inset:0;z-index:20;background:rgba(15,23,42,.36);align-items:flex-start;justify-content:center;padding:28px 0}
+.detail-mask.show{display:flex}
+.detail-modal{width:760px;max-width:calc(100vw - 28px);max-height:calc(100vh - 56px);overflow:auto;background:#fff;border-radius:0 0 6px 6px;box-shadow:0 12px 36px rgba(31,45,61,.2)}
+.detail-head{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #edf0f5;font-size:16px;font-weight:700}
+.detail-close{border:0;background:transparent;color:#8b95a5;font-size:24px;line-height:1;cursor:pointer}
+.detail-body{padding:24px 18px 28px}
+.detail-section-title{margin:0 0 12px;color:#168cff;font-weight:700}
+.detail-table{width:100%;min-width:0!important;margin-bottom:18px;border-collapse:collapse;table-layout:fixed}
+.detail-table th,.detail-table td{height:34px;padding:0 12px;border:1px solid #edf0f5;white-space:normal;overflow:visible;text-overflow:clip}
+.detail-table th{width:124px;background:#fbfcfd;text-align:right;font-weight:700}
+.detail-table td{background:#fff;text-align:left}
+.detail-table .wide{width:auto}
+col.check{width:42px}col.id{width:72px}col.name{width:180px}col.status{width:104px}col.category{width:136px}col.count{width:112px}col.used{width:124px}col.mutex{width:140px}col.time{width:210px}col.item{width:110px}col.server{width:110px}col.channel{width:118px}col.level{width:118px}col.recharge{width:144px}col.role-time{width:170px}col.common-code{width:120px}col.code-length{width:88px}col.code-qty{width:88px}col.update-info{width:190px}col.audit-info{width:190px}col.audit-opinion{width:150px}col.create-info{width:190px}col.action{width:156px}
+tr[data-tab]{display:none}
+.table-card.tab-using tr[data-tab="using"],.table-card.tab-disabled tr[data-tab="disabled"],.table-card.tab-review tr[data-tab="review"]{display:table-row}
+.table-card:not(.selectable) col.check,.table-card:not(.selectable) th.check,.table-card:not(.selectable) td.check{display:none}
+.table-card.tab-disabled col.audit-info,.table-card.tab-disabled th.audit-info,.table-card.tab-disabled td.audit-info,.table-card.tab-disabled col.audit-opinion,.table-card.tab-disabled th.audit-opinion,.table-card.tab-disabled td.audit-opinion{display:none}
+.table-card.tab-review col.count,.table-card.tab-review th.count,.table-card.tab-review td.count,.table-card.tab-review col.used,.table-card.tab-review th.used,.table-card.tab-review td.used{display:none}
+.table-card:not(.tab-review) col.common-code,.table-card:not(.tab-review) th.common-code,.table-card:not(.tab-review) td.common-code,.table-card:not(.tab-review) col.code-length,.table-card:not(.tab-review) th.code-length,.table-card:not(.tab-review) td.code-length,.table-card:not(.tab-review) col.code-qty,.table-card:not(.tab-review) th.code-qty,.table-card:not(.tab-review) td.code-qty{display:none}
+</style>
+</head>
+<body>
+<div class="page">
+  <main class="content">
+    <nav class="tabs" aria-label="兑换码状态">
+      <button class="tab active" data-tab="using">使用中</button>
+      <button class="tab" data-tab="disabled">已停用</button>
+      <button class="tab" data-tab="review">未审核</button>
+    </nav>
+
+    <section class="filter">
+      <label class="label" for="packageName">兑换包名称:</label>
+      <input id="packageName" class="input">
+      <label class="label" for="category">兑换包分类:</label>
+      <select id="category" class="select">
+        <option>请选择兑换包分类</option>
+        <option>主播活动</option>
+        <option>周公众号</option>
+        <option>社区活动</option>
+      </select>
+      <label class="label" for="status">状态:</label>
+      <select id="status" class="select"></select>
+      <button class="primary" id="query">查询</button>
+    </section>
+
+    <section class="table-card tab-using" id="tableCard">
+      <div class="toolbar">
+        <div class="left-actions">
+          <button class="primary" id="create">新 建</button>
+          <button class="default batch" disabled>批量审核</button>
+        </div>
+        <div class="right-actions">
+          <button class="icon-btn" id="export" title="导出" aria-label="导出"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></button>
+          <button class="icon-btn" title="表格密度" aria-label="表格密度"><svg viewBox="0 0 24 24"><path d="M7 4h10M7 20h10M12 4v16M9 8h6M9 16h6"/></svg></button>
+          <button class="icon-btn" title="列设置" aria-label="列设置"><svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.05.05a2 2 0 0 1-2.83 2.83l-.05-.05a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 0 1-4 0v-.07a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.05.05a2 2 0 0 1-2.83-2.83l.05-.05A1.7 1.7 0 0 0 4.6 15 1.7 1.7 0 0 0 3.07 14H3a2 2 0 0 1 0-4h.07A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.88l-.05-.05a2 2 0 0 1 2.83-2.83l.05.05A1.7 1.7 0 0 0 9 4.6 1.7 1.7 0 0 0 10 3.07V3a2 2 0 0 1 4 0v.07A1.7 1.7 0 0 0 15 4.6a1.7 1.7 0 0 0 1.88-.34l.05-.05a2 2 0 0 1 2.83 2.83l-.05.05A1.7 1.7 0 0 0 19.4 9c.27.63.89 1.03 1.56 1.03H21a2 2 0 0 1 0 4h-.07A1.7 1.7 0 0 0 19.4 15z"/></svg></button>
+        </div>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <colgroup>
+            <col class="check"><col class="id"><col class="name"><col class="status"><col class="category"><col class="count"><col class="used"><col class="mutex"><col class="time"><col class="item"><col class="server"><col class="channel"><col class="level"><col class="recharge"><col class="role-time"><col class="common-code"><col class="code-length"><col class="code-qty"><col class="update-info"><col class="audit-info"><col class="audit-opinion"><col class="create-info"><col class="action">
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="check"><input type="checkbox" aria-label="全选"></th>
+              <th>ID <span class="sort"><i></i><i></i></span></th>
+              <th>兑换包名称</th><th>状态</th><th class="category">兑换包分类</th><th class="count">兑换码总数</th><th class="used">已兑换总数</th><th class="mutex">互斥兑换包</th><th class="time">有效时间</th><th class="item">附件物品</th><th class="server">区服</th><th class="channel">渠道</th><th class="level">角色等级</th><th class="recharge">角色充值总额</th><th class="role-time">创角时间</th><th class="common-code">是否为通用码</th><th class="code-length">长度</th><th class="code-qty">数量</th><th class="update-info">更新信息</th><th class="audit-info">审核信息</th><th class="audit-opinion">审核意见</th><th class="create-info">创建信息</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-tab="using"><td class="check"><input type="checkbox"></td><td>4897</td><td title="主播cdk_124">主播cdk_124</td><td><span class="dot on"></span>使用中</td><td class="category">主播活动</td><td class="count">7</td><td class="used">218</td><td class="mutex">无</td><td class="time">开始：2026-01-12 17:00:00<br>结束：2027-01-31 23:59:59</td><td class="item"><span class="tag">7个</span></td><td class="server">所有区服</td><td class="channel">指定渠道</td><td class="level">不限</td><td class="recharge">不限</td><td class="role-time">不限</td><td class="common-code">否</td><td class="code-length">8</td><td class="code-qty">7</td><td class="update-info">更新人：王海如<br>更新时间：2026-06-20 11:22:30</td><td class="audit-info">审核人：系统<br>审核时间：2026-06-20 11:22:30</td><td class="audit-opinion">通过</td><td class="create-info">创建人：王海如<br>创建时间：2026-06-20 11:22:30</td><td class="actions"><a href="#">详情</a><a href="#">管理</a><a href="#">编辑</a><a href="#">复制</a></td></tr>
+            <tr data-tab="using"><td class="check"><input type="checkbox"></td><td>4384</td><td title="主播cdk_103">主播cdk_103</td><td><span class="dot on"></span>部分使用中</td><td class="category">主播活动</td><td class="count">7</td><td class="used">96</td><td class="mutex">无</td><td class="time">开始：2025-10-17 18:45:00<br>结束：2027-09-30 23:59:59</td><td class="item"><span class="tag">7个</span></td><td class="server">所有区服</td><td class="channel">指定渠道</td><td class="level">不限</td><td class="recharge">不限</td><td class="role-time">不限</td><td class="common-code">否</td><td class="code-length">8</td><td class="code-qty">7</td><td class="update-info">更新人：王海如<br>更新时间：2026-06-18 19:16:42</td><td class="audit-info">审核人：系统<br>审核时间：2026-06-18 19:16:42</td><td class="audit-opinion">通过</td><td class="create-info">创建人：王海如<br>创建时间：2026-06-18 19:16:42</td><td class="actions"><a href="#">详情</a><a href="#">管理</a><a href="#">编辑</a><a href="#">复制</a></td></tr>
+            <tr data-tab="using"><td class="check"><input type="checkbox"></td><td>4383</td><td title="主播cdk_102">主播cdk_102</td><td><span class="dot on"></span>使用中</td><td class="category">主播活动</td><td class="count">7</td><td class="used">83</td><td class="mutex">主播cdk_103</td><td class="time">开始：2025-10-17 18:45:00<br>结束：2027-09-30 23:59:59</td><td class="item"><span class="tag">7个</span></td><td class="server">所有区服</td><td class="channel">指定渠道</td><td class="level">不限</td><td class="recharge">不限</td><td class="role-time">不限</td><td class="common-code">否</td><td class="code-length">8</td><td class="code-qty">7</td><td class="update-info">更新人：王海如<br>更新时间：2026-06-18 19:12:05</td><td class="audit-info">审核人：系统<br>审核时间：2026-06-18 19:12:05</td><td class="audit-opinion">通过</td><td class="create-info">创建人：王海如<br>创建时间：2026-06-18 19:12:05</td><td class="actions"><a href="#">详情</a><a href="#">管理</a><a href="#">编辑</a><a href="#">复制</a></td></tr>
+            <tr data-tab="using"><td class="check"><input type="checkbox"></td><td>4381</td><td title="主播cdk_100">主播cdk_100</td><td><span class="dot on"></span>使用中</td><td class="category">主播活动</td><td class="count">7</td><td class="used">79</td><td class="mutex">无</td><td class="time">开始：2025-10-17 18:45:00<br>结束：2027-09-30 23:59:59</td><td class="item"><span class="tag">7个</span></td><td class="server">所有区服</td><td class="channel">指定渠道</td><td class="level">不限</td><td class="recharge">不限</td><td class="role-time">不限</td><td class="common-code">否</td><td class="code-length">8</td><td class="code-qty">7</td><td class="update-info">更新人：王海如<br>更新时间：2026-06-18 19:05:30</td><td class="audit-info">审核人：系统<br>审核时间：2026-06-18 19:05:30</td><td class="audit-opinion">通过</td><td class="create-info">创建人：王海如<br>创建时间：2026-06-18 19:05:30</td><td class="actions"><a href="#">详情</a><a href="#">管理</a><a href="#">编辑</a><a href="#">复制</a></td></tr>
+
+            <tr data-tab="disabled"><td class="check"><input type="checkbox"></td><td>5746</td><td>公众号_32</td><td><span class="dot off"></span>已停用</td><td class="category">周公众号</td><td class="count">1</td><td class="used">5569</td><td class="mutex">无</td><td class="time">开始：2026-06-19 20:35:00<br>结束：2026-06-25 23:59:59</td><td class="item"><span class="tag">4个</span></td><td class="server">所有区服</td><td class="channel">全部渠道</td><td class="level">不限</td><td class="recharge">不限</td><td class="role-time">不限</td><td class="common-code">否</td><td class="code-length">8</td><td class="code-qty">1</td><td class="update-info">更新人：王海如<br>更新时间：2026-06-19 20:31:45</td><td class="audit-info">审核人：系统<br>审核时间：2026-06-19 20:31:45</td><td class="audit-opinion">通过</td><td class="create-info">创建人：王海如<br>创建时间：2026-06-19 20:31:45</td><td class="actions"><a href="#">详情</a><a href="#">管理</a><a href="#">编辑</a><a href="#">复制</a></td></tr>
+            <tr data-tab="disabled"><td class="check"><input type="checkbox"></td><td>5741</td><td>端午礼包码</td><td><span class="dot off"></span>已停用</td><td class="category">节日cdk</td><td class="count">1</td><td class="used">6215</td><td class="mutex">无</td><td class="time">开始：2026-06-19 12:35:00<br>结束：2026-06-21 23:59:59</td><td class="item"><span class="tag">2个</span></td><td class="server">所有区服</td><td class="channel">全部渠道</td><td class="level">不限</td><td class="recharge">不限</td><td class="role-time">不限</td><td class="common-code">否</td><td class="code-length">8</td><td class="code-qty">1</td><td class="update-info">更新人：王海如<br>更新时间：2026-06-19 12:30:08</td><td class="audit-info">审核人：系统<br>审核时间：2026-06-19 12:30:08</td><td class="audit-opinion">通过</td><td class="create-info">创建人：王海如<br>创建时间：2026-06-19 12:30:08</td><td class="actions"><a href="#">详情</a><a href="#">管理</a><a href="#">编辑</a><a href="#">复制</a></td></tr>
+            <tr data-tab="disabled"><td class="check"><input type="checkbox"></td><td>5722</td><td>公众号_31</td><td><span class="dot off"></span>已停用</td><td class="category">周公众号</td><td class="count">1</td><td class="used">5501</td><td class="mutex">无</td><td class="time">开始：2026-06-12 09:30:00<br>结束：2026-06-18 23:59:59</td><td class="item"><span class="tag">4个</span></td><td class="server">所有区服</td><td class="channel">全部渠道</td><td class="level">不限</td><td class="recharge">不限</td><td class="role-time">不限</td><td class="common-code">否</td><td class="code-length">8</td><td class="code-qty">1</td><td class="update-info">更新人：王海如<br>更新时间：2026-06-12 09:25:16</td><td class="audit-info">审核人：系统<br>审核时间：2026-06-12 09:25:16</td><td class="audit-opinion">通过</td><td class="create-info">创建人：王海如<br>创建时间：2026-06-12 09:25:16</td><td class="actions"><a href="#">详情</a><a href="#">管理</a><a href="#">编辑</a><a href="#">复制</a></td></tr>
+            <tr data-tab="disabled"><td class="check"><input type="checkbox"></td><td>5704</td><td>公众号_30</td><td><span class="dot off"></span>已停用</td><td class="category">周公众号</td><td class="count">1</td><td class="used">5983</td><td class="mutex">无</td><td class="time">开始：2026-06-07 11:20:00<br>结束：2026-06-11 23:59:59</td><td class="item"><span class="tag">4个</span></td><td class="server">所有区服</td><td class="channel">全部渠道</td><td class="level">不限</td><td class="recharge">不限</td><td class="role-time">不限</td><td class="common-code">否</td><td class="code-length">8</td><td class="code-qty">1</td><td class="update-info">更新人：王海如<br>更新时间：2026-06-07 11:16:50</td><td class="audit-info">审核人：系统<br>审核时间：2026-06-07 11:16:50</td><td class="audit-opinion">通过</td><td class="create-info">创建人：王海如<br>创建时间：2026-06-07 11:16:50</td><td class="actions"><a href="#">详情</a><a href="#">管理</a><a href="#">编辑</a><a href="#">复制</a></td></tr>
+
+            <tr data-tab="review"><td class="check"><input type="checkbox"></td><td>106</td><td>hct-tt</td><td><span class="dot off"></span>已过期</td><td class="category">test 0312</td><td class="count"></td><td class="used"></td><td class="mutex">GoodsInfo</td><td class="time">开始：2026-02-25 00:00:00<br>结束：2026-03-04 23:59:59</td><td class="item"><span class="tag">1个</span></td><td class="server">所有区服</td><td class="channel">全部渠道</td><td class="level">不限</td><td class="recharge">不限</td><td class="role-time">不限</td><td class="common-code">否</td><td class="code-length">8</td><td class="code-qty">1</td><td class="update-info">提交人：张静<br>提交时间：2026-02-24 18:05:18</td><td class="audit-info">待审核</td><td class="audit-opinion">-</td><td class="create-info">创建人：张静<br>创建时间：2026-02-24 18:02:11</td><td class="actions"><a href="#">详情</a><a href="#">编辑</a></td></tr>
+            <tr data-tab="review"><td class="check"><input type="checkbox"></td><td>105</td><td>账号按2月11</td><td><span class="dot off"></span>已过期</td><td class="category">test</td><td class="count"></td><td class="used"></td><td class="mutex">无</td><td class="time">开始：2026-02-25 00:00:00<br>结束：2026-02-25 23:59:59</td><td class="item"><span class="tag">1个</span></td><td class="server">所有区服</td><td class="channel">全部渠道</td><td class="level">不限</td><td class="recharge">不限</td><td class="role-time">不限</td><td class="common-code">否</td><td class="code-length">8</td><td class="code-qty">1</td><td class="update-info">提交人：张静<br>提交时间：2026-02-24 17:48:02</td><td class="audit-info">待审核</td><td class="audit-opinion">-</td><td class="create-info">创建人：张静<br>创建时间：2026-02-24 17:45:20</td><td class="actions"><a href="#">详情</a><a href="#">编辑</a></td></tr>
+            <tr data-tab="review"><td class="check"><input type="checkbox"></td><td>104</td><td>社区先到先得</td><td><span class="dot wait"></span>待审核</td><td class="category">社区活动</td><td class="count"></td><td class="used"></td><td class="mutex">无</td><td class="time">开始：2026-06-30 00:00:00<br>结束：2026-07-06 23:59:59</td><td class="item"><span class="tag">3个</span></td><td class="server">所有区服</td><td class="channel">指定渠道</td><td class="level">不限</td><td class="recharge">不限</td><td class="role-time">不限</td><td class="common-code">是</td><td class="code-length">-</td><td class="code-qty">3</td><td class="update-info">提交人：李小雨<br>提交时间：2026-06-26 10:16:21</td><td class="audit-info">待审核</td><td class="audit-opinion">-</td><td class="create-info">创建人：李小雨<br>创建时间：2026-06-26 10:12:33</td><td class="actions"><a href="#">详情</a><a href="#">编辑</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="scrollbar"><span></span></div>
+      <div class="pager" id="pager"><button class="page-btn">&lt;</button><button class="page-btn active">1</button><button class="page-btn">&gt;</button><select class="size"><option>10 条/页</option><option>20 条/页</option><option>50 条/页</option></select></div>
+    </section>
+  </main>
+</div>
+<div class="detail-mask" id="detailModal" aria-hidden="true">
+  <div class="detail-modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+    <div class="detail-head">
+      <span id="detailTitle">兑换码详情</span>
+      <button class="detail-close" id="closeDetail" type="button" aria-label="关闭">×</button>
+    </div>
+    <div class="detail-body">
+      <div class="detail-section-title">基础信息</div>
+      <table class="detail-table">
+        <tbody>
+          <tr><th>创建人</th><td id="detailCreator">洪承托</td><th>创建时间</th><td id="detailCreateTime">2026-02-24 15:30:06</td></tr>
+          <tr><th>兑换包名称</th><td id="detailName">mini-hh</td><th>兑换包分类</th><td id="detailCategory">test</td></tr>
+          <tr><th>互斥兑换包</th><td id="detailMutex">无</td><th>附件物品</th><td id="detailItem">【通用】VIP经验(8*1)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="detail-section-title">可兑换条件</div>
+      <table class="detail-table">
+        <tbody>
+          <tr><th>区服</th><td colspan="3" id="detailServer">所有区服</td></tr>
+          <tr><th>渠道</th><td colspan="3" id="detailChannel">所有渠道</td></tr>
+          <tr><th>角色等级</th><td id="detailLevel">不限</td><th>角色充值总额</th><td id="detailRecharge">不限</td></tr>
+          <tr><th>兑换次数</th><td colspan="3">未知</td></tr>
+          <tr><th>创角时间</th><td colspan="3" id="detailRoleTime">不限</td></tr>
+        </tbody>
+      </table>
+
+      <div class="detail-section-title">兑换码信息</div>
+      <table class="detail-table">
+        <tbody>
+          <tr><th>是否为通用码</th><td id="detailCommon">是</td><th>通用码</th><td id="detailCode">OedMgl</td></tr>
+          <tr><th>总数量</th><td id="detailTotal">1</td><th>长度</th><td id="detailLength">-</td></tr>
+          <tr><th>关联添加客服</th><td>否</td><th>有效时间</th><td id="detailValidTime">开始：2026-06-24 00:00:00<br>结束：2026-07-23 23:59:59</td></tr>
+          <tr><th>备注</th><td colspan="3">-</td></tr>
+        </tbody>
+      </table>
+
+      <div class="detail-section-title">审核信息</div>
+      <table class="detail-table">
+        <tbody>
+          <tr><th>审核结果</th><td id="detailAuditResult">通过</td><th>审核建议</th><td id="detailAuditOpinion">1</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="feedback"><span>意见<br>反馈</span></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const tableCard = document.getElementById("tableCard");
+const statusSelect = document.getElementById("status");
+const batch = document.querySelector(".batch");
+const tabs = document.querySelectorAll(".tab");
+const detailModal = document.getElementById("detailModal");
+const statusOptions = {
+  using: ["全部状态", "部分使用中", "使用中"],
+  disabled: ["已停用"],
+  review: ["全部状态", "待审核", "已拒绝", "已过期"]
+};
+function setTab(tabKey) {
+  tableCard.classList.remove("tab-using", "tab-disabled", "tab-review", "selectable");
+  tableCard.classList.add(`tab-${tabKey}`);
+  tableCard.classList.toggle("selectable", tabKey === "review");
+  batch.style.display = tabKey === "review" ? "inline-block" : "none";
+  statusSelect.innerHTML = statusOptions[tabKey].map(option => `<option>${option}</option>`).join("");
+}
+function textOf(row, selector, fallback = "-") {
+  return row.querySelector(selector)?.textContent.trim() || fallback;
+}
+function htmlOf(row, selector, fallback = "-") {
+  return row.querySelector(selector)?.innerHTML.trim() || fallback;
+}
+function populateDetail(row) {
+  const name = row.children[2]?.textContent.trim() || "mini-hh";
+  const total = textOf(row, ".count", textOf(row, ".code-qty", "1"));
+  const isCommon = textOf(row, ".common-code", "否");
+  const codeLength = textOf(row, ".code-length", "8");
+  const codeValue = isCommon === "是" ? (Number(total) > 1 ? "OedMgl、OedMgl2、OedMgl3" : "OedMgl") : "-";
+  const createInfo = textOf(row, ".create-info", "创建人：洪承托 创建时间：2026-02-24 15:30:06");
+  const creator = createInfo.match(/创建人：([^创]+)/)?.[1]?.trim() || "洪承托";
+  const createTime = createInfo.match(/创建时间：(.+)/)?.[1]?.trim() || "2026-02-24 15:30:06";
+  document.getElementById("detailCreator").textContent = creator;
+  document.getElementById("detailCreateTime").textContent = createTime;
+  document.getElementById("detailName").textContent = name;
+  document.getElementById("detailCategory").textContent = textOf(row, ".category", "test");
+  document.getElementById("detailMutex").textContent = textOf(row, ".mutex", "无");
+  document.getElementById("detailItem").innerHTML = htmlOf(row, ".item", "【通用】VIP经验(8*1)");
+  document.getElementById("detailServer").textContent = textOf(row, ".server", "所有区服");
+  document.getElementById("detailChannel").textContent = textOf(row, ".channel", "所有渠道");
+  document.getElementById("detailLevel").textContent = textOf(row, ".level", "不限");
+  document.getElementById("detailRecharge").textContent = textOf(row, ".recharge", "不限");
+  document.getElementById("detailRoleTime").textContent = textOf(row, ".role-time", "不限");
+  document.getElementById("detailCommon").textContent = isCommon;
+  document.getElementById("detailCode").textContent = codeValue;
+  document.getElementById("detailTotal").textContent = total;
+  document.getElementById("detailLength").textContent = codeLength;
+  document.getElementById("detailValidTime").innerHTML = htmlOf(row, ".time", "开始：2026-06-24 00:00:00<br>结束：2026-07-23 23:59:59");
+  document.getElementById("detailAuditResult").textContent = row.dataset.tab === "review" ? textOf(row, ".status", "待审核") : "通过";
+  document.getElementById("detailAuditOpinion").textContent = textOf(row, ".audit-opinion", "1");
+}
+tabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+    tabs.forEach(item => item.classList.remove("active"));
+    tab.classList.add("active");
+    setTab(tab.dataset.tab);
+  });
+});
+document.getElementById("query").addEventListener("click", () => {
+  const toast = document.getElementById("toast");
+  toast.textContent = "已按当前条件刷新列表";
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 1400);
+});
+document.getElementById("export").addEventListener("click", () => {
+  const toast = document.getElementById("toast");
+  toast.textContent = "已按当前查询条件导出列表数据";
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 1600);
+});
+document.getElementById("create").addEventListener("click", () => {
+  window.location.href = "./cdk-create.html";
+});
+document.querySelectorAll(".actions a").forEach(link => {
+  if (link.textContent.trim() === "管理") link.href = "./cdk-manage.html";
+  if (link.textContent.trim() === "详情") {
+    link.addEventListener("click", event => {
+      event.preventDefault();
+      populateDetail(link.closest("tr"));
+      detailModal.classList.add("show");
+      detailModal.setAttribute("aria-hidden", "false");
+    });
+  }
+});
+document.querySelectorAll('tr[data-tab="using"] td.count, tr[data-tab="using"] td.used, tr[data-tab="disabled"] td.count, tr[data-tab="disabled"] td.used').forEach(cell => {
+  const value = cell.textContent.trim();
+  if (value) cell.innerHTML = `<a class="metric-link" href="./cdk-manage.html">${value}</a>`;
+});
+const commonPackageNames = new Set(["主播cdk_124", "社区先到先得"]);
+document.querySelectorAll("tr[data-tab]").forEach(row => {
+  const nameCell = row.children[2];
+  const commonCell = row.querySelector(".common-code");
+  const packageName = nameCell?.childNodes[0]?.textContent.trim() || "";
+  const isCommonPackage = commonCell?.textContent.trim() === "是" || commonPackageNames.has(packageName);
+  if (!isCommonPackage || nameCell.querySelector(".name-badge")) return;
+  if (commonCell) commonCell.textContent = "是";
+  const badge = document.createElement("span");
+  badge.className = "name-badge";
+  badge.textContent = "通用码";
+  nameCell.appendChild(badge);
+});
+document.getElementById("closeDetail").addEventListener("click", () => {
+  detailModal.classList.remove("show");
+  detailModal.setAttribute("aria-hidden", "true");
+});
+detailModal.addEventListener("click", event => {
+  if (event.target === detailModal) {
+    detailModal.classList.remove("show");
+    detailModal.setAttribute("aria-hidden", "true");
+  }
+});
+setTab("using");
+</script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>兑换码管理原型</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#eef2f6;color:#1f2d3d;font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;font-size:13px}
+button,select,input{font:inherit}
+.page{min-height:100vh;background:#eef2f6}
+.summary{background:#fff;padding:14px 14px 16px;border-bottom:10px solid #eef2f6}
+.title-line{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-size:16px;font-weight:700}
+.title-line .status{font-size:13px;font-weight:400}
+.dot{display:inline-block;width:6px;height:6px;margin:0 5px;border-radius:50%;background:#39c66a;vertical-align:middle}
+.meta{display:flex;align-items:center;gap:38px;white-space:nowrap;color:#283548}
+.meta b{font-weight:400;color:#1f2d3d}
+.tag{display:inline-block;min-width:28px;height:20px;padding:0 6px;border:1px solid #9ce57a;background:#f3ffe8;color:#52b331;line-height:18px;text-align:center;border-radius:2px}
+.primary,.default{height:30px;padding:0 16px;border-radius:2px;cursor:pointer}
+.primary{border:1px solid #168cff;background:#168cff;color:#fff}
+.default{border:1px solid #d9dee8;background:#fff;color:#1f2d3d}
+.section{background:#fff;margin-bottom:10px;padding:14px}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-size:16px;font-weight:700}
+.table-scroll{overflow-x:auto;border:1px solid #edf0f5;border-bottom:0}
+table{width:100%;min-width:1080px;border-collapse:collapse;table-layout:fixed;background:#fff}
+th,td{height:46px;padding:0 14px;border-right:1px solid #edf0f5;border-bottom:1px solid #edf0f5;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+th{background:#fbfcfd;font-weight:700}
+td{background:#fff}
+th:last-child,td:last-child{border-right:0}
+.green{color:#52b331}
+.actions a{margin-right:8px;color:#168cff;text-decoration:none}
+.empty{height:136px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#a4adba;border:1px solid #edf0f5;border-top:0}
+.empty-box{width:38px;height:26px;margin-bottom:10px;border:2px solid #e2e7ee;border-radius:4px;position:relative}
+.empty-box:before{content:"";position:absolute;left:8px;right:8px;top:-8px;height:12px;border:2px solid #e2e7ee;border-bottom:0;border-radius:10px 10px 0 0;background:#fff}
+.pager{height:46px;display:flex;align-items:center;justify-content:flex-end;gap:8px;background:#fff;color:#5f6b7a}
+.page-btn{height:24px;min-width:24px;padding:0 7px;border:1px solid #d9dee8;background:#fff;color:#5f6b7a;border-radius:2px}
+.page-btn.active{border-color:#168cff;color:#168cff}
+.size{height:26px;border:1px solid #d9dee8;background:#fff;color:#1f2d3d}
+.filter-icon,.sort-icon{float:right;color:#b8c0cc}
+.modal-mask{display:none;position:fixed;inset:0;z-index:20;background:rgba(15,23,42,.38);align-items:center;justify-content:center}
+.modal-mask.show{display:flex}
+.modal{width:560px;max-width:calc(100vw - 28px);background:#fff;box-shadow:0 12px 36px rgba(31,45,61,.22)}
+.modal-head{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #edf0f5;font-weight:700}
+.modal-close{border:0;background:transparent;font-size:22px;color:#8b95a5;cursor:pointer}
+.modal-body{padding:18px 26px 8px}
+.form-row{display:grid;grid-template-columns:110px minmax(0,1fr);align-items:flex-start;gap:12px;margin-bottom:14px}
+.form-row label{height:32px;line-height:32px;text-align:right;white-space:nowrap}
+.form-row.required label:before{content:"*";color:#f04d5d;margin-right:3px}
+.field-input,.field-select{width:100%;height:32px;border:1px solid #d9dee8;background:#fff;padding:0 10px;outline:0}
+.code-field{display:flex;align-items:center;gap:8px}
+.code-field .field-input{flex:1;min-width:0}
+.refresh-btn{width:30px;height:30px;border:0;background:#fff;color:#1f2d3d;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.refresh-btn svg{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.seg{display:inline-flex}
+.seg button{height:32px;min-width:56px;padding:0 12px;border:1px solid #d9dee8;border-left:0;background:#fff;cursor:pointer}
+.seg button:first-child{border-left:1px solid #d9dee8}
+.seg button.active{border-color:#168cff;color:#168cff;background:#f4faff;position:relative;z-index:1}
+.hint{margin-top:5px;color:#8b95a5;font-size:12px}
+.modal-foot{height:56px;display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:0 18px;border-top:1px solid #edf0f5}
+.toast{display:none;position:fixed;top:76px;left:50%;z-index:30;transform:translateX(-50%);height:34px;padding:0 18px;background:rgba(31,45,61,.92);color:#fff;line-height:34px;border-radius:3px}
+.toast.show{display:block}
+.feedback{position:fixed;right:0;top:346px;z-index:3;width:28px;height:52px;border-radius:8px 0 0 8px;background:#092e61;color:#fff;text-align:center;font-size:12px;box-shadow:0 2px 9px rgba(4,26,59,.35)}
+.feedback span{display:block;padding-top:9px;line-height:15px;transform:scale(.88)}
+@media (max-width:700px){
+  .summary,.section{padding:12px}
+  .meta{display:grid;grid-template-columns:1fr;gap:8px}
+  .modal-mask{align-items:flex-end}
+  .modal{width:100%;max-width:none}
+  .form-row{display:block}
+  .form-row label{text-align:left}
+  table{min-width:860px}
+  th,td{height:44px;padding:0 10px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <section class="summary">
+    <div class="title-line">
+      <span>mini-hh</span>
+      <span class="status">状态：<span class="dot"></span>使用中</span>
+    </div>
+    <div class="meta">
+      <span>兑换码分类：<b>test</b></span>
+      <span>是否为通用码：<b>是</b></span>
+      <span>总数量：<b id="totalQty">1</b></span>
+      <span>附件物品：<span class="tag">1个</span></span>
+      <span>区服：<b>全部区服</b></span>
+      <span>渠道：<b>全部渠道</b></span>
+      <span>有效时间：<b>2026-06-24 00:00:00 ~ 2026-07-23 23:59:59</b></span>
+      <button class="primary" onclick="location.href='./cdk-create.html'">编辑</button>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div class="section-title">兑换码批次</div>
+      <button class="primary" id="addBatch">新 建</button>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <colgroup>
+          <col style="width:110px"><col style="width:110px"><col style="width:150px"><col style="width:150px"><col style="width:150px">
+          <col style="width:150px"><col style="width:90px"><col style="width:80px"><col style="width:150px"><col style="width:130px">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>批次ID</th>
+            <th>状态</th>
+            <th>通用码</th>
+            <th>可兑换次数</th>
+            <th>已兑换数量</th>
+            <th>未兑换数量</th>
+            <th>备注</th>
+            <th>更新人</th>
+            <th>更新时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="batchRows">
+          <tr>
+            <td>143</td>
+            <td class="green">使用中</td>
+            <td>OedMgl</td>
+            <td>1</td>
+            <td>0</td>
+            <td>-</td>
+            <td>1</td>
+            <td>张静</td>
+            <td>2026-06-25 18:16:46</td>
+            <td class="actions"><a href="#">停用</a><a href="#">下载</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div class="section-title">领取信息</div>
+      <button class="primary">导 出</button>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <colgroup>
+          <col style="width:120px"><col style="width:120px"><col style="width:140px"><col style="width:140px">
+          <col style="width:100px"><col style="width:120px"><col style="width:100px"><col style="width:120px"><col style="width:150px">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>兑换码 <span class="filter-icon">⌕</span></th>
+            <th>批次ID <span class="filter-icon">▾</span></th>
+            <th>兑换状态 <span class="filter-icon">▾</span></th>
+            <th>兑换玩家 <span class="filter-icon">⌕</span></th>
+            <th>区服ID</th>
+            <th>区服名称</th>
+            <th>渠道ID</th>
+            <th>渠道名称</th>
+            <th>兑换时间 <span class="sort-icon">↕</span></th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+    <div class="empty">
+      <div class="empty-box"></div>
+      <div>暂无数据</div>
+    </div>
+    <div class="pager">
+      <button class="page-btn">&lt;</button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">&gt;</button>
+      <select class="size"><option>10 条/页</option><option>20 条/页</option><option>50 条/页</option></select>
+    </div>
+  </section>
+</div>
+<div class="modal-mask" id="batchModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="batchModalTitle">
+    <div class="modal-head">
+      <span id="batchModalTitle">新建兑换码批次</span>
+      <button class="modal-close" id="closeBatchModal" type="button" aria-label="关闭">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row required">
+        <label>生成方式:</label>
+        <div>
+          <div class="seg" id="codeMode"><button class="active" type="button" data-mode="random">随机</button><button type="button" data-mode="custom">自定义</button></div>
+          <div class="hint">新建批次将沿用当前兑换包的附件物品、区服、渠道、有效时间和兑换次数条件。</div>
+        </div>
+      </div>
+      <div class="form-row required">
+        <label>通用码:</label>
+        <div class="code-field">
+          <input class="field-input" id="batchCode" readonly>
+          <button class="refresh-btn" id="refreshCode" type="button" title="刷新通用码" aria-label="刷新通用码">
+            <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-15.36 6.36"/><path d="M3 12A9 9 0 0 1 18.36 5.64"/><path d="M18 2v4h-4"/><path d="M6 22v-4h4"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="form-row required">
+        <label>可兑换次数:</label>
+        <input class="field-input" id="batchQty" value="1">
+      </div>
+      <div class="form-row">
+        <label>备注:</label>
+        <input class="field-input" id="batchRemark" placeholder="请输入备注">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="default" id="cancelBatch" type="button">取 消</button>
+      <button class="primary" id="confirmBatch" type="button">确 定</button>
+    </div>
+  </div>
+</div>
+<div class="feedback"><span>意见<br>反馈</span></div>
+<div class="toast" id="toast">已追加批次</div>
+<script>
+const modal = document.getElementById("batchModal");
+const toast = document.getElementById("toast");
+const batchCode = document.getElementById("batchCode");
+const refreshCode = document.getElementById("refreshCode");
+const codeMode = document.getElementById("codeMode");
+const batchQty = document.getElementById("batchQty");
+const batchRemark = document.getElementById("batchRemark");
+const batchRows = document.getElementById("batchRows");
+const totalQty = document.getElementById("totalQty");
+let batchIndex = 143;
+let totalQuantity = 1;
+function randomCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let value = "";
+  for (let i = 0; i < 8; i += 1) value += chars[Math.floor(Math.random() * chars.length)];
+  return value;
+}
+function setMode(mode) {
+  codeMode.querySelectorAll("button").forEach(button => button.classList.toggle("active", button.dataset.mode === mode));
+  batchCode.readOnly = mode === "random";
+  refreshCode.style.display = mode === "random" ? "inline-flex" : "none";
+  batchCode.value = mode === "random" ? randomCode() : "";
+  batchCode.placeholder = mode === "random" ? "" : "请输入通用码";
+}
+function closeModal(){ modal.classList.remove("show"); modal.setAttribute("aria-hidden","true"); }
+document.getElementById("addBatch").addEventListener("click", () => {
+  setMode("random");
+  modal.classList.add("show");
+  modal.setAttribute("aria-hidden","false");
+});
+document.getElementById("closeBatchModal").addEventListener("click", closeModal);
+document.getElementById("cancelBatch").addEventListener("click", closeModal);
+document.getElementById("confirmBatch").addEventListener("click", () => {
+  const code = batchCode.value.trim();
+  const qty = Math.max(1, Number(batchQty.value) || 1);
+  const remark = batchRemark.value.trim() || "-";
+  batchIndex += 1;
+  totalQuantity += qty;
+  totalQty.textContent = totalQuantity;
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${batchIndex}</td>
+    <td class="green">使用中</td>
+    <td>${code}</td>
+    <td>${qty}</td>
+    <td>0</td>
+    <td>${qty}</td>
+    <td>${remark}</td>
+    <td>张静</td>
+    <td>${new Date().toLocaleString("zh-CN", { hour12: false })}</td>
+    <td class="actions"><a href="#">停用</a><a href="#">下载</a></td>
+  `;
+  batchRows.appendChild(tr);
+  closeModal();
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 1400);
+});
+refreshCode.addEventListener("click", () => {
+  batchCode.value = randomCode();
+});
+codeMode.querySelectorAll("button").forEach(button => {
+  button.addEventListener("click", () => {
+    setMode(button.dataset.mode);
+  });
+});
+setMode("random");
+</script>
+</body>
+</html>
