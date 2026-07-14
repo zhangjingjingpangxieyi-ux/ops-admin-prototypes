@@ -1,0 +1,835 @@
+{
+  "assets": [
+    {
+      "contentType": "",
+      "id": "b00d94f6eb68b73d",
+      "kind": "stylesheet",
+      "name": "vendor~large~2a42e354.60bcb5f7.chunk.css",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\b00d94f6eb68b73d.css",
+      "url": "https://ops.test.q1oa.com/static/css/vendor~large~2a42e354.60bcb5f7.chunk.css"
+    },
+    {
+      "contentType": "",
+      "id": "9691e8d87a1c1c90",
+      "kind": "stylesheet",
+      "name": "vendor~large~29b6936c.8c7aca62.chunk.css",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\9691e8d87a1c1c90.css",
+      "url": "https://ops.test.q1oa.com/static/css/vendor~large~29b6936c.8c7aca62.chunk.css"
+    },
+    {
+      "contentType": "",
+      "id": "9287dfa4eee7b7af",
+      "kind": "stylesheet",
+      "name": "vendors~253ae210.5622eb4d.chunk.css",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\9287dfa4eee7b7af.css",
+      "url": "https://ops.test.q1oa.com/static/css/vendors~253ae210.5622eb4d.chunk.css"
+    },
+    {
+      "contentType": "",
+      "id": "b7de9e4737c447a0",
+      "kind": "stylesheet",
+      "name": "vendors~2a42e354.cfd8989a.chunk.css",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\b7de9e4737c447a0.css",
+      "url": "https://ops.test.q1oa.com/static/css/vendors~2a42e354.cfd8989a.chunk.css"
+    },
+    {
+      "contentType": "",
+      "id": "4a518b141101eef2",
+      "kind": "stylesheet",
+      "name": "commons~21833f8f.dfe692c8.chunk.css",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\4a518b141101eef2.css",
+      "url": "https://ops.test.q1oa.com/static/css/commons~21833f8f.dfe692c8.chunk.css"
+    },
+    {
+      "contentType": "",
+      "id": "c77d9ac0df871f68",
+      "kind": "stylesheet",
+      "name": "main~e2e93592.58861b60.chunk.css",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\c77d9ac0df871f68.css",
+      "url": "https://ops.test.q1oa.com/static/css/main~e2e93592.58861b60.chunk.css"
+    },
+    {
+      "contentType": "",
+      "id": "de44352856f6de52",
+      "kind": "stylesheet",
+      "name": "824.0c67e435.chunk.css",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\de44352856f6de52.css",
+      "url": "https://ops.test.q1oa.com/static/css/824.0c67e435.chunk.css"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "c25962f137fdbe23",
+      "kind": "image",
+      "name": "game_center.373408ea.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\c25962f137fdbe23.svg",
+      "url": "https://ops.test.q1oa.com/static/media/game_center.373408ea.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "671fe21d8b6b0a26",
+      "kind": "image",
+      "name": "player.f954d743.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\671fe21d8b6b0a26.svg",
+      "url": "https://ops.test.q1oa.com/static/media/player.f954d743.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "473e7eab67defb19",
+      "kind": "image",
+      "name": "business.5ce0216c.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\473e7eab67defb19.svg",
+      "url": "https://ops.test.q1oa.com/static/media/business.5ce0216c.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "9a350f944d0a1cbd",
+      "kind": "image",
+      "name": "gameops.835be11d.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\9a350f944d0a1cbd.svg",
+      "url": "https://ops.test.q1oa.com/static/media/gameops.835be11d.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "60b69ba94dab6548",
+      "kind": "image",
+      "name": "data_analyse.e7acc4e5.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\60b69ba94dab6548.svg",
+      "url": "https://ops.test.q1oa.com/static/media/data_analyse.e7acc4e5.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "f9cf0fc530d2a8b7",
+      "kind": "image",
+      "name": "advertisement.e41ae4de.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\f9cf0fc530d2a8b7.svg",
+      "url": "https://ops.test.q1oa.com/static/media/advertisement.e41ae4de.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "e65824842f023b28",
+      "kind": "image",
+      "name": "game_config.f83da471.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\e65824842f023b28.svg",
+      "url": "https://ops.test.q1oa.com/static/media/game_config.f83da471.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "d0dfcbf9c88b9136",
+      "kind": "image",
+      "name": "menuHot.81fc200a.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\d0dfcbf9c88b9136.svg",
+      "url": "https://ops.test.q1oa.com/static/media/menuHot.81fc200a.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "e53b3fada7dea85f",
+      "kind": "image",
+      "name": "help.b00e60d8.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\e53b3fada7dea85f.svg",
+      "url": "https://ops.test.q1oa.com/static/media/help.b00e60d8.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "a42a1ff970ec2757",
+      "kind": "image",
+      "name": "language.b7b9e486.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\a42a1ff970ec2757.svg",
+      "url": "https://ops.test.q1oa.com/static/media/language.b7b9e486.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "3af4a03c284f4917",
+      "kind": "image",
+      "name": "bell.4a690afb.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\3af4a03c284f4917.svg",
+      "url": "https://ops.test.q1oa.com/static/media/bell.4a690afb.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "6c7bd63bef8f8706",
+      "kind": "image",
+      "name": "avatar.bd8ba391.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\6c7bd63bef8f8706.svg",
+      "url": "https://ops.test.q1oa.com/static/media/avatar.bd8ba391.svg"
+    },
+    {
+      "contentType": "font/woff",
+      "id": "8b0c7c9f6f890671",
+      "kind": "font",
+      "name": "fontawesome-webfont.fee66e71.woff",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\8b0c7c9f6f890671.woff",
+      "url": "https://ops.test.q1oa.com/static/media/fontawesome-webfont.fee66e71.woff"
+    },
+    {
+      "contentType": "",
+      "id": "60eeb43629506e24",
+      "kind": "stylesheet",
+      "name": "343.c8b532a9.chunk.css",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\60eeb43629506e24.css",
+      "url": "https://ops.test.q1oa.com/static/css/343.c8b532a9.chunk.css"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "414758678ed8e0d8",
+      "kind": "image",
+      "name": "currency.94786eed.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\414758678ed8e0d8.svg",
+      "url": "https://ops.test.q1oa.com/static/media/currency.94786eed.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "240b1e0a0a7d180f",
+      "kind": "image",
+      "name": "timeZone.6b5e6b41.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\240b1e0a0a7d180f.svg",
+      "url": "https://ops.test.q1oa.com/static/media/timeZone.6b5e6b41.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "5cba94af81e77a9f",
+      "kind": "image",
+      "name": "announcement.2ad1ca2b.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\5cba94af81e77a9f.svg",
+      "url": "https://ops.test.q1oa.com/static/media/announcement.2ad1ca2b.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "e17c9f3a7af8c65c",
+      "kind": "image",
+      "name": "email.236fb761.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\e17c9f3a7af8c65c.svg",
+      "url": "https://ops.test.q1oa.com/static/media/email.236fb761.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "118877116ea837dd",
+      "kind": "image",
+      "name": "emailTemplate.77340666.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\118877116ea837dd.svg",
+      "url": "https://ops.test.q1oa.com/static/media/emailTemplate.77340666.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "5b2bbdaf1fa28d95",
+      "kind": "image",
+      "name": "cdk.2b1f721e.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\5b2bbdaf1fa28d95.svg",
+      "url": "https://ops.test.q1oa.com/static/media/cdk.2b1f721e.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "da407d08706727d5",
+      "kind": "image",
+      "name": "application.f67ec78a.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\da407d08706727d5.svg",
+      "url": "https://ops.test.q1oa.com/static/media/application.f67ec78a.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "ec9ffe0f149ecbd4",
+      "kind": "image",
+      "name": "questionnaire.6486dd73.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\ec9ffe0f149ecbd4.svg",
+      "url": "https://ops.test.q1oa.com/static/media/questionnaire.6486dd73.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "6afbe75a3cd7e371",
+      "kind": "image",
+      "name": "dialog.d294ad5d.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\6afbe75a3cd7e371.svg",
+      "url": "https://ops.test.q1oa.com/static/media/dialog.d294ad5d.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "8931f08fd577736d",
+      "kind": "image",
+      "name": "areaChart.ca3a2155.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\8931f08fd577736d.svg",
+      "url": "https://ops.test.q1oa.com/static/media/areaChart.ca3a2155.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "84af8ed22bf5667e",
+      "kind": "image",
+      "name": "photo.def70283.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\84af8ed22bf5667e.svg",
+      "url": "https://ops.test.q1oa.com/static/media/photo.def70283.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "6cf7ffba111e741b",
+      "kind": "image",
+      "name": "club.2d47252c.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\6cf7ffba111e741b.svg",
+      "url": "https://ops.test.q1oa.com/static/media/club.2d47252c.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "3dc611cde7423646",
+      "kind": "image",
+      "name": "rule.129fa4aa.svg",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\3dc611cde7423646.svg",
+      "url": "https://ops.test.q1oa.com/static/media/rule.129fa4aa.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "d48cedbdf9bc7f14",
+      "kind": "image",
+      "name": "svg-1",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\d48cedbdf9bc7f14.svg",
+      "url": "inline-svg:d48cedbdf9bc7f14"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "0c0b270bf4b88131",
+      "kind": "image",
+      "name": "svg-2",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\0c0b270bf4b88131.svg",
+      "url": "inline-svg:0c0b270bf4b88131"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "8305bc75da512b9f",
+      "kind": "image",
+      "name": "svg-3",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\8305bc75da512b9f.svg",
+      "url": "inline-svg:8305bc75da512b9f"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "883b823a012ff760",
+      "kind": "image",
+      "name": "svg-4",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\883b823a012ff760.svg",
+      "url": "inline-svg:883b823a012ff760"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "1f9faaea06e149a8",
+      "kind": "image",
+      "name": "svg-5",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\1f9faaea06e149a8.svg",
+      "url": "inline-svg:1f9faaea06e149a8"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "ff5570b5adac18a4",
+      "kind": "image",
+      "name": "svg-6",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\ff5570b5adac18a4.svg",
+      "url": "inline-svg:ff5570b5adac18a4"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "0588416375b2099e",
+      "kind": "image",
+      "name": "svg-7",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\0588416375b2099e.svg",
+      "url": "inline-svg:0588416375b2099e"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "738d5a0210376405",
+      "kind": "image",
+      "name": "svg-8",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\738d5a0210376405.svg",
+      "url": "inline-svg:738d5a0210376405"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "12c0180ba54b1261",
+      "kind": "image",
+      "name": "svg-9",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\12c0180ba54b1261.svg",
+      "url": "inline-svg:12c0180ba54b1261"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "9597b1f6eeb1757f",
+      "kind": "image",
+      "name": "svg-10",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\9597b1f6eeb1757f.svg",
+      "url": "inline-svg:9597b1f6eeb1757f"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "346e40e13aa87865",
+      "kind": "image",
+      "name": "svg-11",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\346e40e13aa87865.svg",
+      "url": "inline-svg:346e40e13aa87865"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "a66e429104d5dd3d",
+      "kind": "image",
+      "name": "svg-12",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\a66e429104d5dd3d.svg",
+      "url": "inline-svg:a66e429104d5dd3d"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "d36377ba49528cd0",
+      "kind": "image",
+      "name": "svg-13",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\d36377ba49528cd0.svg",
+      "url": "inline-svg:d36377ba49528cd0"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "e6d04dc4607b81f2",
+      "kind": "image",
+      "name": "svg-14",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\e6d04dc4607b81f2.svg",
+      "url": "inline-svg:e6d04dc4607b81f2"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "57f28b6834643b40",
+      "kind": "image",
+      "name": "svg-15",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\57f28b6834643b40.svg",
+      "url": "inline-svg:57f28b6834643b40"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "2135eb312b7bd992",
+      "kind": "image",
+      "name": "svg-16",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\2135eb312b7bd992.svg",
+      "url": "inline-svg:2135eb312b7bd992"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "5b0d304a18dd9c19",
+      "kind": "image",
+      "name": "svg-17",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\5b0d304a18dd9c19.svg",
+      "url": "inline-svg:5b0d304a18dd9c19"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "cc5950d6e69fd3b0",
+      "kind": "image",
+      "name": "svg-18",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\cc5950d6e69fd3b0.svg",
+      "url": "inline-svg:cc5950d6e69fd3b0"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "8788895aab9425b9",
+      "kind": "image",
+      "name": "svg-19",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\8788895aab9425b9.svg",
+      "url": "inline-svg:8788895aab9425b9"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "c1f3e46a8bfed673",
+      "kind": "image",
+      "name": "svg-20",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\c1f3e46a8bfed673.svg",
+      "url": "inline-svg:c1f3e46a8bfed673"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "41c09807de6499e9",
+      "kind": "image",
+      "name": "svg-21",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\41c09807de6499e9.svg",
+      "url": "inline-svg:41c09807de6499e9"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "423d0298b76db8ae",
+      "kind": "image",
+      "name": "svg-22",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\423d0298b76db8ae.svg",
+      "url": "inline-svg:423d0298b76db8ae"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "bdf00e675d07aad1",
+      "kind": "image",
+      "name": "svg-23",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\bdf00e675d07aad1.svg",
+      "url": "inline-svg:bdf00e675d07aad1"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "06e56d3c226bc743",
+      "kind": "image",
+      "name": "svg-24",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\06e56d3c226bc743.svg",
+      "url": "inline-svg:06e56d3c226bc743"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "cbd521333a4f2e59",
+      "kind": "image",
+      "name": "svg-25",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\cbd521333a4f2e59.svg",
+      "url": "inline-svg:cbd521333a4f2e59"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "897ea23191a710f2",
+      "kind": "image",
+      "name": "svg-26",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\897ea23191a710f2.svg",
+      "url": "inline-svg:897ea23191a710f2"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "991635faf2ac6ea7",
+      "kind": "image",
+      "name": "svg-27",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\991635faf2ac6ea7.svg",
+      "url": "inline-svg:991635faf2ac6ea7"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "19d40f3be634222c",
+      "kind": "image",
+      "name": "svg-28",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\19d40f3be634222c.svg",
+      "url": "inline-svg:19d40f3be634222c"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "41d62a97c020454e",
+      "kind": "image",
+      "name": "svg-29",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\41d62a97c020454e.svg",
+      "url": "inline-svg:41d62a97c020454e"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "b88e101a65922415",
+      "kind": "image",
+      "name": "svg-30",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\b88e101a65922415.svg",
+      "url": "inline-svg:b88e101a65922415"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "dc90ae6ec6b7fdd2",
+      "kind": "image",
+      "name": "svg-31",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\dc90ae6ec6b7fdd2.svg",
+      "url": "inline-svg:dc90ae6ec6b7fdd2"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "a7810bc34e26b1f2",
+      "kind": "image",
+      "name": "svg-32",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\a7810bc34e26b1f2.svg",
+      "url": "inline-svg:a7810bc34e26b1f2"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "dacb388b86d80ae7",
+      "kind": "image",
+      "name": "svg-33",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\dacb388b86d80ae7.svg",
+      "url": "inline-svg:dacb388b86d80ae7"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "132823e6dbfed22d",
+      "kind": "image",
+      "name": "svg-34",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\132823e6dbfed22d.svg",
+      "url": "inline-svg:132823e6dbfed22d"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "3287e0532adc8d4d",
+      "kind": "image",
+      "name": "svg-35",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\3287e0532adc8d4d.svg",
+      "url": "inline-svg:3287e0532adc8d4d"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "a38978354a966717",
+      "kind": "image",
+      "name": "svg-36",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\a38978354a966717.svg",
+      "url": "inline-svg:a38978354a966717"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "c0ab99f9556baf30",
+      "kind": "image",
+      "name": "svg-37",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\c0ab99f9556baf30.svg",
+      "url": "inline-svg:c0ab99f9556baf30"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "1fbe94b7d3337443",
+      "kind": "image",
+      "name": "svg-38",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\1fbe94b7d3337443.svg",
+      "url": "inline-svg:1fbe94b7d3337443"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "f3adca88490eab7e",
+      "kind": "image",
+      "name": "svg-39",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\f3adca88490eab7e.svg",
+      "url": "inline-svg:f3adca88490eab7e"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "08091e01b8eceedb",
+      "kind": "image",
+      "name": "svg-40",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\08091e01b8eceedb.svg",
+      "url": "inline-svg:08091e01b8eceedb"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "0f60859e059275fa",
+      "kind": "image",
+      "name": "svg-41",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\0f60859e059275fa.svg",
+      "url": "inline-svg:0f60859e059275fa"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "9446f5089dd8332e",
+      "kind": "image",
+      "name": "svg-42",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\9446f5089dd8332e.svg",
+      "url": "inline-svg:9446f5089dd8332e"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "3bc0487dbb66d168",
+      "kind": "image",
+      "name": "svg-43",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\3bc0487dbb66d168.svg",
+      "url": "inline-svg:3bc0487dbb66d168"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "bcee4566fbdf855e",
+      "kind": "image",
+      "name": "svg-44",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\bcee4566fbdf855e.svg",
+      "url": "inline-svg:bcee4566fbdf855e"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "8bb08c9d8189efae",
+      "kind": "image",
+      "name": "svg-45",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\8bb08c9d8189efae.svg",
+      "url": "inline-svg:8bb08c9d8189efae"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "6d55d16f4fbaaf98",
+      "kind": "image",
+      "name": "svg-46",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\6d55d16f4fbaaf98.svg",
+      "url": "inline-svg:6d55d16f4fbaaf98"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "158557019f587fe7",
+      "kind": "image",
+      "name": "svg-47",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\158557019f587fe7.svg",
+      "url": "inline-svg:158557019f587fe7"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "cb596659e74f0f59",
+      "kind": "image",
+      "name": "svg-48",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\cb596659e74f0f59.svg",
+      "url": "inline-svg:cb596659e74f0f59"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "abde8979161cee20",
+      "kind": "image",
+      "name": "svg-49",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\abde8979161cee20.svg",
+      "url": "inline-svg:abde8979161cee20"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "e50403cd4efe9660",
+      "kind": "image",
+      "name": "svg-50",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\e50403cd4efe9660.svg",
+      "url": "inline-svg:e50403cd4efe9660"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "a5a3ff25e918deb7",
+      "kind": "image",
+      "name": "svg-51",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\a5a3ff25e918deb7.svg",
+      "url": "inline-svg:a5a3ff25e918deb7"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "b2ba90d024a13503",
+      "kind": "image",
+      "name": "svg-52",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\b2ba90d024a13503.svg",
+      "url": "inline-svg:b2ba90d024a13503"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "16e50455fddf523a",
+      "kind": "image",
+      "name": "svg-53",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\16e50455fddf523a.svg",
+      "url": "inline-svg:16e50455fddf523a"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "897a9f466b9e1f6b",
+      "kind": "image",
+      "name": "svg-54",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\897a9f466b9e1f6b.svg",
+      "url": "inline-svg:897a9f466b9e1f6b"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "a3925e3e3af3edd8",
+      "kind": "image",
+      "name": "svg-55",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\a3925e3e3af3edd8.svg",
+      "url": "inline-svg:a3925e3e3af3edd8"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "8eee98c89eb59bc7",
+      "kind": "image",
+      "name": "svg-56",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\8eee98c89eb59bc7.svg",
+      "url": "inline-svg:8eee98c89eb59bc7"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "2e3e23962deb9b54",
+      "kind": "image",
+      "name": "svg-57",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\2e3e23962deb9b54.svg",
+      "url": "inline-svg:2e3e23962deb9b54"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "f535dc2449033a66",
+      "kind": "image",
+      "name": "svg-58",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\f535dc2449033a66.svg",
+      "url": "inline-svg:f535dc2449033a66"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "fdf48f6235fb6aa2",
+      "kind": "image",
+      "name": "svg-59",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\fdf48f6235fb6aa2.svg",
+      "url": "inline-svg:fdf48f6235fb6aa2"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "e3aa8e1d61408399",
+      "kind": "image",
+      "name": "svg-60",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\e3aa8e1d61408399.svg",
+      "url": "inline-svg:e3aa8e1d61408399"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "df07034d2a0bae07",
+      "kind": "image",
+      "name": "svg-61",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\df07034d2a0bae07.svg",
+      "url": "inline-svg:df07034d2a0bae07"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "0467e09a20049b16",
+      "kind": "image",
+      "name": "svg-62",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\0467e09a20049b16.svg",
+      "url": "inline-svg:0467e09a20049b16"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "3e333d648eed4938",
+      "kind": "image",
+      "name": "svg-63",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\3e333d648eed4938.svg",
+      "url": "inline-svg:3e333d648eed4938"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "084e89c9d191277a",
+      "kind": "image",
+      "name": "svg-64",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\084e89c9d191277a.svg",
+      "url": "inline-svg:084e89c9d191277a"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "d49be516e47ec943",
+      "kind": "image",
+      "name": "svg-65",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\d49be516e47ec943.svg",
+      "url": "inline-svg:d49be516e47ec943"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "93831415bc3d8760",
+      "kind": "image",
+      "name": "svg-66",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\93831415bc3d8760.svg",
+      "url": "inline-svg:93831415bc3d8760"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "83f772f7548145e3",
+      "kind": "image",
+      "name": "svg-67",
+      "path": "C:\\Users\\ZHANGJ~1\\AppData\\Local\\Temp\\browser-use\\assets\\b8b3f4b2-8116-49da-8776-7524a6b17c96\\83f772f7548145e3.svg",
+      "url": "inline-svg:83f772f7548145e3"
+    }
+  ],
+  "failures": [
+    {
+      "contentType": null,
+      "id": "13793a8f339b1271",
+      "name": "sync_js",
+      "reason": "Loaded resource fetch failed: Asset bundling failed; page fetch failed: Browser Use encountered an error interacting with this webpage: TypeError: Failed to fetch\n    at Ye (https://ops.test.q1oa.com/static/npm/@sentry/browser@8.42.0/bundle.min.js:2:47468)\n    at s5 (<anonymous>:1:41)\n    at <anonymous>:1:354",
+      "url": "https://data.q1.com/sync_js?&data=eyJkYXRhIjpbeyIjdHlwZSI6InRyYWNrIiwiI3RpbWUiOiIyMDI2LTA2LTI2IDE1OjQ3OjM1LjI5MiIsIiNkaXN0aW5jdF9pZCI6IjE5N2VkZTZjODJkOGVlLTBjMTU2OGRkM2Q0NGEwOC00YzY1N2I1OC0yMDczNjAwLTE5N2VkZTZjODJlMjI5ZiIsIiNldmVudF9uYW1lIjoib3BzX2FjdGlvbl90cmlnZ2VyIiwicHJvcGVydGllcyI6eyIjZGV2aWNlX2lkIjoiMTk3ZWRlNmM4MmQ4ZWUtMGMxNTY4ZGQzZDQ0YTA4LTRjNjU3YjU4LTIwNzM2MDAtMTk3ZWRlNmM4MmUyMjlmIiwiI3pvbmVfb2Zmc2V0Ijo4LCIjb3MiOiJXaW5kb3dzIiwiI2xpYl92ZXJzaW9uIjoiMS41LjAiLCIjbGliIjoianMiLCIjc2NyZWVuX2hlaWdodCI6MTA4MCwiI3NjcmVlbl93aWR0aCI6MTkyMCwiI2Jyb3dzZXIiOiJjaHJvbWUiLCIjYnJvd3Nlcl92ZXJzaW9uIjoiMTQ5LjAuMC4wIiwib3BlcmF0aW9uX3R5cGUiOiLmn6Xor6IiLCJvcGVyYXRpb25fZGV0YWlsIjoi6I635Y%2BW5pyq6K%2B75raI5oGv5pWw6YePIiwib3BlcmF0aW9uX2xldmVsIjoi5pmu6YCaIiwidXNlcl9pZCI6IjY3NGM2NDUxLTNiNWUtNDc2OS1iZTJkLTYxZjlhZjI5ZGVlYyIsInVzZXJfbmFtZSI6IuW8oOmdmSIsInVzZXJfZGVwYXJ0bWVudCI6Iua3seWcs%2BWGsOW3nS0%2B6IO95Yqb5Lit5b%2BDLT5JVOW5s%2BWPsOmDqC0%2B5Lqn5ZOB6YOoIiwiaXAiOiIxNzIuMTYuMi41MSIsImFwcF9pZCI6Im9wZXJhdGlvbiIsImFwcF9uYW1lIjoi6L%2BQ6JCl5ZCO5Y%2BwIiwiYXBwX2Vudmlyb25tZW50IjoidGVzdCIsInVybCI6Imh0dHBzOi8vb3BzLnRlc3QucTFvYS5jb20vZ2FtZS9lbWFpbC9saXN0P2dhbWVJZD0yMTYyJmdhbWVWZXJzaW9uSWQ9MjE2Mi1FQS1ERVYmY3VycmVuY3k9Uk1CJnRpbWVab25lPTgiLCJtZW11X2tleSI6ImRpcjJfX2ludGVybmFsX21lc3NhZ2UiLCJtZW11X25hbWUiOiLnq5nlhoXkv6EiLCJtZW11X3BhdGgiOiIvZ2FtZS9lbWFpbC9saXN0IiwicGFyZW50X21lbnUiOiLlvIDlj5HogIXkuK3lv4MtPuermeWGheS%2FoSIsImdhbWVfdmVyc2lvbl9pZCI6IjIxNjItRUEtREVWIiwiZ2FtZV9pZCI6MjE2Mn19XSwiI2FwcF9pZCI6IjYyZjY2NjQwMzAwNTQ1OTg5NjQ2MzI0NDQzMWI0ZDQ0IiwiI2ZsdXNoX3RpbWUiOjE3ODI0NjAwNTUyOTN9&ext=crc%3D-1847247353&version=1.5.0"
+    },
+    {
+      "contentType": null,
+      "id": "f6fa189fc58483bd",
+      "name": "sync_js",
+      "reason": "Loaded resource fetch failed: Asset bundling failed; page fetch failed: Browser Use encountered an error interacting with this webpage: TypeError: Failed to fetch\n    at Ye (https://ops.test.q1oa.com/static/npm/@sentry/browser@8.42.0/bundle.min.js:2:47468)\n    at s5 (<anonymous>:1:41)\n    at <anonymous>:1:354",
+      "url": "https://data.q1.com/sync_js?&data=eyJkYXRhIjpbeyIjdHlwZSI6InRyYWNrIiwiI3RpbWUiOiIyMDI2LTA2LTI2IDE1OjQ3OjM1LjMyMSIsIiNkaXN0aW5jdF9pZCI6IjE5N2VkZTZjODJkOGVlLTBjMTU2OGRkM2Q0NGEwOC00YzY1N2I1OC0yMDczNjAwLTE5N2VkZTZjODJlMjI5ZiIsIiNldmVudF9uYW1lIjoib3BzX21lbnVfY2xpY2siLCJwcm9wZXJ0aWVzIjp7IiNkZXZpY2VfaWQiOiIxOTdlZGU2YzgyZDhlZS0wYzE1NjhkZDNkNDRhMDgtNGM2NTdiNTgtMjA3MzYwMC0xOTdlZGU2YzgyZTIyOWYiLCIjem9uZV9vZmZzZXQiOjgsIiNvcyI6IldpbmRvd3MiLCIjbGliX3ZlcnNpb24iOiIxLjUuMCIsIiNsaWIiOiJqcyIsIiNzY3JlZW5faGVpZ2h0IjoxMDgwLCIjc2NyZWVuX3dpZHRoIjoxOTIwLCIjYnJvd3NlciI6ImNocm9tZSIsIiNicm93c2VyX3ZlcnNpb24iOiIxNDkuMC4wLjAiLCJpcCI6IjE3Mi4xNi4yLjUxIiwidXNlcl9pZCI6IjY3NGM2NDUxLTNiNWUtNDc2OS1iZTJkLTYxZjlhZjI5ZGVlYyIsInVzZXJfbmFtZSI6IuW8oOmdmSIsInVzZXJfZGVwYXJ0bWVudCI6Iua3seWcs%2BWGsOW3nS0%2B6IO95Yqb5Lit5b%2BDLT5JVOW5s%2BWPsOmDqC0%2B5Lqn5ZOB6YOoIiwiYXBwX2lkIjoib3BlcmF0aW9uIiwiYXBwX25hbWUiOiLov5DokKXlkI7lj7AiLCJhcHBfZW52aXJvbm1lbnQiOiJ0ZXN0IiwidXJsIjoiaHR0cHMlM0ElMkYlMkZvcHMudGVzdC5xMW9hLmNvbSUyRmdhbWUlMkZlbWFpbCUyRmxpc3QlM0ZnYW1lSWQlM0QyMTYyJTI2Z2FtZVZlcnNpb25JZCUzRDIxNjItRUEtREVWJTI2Y3VycmVuY3klM0RSTUIlMjZ0aW1lWm9uZSUzRDgiLCJtZW11X2tleSI6InBhZ2VfX2xpc3RfX2VtYWlsIiwibWVtdV9uYW1lIjoi6YKu5Lu25YiX6KGoIiwibWVtdV9wYXRoIjoiL2dhbWUvZW1haWwvbGlzdCIsInBhcmVudF9tZW51Ijoi6L%2BQ6JCl5Lit5b%2BDLT7pgq7ku7YtPumCruS7tuWIl%2BihqCIsImdhbWVfdmVyc2lvbl9pZCI6IjIxNjItRUEtREVWIiwiZ2FtZV9pZCI6MjE2Mn19XSwiI2FwcF9pZCI6IjYyZjY2NjQwMzAwNTQ1OTg5NjQ2MzI0NDQzMWI0ZDQ0IiwiI2ZsdXNoX3RpbWUiOjE3ODI0NjAwNTUzMjF9&ext=crc%3D1370544811&version=1.5.0"
+    },
+    {
+      "contentType": null,
+      "id": "ead5bbe297a335a8",
+      "name": "sync_js",
+      "reason": "Loaded resource fetch failed: Asset bundling failed; page fetch failed: Browser Use encountered an error interacting with this webpage: TypeError: Failed to fetch\n    at Ye (https://ops.test.q1oa.com/static/npm/@sentry/browser@8.42.0/bundle.min.js:2:47468)\n    at s5 (<anonymous>:1:41)\n    at <anonymous>:1:354",
+      "url": "https://data.q1.com/sync_js?&data=eyJkYXRhIjpbeyIjdHlwZSI6InRyYWNrIiwiI3RpbWUiOiIyMDI2LTA2LTI2IDE1OjQ3OjM2LjQwNyIsIiNkaXN0aW5jdF9pZCI6IjE5N2VkZTZjODJkOGVlLTBjMTU2OGRkM2Q0NGEwOC00YzY1N2I1OC0yMDczNjAwLTE5N2VkZTZjODJlMjI5ZiIsIiNldmVudF9uYW1lIjoib3BzX2FjdGlvbl90cmlnZ2VyIiwicHJvcGVydGllcyI6eyIjZGV2aWNlX2lkIjoiMTk3ZWRlNmM4MmQ4ZWUtMGMxNTY4ZGQzZDQ0YTA4LTRjNjU3YjU4LTIwNzM2MDAtMTk3ZWRlNmM4MmUyMjlmIiwiI3pvbmVfb2Zmc2V0Ijo4LCIjb3MiOiJXaW5kb3dzIiwiI2xpYl92ZXJzaW9uIjoiMS41LjAiLCIjbGliIjoianMiLCIjc2NyZWVuX2hlaWdodCI6MTA4MCwiI3NjcmVlbl93aWR0aCI6MTkyMCwiI2Jyb3dzZXIiOiJjaHJvbWUiLCIjYnJvd3Nlcl92ZXJzaW9uIjoiMTQ5LjAuMC4wIiwib3BlcmF0aW9uX3R5cGUiOiLmn6Xor6IiLCJvcGVyYXRpb25fZGV0YWlsIjoi6YKu5Lu2Iiwib3BlcmF0aW9uX2xldmVsIjoi5pmu6YCaIiwidXNlcl9pZCI6IjY3NGM2NDUxLTNiNWUtNDc2OS1iZTJkLTYxZjlhZjI5ZGVlYyIsInVzZXJfbmFtZSI6IuW8oOmdmSIsInVzZXJfZGVwYXJ0bWVudCI6Iua3seWcs%2BWGsOW3nS0%2B6IO95Yqb5Lit5b%2BDLT5JVOW5s%2BWPsOmDqC0%2B5Lqn5ZOB6YOoIiwiaXAiOiIxNzIuMTYuMi41MSIsImFwcF9pZCI6Im9wZXJhdGlvbiIsImFwcF9uYW1lIjoi6L%2BQ6JCl5ZCO5Y%2BwIiwiYXBwX2Vudmlyb25tZW50IjoidGVzdCIsInVybCI6Imh0dHBzOi8vb3BzLnRlc3QucTFvYS5jb20vZ2FtZS9lbWFpbC9saXN0P2dhbWVJZD0yMTYyJmdhbWVWZXJzaW9uSWQ9MjE2Mi1FQS1ERVYmY3VycmVuY3k9Uk1CJnRpbWVab25lPTgiLCJtZW11X2tleSI6ImRpcjJfX2VtYWlsIiwibWVtdV9uYW1lIjoi6YKu5Lu2IiwibWVtdV9wYXRoIjoiL2dhbWUvZW1haWwvbGlzdCIsInBhcmVudF9tZW51Ijoi6L%2BQ6JCl5Lit5b%2BDLT7pgq7ku7YiLCJnYW1lX3ZlcnNpb25faWQiOiIyMTYyLUVBLURFViIsImdhbWVfaWQiOjIxNjJ9fV0sIiNhcHBfaWQiOiI2MmY2NjY0MDMwMDU0NTk4OTY0NjMyNDQ0MzFiNGQ0NCIsIiNmbHVzaF90aW1lIjoxNzgyNDYwMDU2NDA3fQ%3D%3D&ext=crc%3D1033887805&version=1.5.0"
+    }
+  ]
+}
