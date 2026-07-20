@@ -17,6 +17,9 @@ button,input,select{font:inherit}
 .filter{display:flex;align-items:center;gap:10px;min-height:54px;padding:10px 0;background:#fff;border-bottom:10px solid #eef2f6}
 .input{width:170px;height:32px;border:1px solid #d9dee8;background:#fff;padding:0 10px;outline:0}
 .select{width:178px;height:32px;border:1px solid #d9dee8;background:#fff;color:#5f6b7a;padding:0 31px 0 10px;appearance:none;background-image:linear-gradient(45deg,transparent 50%,#9aa4b3 50%),linear-gradient(135deg,#9aa4b3 50%,transparent 50%);background-position:calc(100% - 17px) 13px,calc(100% - 12px) 13px;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.search-combo{display:flex;align-items:center;height:32px}
+.search-type{width:120px;height:32px;border:1px solid #d9dee8;border-right:0;background:#fff;color:#1f2d3d;padding:0 28px 0 10px;outline:0;appearance:none;background-image:linear-gradient(45deg,transparent 50%,#9aa4b3 50%),linear-gradient(135deg,#9aa4b3 50%,transparent 50%);background-position:calc(100% - 16px) 13px,calc(100% - 11px) 13px;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.search-combo .input{width:170px}
 .label{font-weight:700;white-space:nowrap}
 .primary,.default{height:32px;padding:0 16px;border-radius:2px;cursor:pointer}
 .primary{border:1px solid #168cff;background:#168cff;color:#fff}
@@ -85,8 +88,14 @@ tr[data-tab]{display:none}
     </nav>
 
     <section class="filter">
-      <label class="label" for="packageName">兑换包名称:</label>
-      <input id="packageName" class="input">
+      <div class="search-combo">
+        <select class="search-type" id="searchType" aria-label="搜索类型">
+          <option>兑换码名称</option>
+          <option>批次ID</option>
+          <option>兑换码搜索</option>
+        </select>
+        <input id="packageName" class="input">
+      </div>
       <label class="label" for="category">兑换包分类:</label>
       <select id="category" class="select">
         <option>请选择兑换包分类</option>
