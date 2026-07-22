@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
@@ -1188,6 +1188,74 @@
     }
 
 
+
+    .mail-overview-prototype {
+      min-width: 960px;
+      padding: 18px 20px 28px;
+      color: #262626;
+      background: #f4f6f8;
+    }
+    .mail-overview-prototype * { box-sizing: border-box; }
+    .mail-overview-prototype button,
+    .mail-overview-prototype input,
+    .mail-overview-prototype select { font: inherit; }
+    .mail-overview-title { margin: 0 0 14px; font-size: 16px; line-height: 24px; font-weight: 600; }
+    .mail-overview-main { border: 1px solid #e5e8eb; background: #fff; }
+    .mail-overview-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; padding: 18px 20px 14px; }
+    .mail-overview-name { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 16px; line-height: 24px; font-weight: 600; }
+    .mail-overview-risk { flex: none; color: #cf1322; font-size: 12px; font-weight: 600; }
+    .mail-overview-meta { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 6px; color: #8c8c8c; font-size: 12px; line-height: 20px; }
+    .mail-overview-status { display: inline-flex; align-items: center; gap: 6px; flex: none; padding-top: 2px; color: #d46b08; font-weight: 500; }
+    .mail-overview-status::before { width: 7px; height: 7px; border-radius: 50%; background: #fa8c16; content: ""; }
+    .mail-overview-summary { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 0 20px 14px; padding: 10px 12px; border: 1px solid #ffe7ba; background: #fffbe6; }
+    .mail-overview-summary strong { color: #ad4e00; font-weight: 600; }
+    .mail-overview-link { padding: 0; border: 0; color: #1677ff; background: transparent; white-space: nowrap; cursor: pointer; }
+    .mail-overview-stats { margin: 0 20px 18px; border: 1px solid #f0f0f0; }
+    .mail-stat-row { display: grid; grid-template-columns: 92px repeat(4, minmax(120px, 1fr)); min-height: 62px; }
+    .mail-stat-row + .mail-stat-row { border-top: 1px solid #f0f0f0; }
+    .mail-stat-group,
+    .mail-stat-item { display: flex; flex-direction: column; justify-content: center; padding: 9px 14px; }
+    .mail-stat-group { color: #595959; background: #fafafa; font-weight: 500; }
+    .mail-stat-item { border-left: 1px solid #f0f0f0; }
+    .mail-stat-label { margin-bottom: 3px; color: #8c8c8c; font-size: 12px; line-height: 18px; }
+    .mail-stat-value { font-size: 18px; line-height: 24px; font-variant-numeric: tabular-nums; }
+    .mail-stat-value.danger { color: #cf1322; }
+    .mail-overview-tabs { display: flex; gap: 30px; padding: 0 20px; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; }
+    .mail-overview-tab { position: relative; height: 46px; padding: 0 2px; border: 0; color: #595959; background: transparent; cursor: pointer; }
+    .mail-overview-tab.active { color: #1677ff; font-weight: 500; }
+    .mail-overview-tab.active::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; background: #1677ff; content: ""; }
+    .mail-tab-count { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; margin-left: 5px; padding: 0 5px; border-radius: 9px; color: #fff; background: #f5222d; font-size: 11px; line-height: 18px; }
+    .mail-overview-panel { min-height: 330px; padding: 18px 20px 22px; }
+    .mail-overview-panel[hidden] { display: none; }
+    .mail-info-grid { display: grid; grid-template-columns: 148px minmax(220px, 1fr) 148px minmax(220px, 1fr); border-top: 1px solid #f0f0f0; border-left: 1px solid #f0f0f0; }
+    .mail-info-label,
+    .mail-info-value { min-height: 46px; padding: 12px 14px; border-right: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; line-height: 21px; }
+    .mail-info-label { color: #595959; background: #fafafa; }
+    .mail-info-value.full { grid-column: span 3; }
+    .mail-info-content { min-height: 78px; }
+    .mail-server-toolbar,
+    .mail-recipient-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+    .mail-toolbar-note { color: #8c8c8c; font-size: 12px; }
+    .mail-overview-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .mail-overview-table th,
+    .mail-overview-table td { padding: 11px 12px; border: 1px solid #f0f0f0; text-align: left; line-height: 20px; vertical-align: middle; }
+    .mail-overview-table th { color: #595959; background: #fafafa; font-weight: 500; }
+    .mail-status-fail { color: #cf1322; }
+    .mail-status-partial { color: #d46b08; }
+    .mail-status-success { color: #389e0d; }
+    .mail-recipient-filters { display: grid; grid-template-columns: minmax(170px, 1fr) 180px auto; gap: 10px; width: min(680px, 100%); }
+    .mail-recipient-filters input,
+    .mail-recipient-filters select { height: 32px; padding: 4px 10px; border: 1px solid #d9d9d9; border-radius: 2px; color: #595959; background: #fff; }
+    .mail-overview-actions { display: flex; gap: 8px; }
+    .mail-overview-button { height: 32px; padding: 4px 14px; border: 1px solid #d9d9d9; border-radius: 2px; color: #262626; background: #fff; cursor: pointer; }
+    .mail-overview-button.primary { border-color: #1677ff; color: #fff; background: #1677ff; }
+    .mail-overview-pagination { margin-top: 14px; color: #8c8c8c; text-align: right; font-size: 12px; }
+    @media (max-width: 1100px) {
+      .mail-overview-prototype { min-width: 820px; }
+      .mail-stat-row { grid-template-columns: 82px repeat(4, minmax(100px, 1fr)); }
+      .mail-info-grid { grid-template-columns: 128px minmax(180px, 1fr) 128px minmax(180px, 1fr); }
+    }
+
   </style>
 </head>
 <body>
@@ -1408,7 +1476,100 @@
         enhanced = true;
       });
       if (enhanced) view.dataset.emailColumnsEnhanced = 'true';
-    }    function enhanceChannelGroupFeature() {
+    }
+    function activateMailOverviewTab(view, tabName) {
+      view.querySelectorAll('[data-mail-tab]').forEach((button) => {
+        const active = button.dataset.mailTab === tabName;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      view.querySelectorAll('[data-mail-panel]').forEach((panel) => {
+        panel.hidden = panel.dataset.mailPanel !== tabName;
+      });
+    }
+
+    function renderMailOverviewPrototype(view) {
+      if (!view || view.dataset.mailOverviewPrototype) return;
+      view.dataset.mailOverviewPrototype = 'true';
+      view.innerHTML = [
+        '<main class="mail-overview-prototype">',
+          '<h2 class="mail-overview-title">邮件概况</h2>',
+          '<section class="mail-overview-main">',
+            '<header class="mail-overview-head">',
+              '<div><div class="mail-overview-name"><span class="mail-overview-risk">[高风险]</span><span>欢迎加入玩家</span></div>',
+              '<div class="mail-overview-meta"><span>邮件ID：08dss4028353453db65306eef6fd150</span><span>通知邮件</span><span>定时发送</span><span>发送时间：2025-07-22 19:01:01</span></div></div>',
+              '<span class="mail-overview-status">部分成功</span>',
+            '</header>',
+            '<div class="mail-overview-summary"><div><strong>本次邮件部分发送成功</strong>：游戏成功投递 114,915 人，发送失败 200 人，涉及 2 个异常区服</div>',
+              '<button class="mail-overview-link" type="button" data-go-server>查看异常区服</button></div>',
+            '<div class="mail-overview-stats">',
+              '<div class="mail-stat-row"><div class="mail-stat-group">发送数据</div>',
+                '<div class="mail-stat-item"><span class="mail-stat-label">总发送人数</span><span class="mail-stat-value">114,965</span></div>',
+                '<div class="mail-stat-item"><span class="mail-stat-label">发送成功人数</span><span class="mail-stat-value">114,915</span></div>',
+                '<div class="mail-stat-item"><span class="mail-stat-label">发送失败人数</span><span class="mail-stat-value danger">200</span></div>',
+                '<div class="mail-stat-item"><span class="mail-stat-label">撤回成功人数</span><span class="mail-stat-value">0</span></div></div>',
+              '<div class="mail-stat-row"><div class="mail-stat-group">接收数据</div>',
+                '<div class="mail-stat-item"><span class="mail-stat-label">已读邮件人数</span><span class="mail-stat-value">43,353</span></div>',
+                '<div class="mail-stat-item"><span class="mail-stat-label">未读邮件人数</span><span class="mail-stat-value">71,562</span></div>',
+                '<div class="mail-stat-item"><span class="mail-stat-label">已领取物品人数</span><span class="mail-stat-value">0</span></div>',
+                '<div class="mail-stat-item"><span class="mail-stat-label">已删除邮件人数</span><span class="mail-stat-value">18,045</span></div></div>',
+            '</div>',
+            '<nav class="mail-overview-tabs" role="tablist" aria-label="邮件概况详情">',
+              '<button class="mail-overview-tab active" type="button" role="tab" aria-selected="true" data-mail-tab="info">邮件信息</button>',
+              '<button class="mail-overview-tab" type="button" role="tab" aria-selected="false" data-mail-tab="server">区服发送情况<span class="mail-tab-count">2</span></button>',
+              '<button class="mail-overview-tab" type="button" role="tab" aria-selected="false" data-mail-tab="recipient">收件人详情</button>',
+            '</nav>',
+            '<section class="mail-overview-panel" data-mail-panel="info">',
+              '<div class="mail-info-grid">',
+                '<div class="mail-info-label">邮件标题</div><div class="mail-info-value"><span class="mail-overview-risk">[高风险]</span> 欢迎加入玩家</div>',
+                '<div class="mail-info-label">邮件类型</div><div class="mail-info-value">通知邮件</div>',
+                '<div class="mail-info-label">邮件内容</div><div class="mail-info-value full mail-info-content">为建设好游戏环境，现已建立官方 QQ 群，方便您与其他玩家交流。感谢您的支持，祝您游戏愉快。</div>',
+                '<div class="mail-info-label">附件物品</div><div class="mail-info-value">无</div>',
+                '<div class="mail-info-label">保留天数</div><div class="mail-info-value">3 天</div>',
+                '<div class="mail-info-label">邮件发送方式</div><div class="mail-info-value">定时发送</div>',
+                '<div class="mail-info-label">邮件发送时间</div><div class="mail-info-value">2025-07-22 19:01:01</div>',
+                '<div class="mail-info-label">发送截止时间</div><div class="mail-info-value">2027-07-18 20:54:35</div>',
+                '<div class="mail-info-label">邮件状态</div><div class="mail-info-value"><span class="mail-status-partial">部分成功</span></div>',
+              '</div>',
+            '</section>',
+            '<section class="mail-overview-panel" data-mail-panel="server" hidden>',
+              '<div class="mail-server-toolbar"><div><strong>区服发送情况</strong><span class="mail-toolbar-note">　用于定位失败发生在平台推送还是游戏投递环节</span></div>',
+                '<label><input type="checkbox" data-only-abnormal checked> 仅看异常区服</label></div>',
+              '<table class="mail-overview-table"><thead><tr><th style="width:16%">区服</th><th style="width:12%">目标人数</th><th style="width:17%">平台 → Socket</th><th style="width:18%">游戏 → 收件人</th><th style="width:13%">发送结果</th><th>失败原因</th></tr></thead><tbody>',
+                '<tr data-server-success hidden><td>S1-主服</td><td>50,000</td><td class="mail-status-success">成功 50,000</td><td class="mail-status-success">成功 50,000</td><td class="mail-status-success">已发送</td><td>-</td></tr>',
+                '<tr><td>S2-活动服</td><td>30,115</td><td class="mail-status-fail">成功 29,965 / 失败 150</td><td>成功 29,965</td><td class="mail-status-partial">部分成功</td><td>150 人对应区服连接失败</td></tr>',
+                '<tr><td>S5-新服</td><td>35,000</td><td class="mail-status-success">成功 35,000</td><td class="mail-status-fail">成功 34,950 / 失败 50</td><td class="mail-status-partial">部分成功</td><td>50 人游戏投递失败</td></tr>',
+              '</tbody></table><div class="mail-overview-pagination">共 2 个异常区服　1 / 1</div>',
+            '</section>',
+            '<section class="mail-overview-panel" data-mail-panel="recipient" hidden>',
+              '<div class="mail-recipient-toolbar"><div class="mail-recipient-filters">',
+                '<input type="text" placeholder="请输入收件人角色ID或角色名">',
+                '<select><option>全部邮件状态</option><option>已读</option><option>未读</option><option>已领取</option><option>已删除</option><option>已撤回</option></select>',
+                '<div class="mail-overview-actions"><button class="mail-overview-button primary" type="button">查询</button><button class="mail-overview-button" type="button">重置</button></div>',
+              '</div><button class="mail-overview-button" type="button" data-export-recipient>导出</button></div>',
+              '<div class="mail-toolbar-note" style="margin-bottom:12px">当前仅展示近 3 个月的收件人数据，如需查询更早数据，请前往历史邮件报表查看。</div>',
+              '<table class="mail-overview-table"><thead><tr><th>收件人</th><th>接收时间 ↕</th><th>邮件状态</th><th>领取时间 ↕</th><th>撤回时间 ↕</th></tr></thead><tbody>',
+                '<tr><td>13996（测试角色A）</td><td>2025-07-22 19:01:05</td><td class="mail-status-success">已读</td><td>-</td><td>-</td></tr>',
+                '<tr><td>20881（测试角色B）</td><td>2025-07-22 19:01:07</td><td>未读</td><td>-</td><td>-</td></tr>',
+              '</tbody></table><div class="mail-overview-pagination">共 114,915 条　‹　1　2　3　›　10 条/页</div>',
+            '</section>',
+          '</section>',
+        '</main>'
+      ].join('');
+
+      view.addEventListener('click', (event) => {
+        const tab = event.target.closest('[data-mail-tab]');
+        if (tab) activateMailOverviewTab(view, tab.dataset.mailTab);
+        if (event.target.closest('[data-go-server]')) activateMailOverviewTab(view, 'server');
+        if (event.target.closest('[data-export-recipient]')) showToast('已按当前筛选条件导出收件人详情');
+      });
+      const abnormalToggle = view.querySelector('[data-only-abnormal]');
+      if (abnormalToggle) abnormalToggle.addEventListener('change', () => {
+        view.querySelectorAll('[data-server-success]').forEach((row) => { row.hidden = abnormalToggle.checked; });
+      });
+    }
+
+    function enhanceChannelGroupFeature() {
       const view = activeViewNode();
       if (!view) return;
       const name = view.dataset.view;
@@ -1418,7 +1579,7 @@
       if (name === 'copy') enhanceCreateChannelGroup(view, true);
       if (name === 'batch') enhanceBatchChannelGroup(view);
       if (name === 'detail') {
-        enhanceChannelGroupDetail(view);
+        renderMailOverviewPrototype(view);
       }
     }
     function activeViewName(name) {
