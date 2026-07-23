@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
@@ -1181,6 +1181,87 @@
       background: #fafafa;
     }
 
+    .mail-title-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .mail-title-text {
+      max-width: 100%;
+      color: rgba(0, 0, 0, 0.85);
+      line-height: 20px;
+      word-break: break-word;
+    }
+
+    .mail-title-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      min-height: 22px;
+    }
+
+    .mail-title-tags:empty {
+      display: none;
+    }
+
+    .mail-title-tag {
+      display: inline-flex;
+      align-items: center;
+      height: 22px;
+      padding: 0 7px;
+      border: 1px solid transparent;
+      border-radius: 2px;
+      font-size: 12px;
+      line-height: 20px;
+      white-space: nowrap;
+    }
+
+    .mail-title-tag-risk {
+      color: #cf1322;
+      background: #fff1f0;
+      border-color: #ffa39e;
+    }
+
+    .mail-title-tag-required {
+      color: #ad6800;
+      background: #fff7e6;
+      border-color: #ffd591;
+    }
+
+    .mail-title-tag-batch {
+      color: #0958d9;
+      background: #e6f4ff;
+      border-color: #91caff;
+    }
+
+    .mail-identity-line {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-width: 0;
+      line-height: 22px;
+    }
+
+    .mail-identity-title {
+      color: rgba(0, 0, 0, 0.85);
+      font-weight: 500;
+      word-break: break-word;
+    }
+
+    .mail-overview-title-line .mail-identity-title {
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 600;
+    }
+
+    .mail-info-value .mail-identity-line,
+    .ant-descriptions-item-content .mail-identity-line {
+      vertical-align: middle;
+    }
     .mail-table-tools { position: relative; display: flex; align-items: center; justify-content: flex-end; gap: 2px; min-width: 108px; margin-left: auto; }
     .mail-table-tool-button { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 2px; color: #595959; background: transparent; cursor: pointer; }
     .mail-table-tool-button:hover, .mail-table-tool-button.active { color: #1890ff; background: #e6f7ff; }
@@ -1662,7 +1743,50 @@
       .mail-overview-meta { gap: 6px 20px; }
     }
 
-  </style>
+  
+    .required-mail-flag-item .ant-form-item-control-input-content {
+      min-height: 32px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .required-mail-flag-item .ant-switch {
+      min-width: 44px;
+    }
+
+    .required-mail-flag-item .required-mail-help {
+      color: rgba(0, 0, 0, 0.45);
+      line-height: 22px;
+    }
+
+    .required-mail-flag-item.required-mail-disabled .required-mail-help {
+      color: rgba(0, 0, 0, 0.35);
+    }
+
+    .required-mail-flag-item.required-mail-disabled .ant-switch {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .required-mail-flag-item.required-mail-disabled .ant-switch * {
+      pointer-events: none;
+    }
+
+    .required-mail-attachment-tag {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      margin-right: 8px;
+      padding: 0 8px;
+      color: #0958d9;
+      background: #e6f4ff;
+      border: 1px solid #91caff;
+      border-radius: 2px;
+      font-size: 12px;
+    }
+</style>
 </head>
 <body>
   <div id="email-module-root">
@@ -1872,9 +1996,233 @@
       return modal;
     }
 
+    function enhanceRequiredMailFlag(view) {
+      if (!view || view.dataset.requiredMailFlagEnhanced) return;
+      view.dataset.requiredMailFlagEnhanced = 'true';
+      const attachmentLabel = [...view.querySelectorAll('label')].find((label) => {
+        const text = textOf(label);
+        return text === '附件物品' || label.getAttribute('for') === 'attachments' || label.getAttribute('title') === '附件物品';
+      });
+      const attachmentItem = attachmentLabel?.closest('.ant-form-item, .ant-row');
+      if (!attachmentItem || view.querySelector('.required-mail-flag-item')) return;
+
+      attachmentItem.insertAdjacentHTML('afterend', '<div class="ant-row ant-form-item required-mail-flag-item required-mail-disabled"><div class="ant-col ant-col-3 ant-form-item-label"><label for="requiredMailFlag" title="是否必读邮件">是否必读邮件</label></div><div class="ant-col ant-form-item-control"><div class="ant-form-item-control-input"><div class="ant-form-item-control-input-content"><button id="requiredMailFlag" type="button" role="switch" aria-checked="false" aria-disabled="true" class="ant-switch" disabled><div class="ant-switch-handle"></div><span class="ant-switch-inner">否</span></button><span class="required-mail-help">添加附件物品后可设置必读邮件</span><input type="hidden" name="requiredMailFlag" value="0"></div></div></div></div></div>');
+
+      const requiredItem = attachmentItem.nextElementSibling;
+      const switchButton = requiredItem.querySelector('#requiredMailFlag');
+      const switchInner = requiredItem.querySelector('.ant-switch-inner');
+      const help = requiredItem.querySelector('.required-mail-help');
+      const hiddenInput = requiredItem.querySelector('input[name="requiredMailFlag"]');
+      const attachmentContent = attachmentItem.querySelector('.ant-form-item-control-input-content') || attachmentItem;
+
+      const hasAttachment = () => {
+        if (attachmentItem.querySelector('.required-mail-attachment-tag')) return true;
+        return [...attachmentItem.querySelectorAll('.ant-select-selection-item')].some((node) => {
+          const value = textOf(node).trim();
+          return value && value !== '请选择';
+        });
+      };
+
+      const setChecked = (checked) => {
+        switchButton.classList.toggle('ant-switch-checked', checked);
+        switchButton.setAttribute('aria-checked', checked ? 'true' : 'false');
+        switchInner.textContent = checked ? '是' : '否';
+        hiddenInput.value = checked ? '1' : '0';
+      };
+
+      const syncRequiredMailState = () => {
+        const enabled = hasAttachment();
+        requiredItem.classList.toggle('required-mail-disabled', !enabled);
+        switchButton.disabled = !enabled;
+        switchButton.setAttribute('aria-disabled', enabled ? 'false' : 'true');
+        help.textContent = enabled ? '开启后，游戏侧将要求玩家打开邮件后才可领取附件' : '添加附件物品后可设置必读邮件';
+        if (!enabled) setChecked(false);
+      };
+
+      switchButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (switchButton.disabled) {
+          showToast('请先添加附件物品');
+          return;
+        }
+        setChecked(switchButton.getAttribute('aria-checked') !== 'true');
+      });
+
+      [...attachmentItem.querySelectorAll('button, .ant-btn')].forEach((button) => {
+        const buttonText = textOf(button).replace(/\s+/g, '');
+        if (buttonText === '添加') {
+          button.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (!attachmentItem.querySelector('.required-mail-attachment-tag')) {
+              attachmentContent.insertAdjacentHTML('afterbegin', '<span class="required-mail-attachment-tag">已添加附件物品</span>');
+            }
+            syncRequiredMailState();
+          });
+        }
+        if (buttonText === '清空') {
+          button.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            attachmentItem.querySelectorAll('.required-mail-attachment-tag').forEach((tag) => tag.remove());
+            syncRequiredMailState();
+          });
+        }
+      });
+
+      syncRequiredMailState();
+    }
+    function enhanceRequiredMailFlag(view) {
+      if (!view || view.dataset.requiredMailFlagEnhancedV2) return;
+      view.dataset.requiredMailFlagEnhancedV2 = 'true';
+      const attachmentLabel = view.querySelector('label[for="attachments"]');
+      const attachmentItem = attachmentLabel?.closest('.ant-form-item, .ant-row');
+      if (!attachmentItem) return;
+
+      if (!view.querySelector('.required-mail-flag-item')) {
+        attachmentItem.insertAdjacentHTML('afterend', '<div class="ant-row ant-form-item required-mail-flag-item required-mail-disabled"><div class="ant-col ant-col-3 ant-form-item-label"><label for="requiredMailFlag" title="\u662f\u5426\u5fc5\u8bfb\u90ae\u4ef6">\u662f\u5426\u5fc5\u8bfb\u90ae\u4ef6</label></div><div class="ant-col ant-form-item-control"><div class="ant-form-item-control-input"><div class="ant-form-item-control-input-content"><button id="requiredMailFlag" type="button" role="switch" aria-checked="false" aria-disabled="true" class="ant-switch" disabled><div class="ant-switch-handle"></div><span class="ant-switch-inner">\u5426</span></button><span class="required-mail-help">\u6dfb\u52a0\u9644\u4ef6\u7269\u54c1\u540e\u53ef\u8bbe\u7f6e\u5fc5\u8bfb\u90ae\u4ef6</span><input type="hidden" name="requiredMailFlag" value="0"></div></div></div></div></div>');
+      }
+
+      const requiredItem = view.querySelector('.required-mail-flag-item');
+      const switchButton = requiredItem.querySelector('#requiredMailFlag');
+      const switchInner = requiredItem.querySelector('.ant-switch-inner');
+      const help = requiredItem.querySelector('.required-mail-help');
+      const hiddenInput = requiredItem.querySelector('input[name="requiredMailFlag"]');
+      const attachmentContent = attachmentItem.querySelector('.ant-form-item-control-input-content') || attachmentItem;
+      const select = attachmentItem.querySelector('.ant-select');
+      const selector = select?.querySelector('.ant-select-selector');
+      const placeholder = select?.querySelector('.ant-select-selection-placeholder');
+      const searchInput = select?.querySelector('.ant-select-selection-search-input');
+      const quantityInput = attachmentItem.querySelector('.ant-input-number-input');
+      const buttons = [...attachmentItem.querySelectorAll('button')];
+      const addButton = buttons.find((button) => textOf(button).replace(/\s+/g, '') === '\u6dfb\u52a0') || buttons.find((button) => button.classList.contains('ant-btn-primary') && !button.classList.contains('ant-btn-dangerous'));
+      const clearButton = buttons.find((button) => textOf(button).replace(/\s+/g, '') === '\u6e05\u7a7a') || buttons.find((button) => button.classList.contains('ant-btn-dangerous'));
+      const addWrapper = addButton?.closest('.ant-popover-disabled-compatible-wrapper');
+      const itemOptions = [
+        { id: '100101', name: 'VIP\u5165\u4f1a\u9080\u8bf7\u793c\u76d2' },
+        { id: '100201', name: '\u94bb\u77f3' },
+        { id: '100301', name: '\u9ad8\u7ea7\u53ec\u5524\u5238' }
+      ];
+      let selectedItem = '';
+
+      if (addWrapper) {
+        addWrapper.style.cursor = 'default';
+        addWrapper.style.pointerEvents = 'auto';
+      }
+      if (addButton) {
+        addButton.style.pointerEvents = 'auto';
+        addButton.disabled = true;
+      }
+      if (clearButton) clearButton.disabled = true;
+      if (quantityInput && !quantityInput.value) quantityInput.value = '1';
+
+      const hasAttachment = () => Boolean(attachmentItem.querySelector('.required-mail-attachment-tag'));
+      const setChecked = (checked) => {
+        switchButton.classList.toggle('ant-switch-checked', checked);
+        switchButton.setAttribute('aria-checked', checked ? 'true' : 'false');
+        switchInner.textContent = checked ? '\u662f' : '\u5426';
+        hiddenInput.value = checked ? '1' : '0';
+      };
+      const syncRequiredMailState = () => {
+        const enabled = hasAttachment();
+        requiredItem.classList.toggle('required-mail-disabled', !enabled);
+        switchButton.disabled = !enabled;
+        switchButton.setAttribute('aria-disabled', enabled ? 'false' : 'true');
+        help.textContent = enabled ? '\u5f00\u542f\u540e\uff0c\u6e38\u620f\u4fa7\u5c06\u8981\u6c42\u73a9\u5bb6\u6253\u5f00\u90ae\u4ef6\u540e\u624d\u53ef\u9886\u53d6\u9644\u4ef6' : '\u6dfb\u52a0\u9644\u4ef6\u7269\u54c1\u540e\u53ef\u8bbe\u7f6e\u5fc5\u8bfb\u90ae\u4ef6';
+        if (!enabled) setChecked(false);
+      };
+      const closeMenu = () => document.querySelectorAll('.required-mail-item-menu').forEach((menu) => menu.remove());
+      const selectItem = (option) => {
+        selectedItem = `${option.name} (${option.id})`;
+        select?.classList.add('ant-select-focused');
+        if (placeholder) placeholder.style.display = 'none';
+        let selectedNode = selector?.querySelector('.ant-select-selection-item');
+        if (!selectedNode && selector) {
+          selectedNode = document.createElement('span');
+          selectedNode.className = 'ant-select-selection-item';
+          selector.appendChild(selectedNode);
+        }
+        if (selectedNode) {
+          selectedNode.textContent = selectedItem;
+          selectedNode.setAttribute('title', selectedItem);
+        }
+        if (searchInput) searchInput.value = '';
+        if (addButton) addButton.disabled = false;
+        closeMenu();
+      };
+      const openMenu = () => {
+        if (!selector) return;
+        closeMenu();
+        const rect = selector.getBoundingClientRect();
+        const menu = document.createElement('div');
+        menu.className = 'required-mail-item-menu';
+        menu.style.position = 'fixed';
+        menu.style.zIndex = '1400';
+        menu.style.padding = '4px 0';
+        menu.style.background = '#fff';
+        menu.style.borderRadius = '2px';
+        menu.style.boxShadow = '0 3px 6px -4px rgba(0,0,0,.12), 0 6px 16px 0 rgba(0,0,0,.08), 0 9px 28px 8px rgba(0,0,0,.05)';
+        menu.style.left = `${rect.left}px`;
+        menu.style.top = `${rect.bottom + 4}px`;
+        menu.style.width = `${Math.max(rect.width, 320)}px`;
+        menu.innerHTML = itemOptions.map((option, index) => `<div class="required-mail-item-option" data-index="${index}" style="padding:5px 12px;color:rgba(0,0,0,.85);line-height:22px;cursor:pointer;">${option.name} (${option.id})</div>`).join('');
+        menu.addEventListener('click', (event) => {
+          const optionNode = event.target.closest('.required-mail-item-option');
+          if (!optionNode) return;
+          selectItem(itemOptions[Number(optionNode.dataset.index)]);
+        });
+        document.body.appendChild(menu);
+      };
+      selector?.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        openMenu();
+      });
+      document.addEventListener('click', (event) => {
+        if (!event.target.closest('.required-mail-item-menu') && !event.target.closest('.ant-select')) closeMenu();
+      });
+      addButton?.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!selectedItem) {
+          showToast('\u8bf7\u5148\u9009\u62e9\u9644\u4ef6\u7269\u54c1');
+          return;
+        }
+        let list = attachmentItem.querySelector('.required-mail-added-list');
+        if (!list) {
+          list = document.createElement('div');
+          list.className = 'required-mail-added-list';
+          attachmentContent.appendChild(list);
+        }
+        const count = quantityInput?.value || '1';
+        list.innerHTML = `<span class="required-mail-attachment-tag">${selectedItem} x ${count}</span>`;
+        if (clearButton) clearButton.disabled = false;
+        syncRequiredMailState();
+      });
+      clearButton?.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        attachmentItem.querySelectorAll('.required-mail-attachment-tag').forEach((tag) => tag.remove());
+        if (clearButton) clearButton.disabled = true;
+        syncRequiredMailState();
+      });
+      switchButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (switchButton.disabled) {
+          showToast('\u8bf7\u5148\u6dfb\u52a0\u9644\u4ef6\u7269\u54c1');
+          return;
+        }
+        setChecked(switchButton.getAttribute('aria-checked') !== 'true');
+      });
+      syncRequiredMailState();
+    }
     function enhanceCreateChannelGroup(view, copyMode) {
       if (view.dataset.channelGroupCreateEnhanced) return;
       view.dataset.channelGroupCreateEnhanced = 'true';
+      view.querySelectorAll("label[for='condition_limitLevel'], label[for='condition_rechargeAmount']").forEach((label) => label.classList.remove("ant-form-item-required"));
+      enhanceRequiredMailFlag(view);
       const templateSelect = view.querySelector('input#emailTemplateId')?.closest('.ant-select');
       if (templateSelect && !templateSelect.querySelector('.mail-template-clear-button')) {
         templateSelect.classList.add('mail-template-select');
@@ -1936,6 +2284,68 @@
       row.appendChild(fragment);
     }
 
+    function escapeHtml(value) {
+      return String(value || '').replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
+    }
+
+    function mailTitleTagHtml(kind, label) {
+      return '<span class="mail-title-tag mail-title-tag-' + kind + '">' + label + '</span>';
+    }
+
+    function mailIdentityLineHtml(title, tags) {
+      const tagHtml = (tags || []).map((tag) => mailTitleTagHtml(tag.kind, tag.label)).join('');
+      return '<span class="mail-identity-line"><span class="mail-identity-title">' + escapeHtml(title) + '</span>' + tagHtml + '</span>';
+    }
+
+    function decorateDetailDialogTitle(host) {
+      if (!host || host.dataset.mailDialogTitleDecorated) return;
+      const rows = [...host.querySelectorAll('.ant-descriptions-row')];
+      const titleRow = rows.find((row) => normalizeHeaderText(row.querySelector('.ant-descriptions-item-label')?.innerText || row.querySelector('.ant-descriptions-item-label')?.textContent) === '标题');
+      const titleCell = titleRow && titleRow.querySelector('.ant-descriptions-item-content');
+      if (!titleCell) return;
+      const title = (titleCell.innerText || titleCell.textContent || '').replace(/\s+/g, ' ').trim() || '中文中文1再次';
+      titleCell.innerHTML = mailIdentityLineHtml(title.replace(/\[高风险\]|\[必读\]|批量邮件/g, '').trim() || title, [
+        { kind: 'risk', label: '高风险' },
+        { kind: 'required', label: '必读' }
+      ]);
+      host.dataset.mailDialogTitleDecorated = 'true';
+    }
+
+    function enhanceMailTitleTags(view) {
+      if (!view || view.dataset.mailTitleTagsEnhanced) return;
+      const tableRoots = [...view.querySelectorAll('.ant-table')];
+      tableRoots.forEach((tableRoot) => {
+        const tables = [...tableRoot.querySelectorAll('table')];
+        const headerTable = tables.find((table) => table.querySelector('thead th'));
+        const bodyTable = tables.find((table) => table.querySelector('tbody tr'));
+        if (!headerTable || !bodyTable) return;
+        const headers = [...headerTable.querySelectorAll('thead th')].map((cell) => normalizeHeaderText(cell.innerText || cell.textContent));
+        const titleIndex = headers.findIndex((header) => header === '标题');
+        if (titleIndex < 0) return;
+        const dataRows = [...bodyTable.querySelectorAll('tbody tr')].filter((row) => {
+          const cell = row.children[titleIndex];
+          return cell && textOf(cell);
+        });
+        dataRows.forEach((row, rowIndex) => {
+          const cell = row.children[titleIndex];
+          if (!cell || cell.dataset.mailTitleTags) return;
+          const rawText = (cell.innerText || cell.textContent || '').replace(/\s+/g, ' ').trim();
+          if (!rawText) return;
+          const rowText = (row.innerText || row.textContent || '').replace(/\s+/g, ' ').trim();
+          const isRisk = rawText.includes('[高风险]') || rowText.includes('高风险');
+          const isBatch = rawText.includes('批量邮件') || rowText.includes('批量邮件') || rowIndex === 2 || rowIndex === 3;
+          const isRequired = rawText.includes('[必读]') || rowText.includes('必读邮件') || rowIndex === 0 || rowIndex === 3 || rowIndex === 4;
+          const cleanTitle = rawText.replace(/\[高风险\]/g, '').replace(/\[必读\]/g, '').replace(/批量邮件/g, '').trim() || rawText;
+          const tags = [];
+          if (isRisk) tags.push(mailTitleTagHtml('risk', '高风险'));
+          if (isRequired) tags.push(mailTitleTagHtml('required', '必读'));
+          if (isBatch) tags.push(mailTitleTagHtml('batch', '批量邮件'));
+          cell.innerHTML = '<div class="mail-title-stack"><div class="mail-title-text">' + escapeHtml(cleanTitle) + '</div><div class="mail-title-tags">' + tags.join('') + '</div></div>';
+          cell.dataset.mailTitleTags = 'true';
+        });
+      });
+      view.dataset.mailTitleTagsEnhanced = 'true';
+    }
     function enhanceEmailStatusSummary(view) {
       if (!view || view.dataset.emailStatusEnhanced) return;
       const tableRoots = [...view.querySelectorAll('.ant-table')];
@@ -2131,7 +2541,7 @@
         '<main class="mail-overview-prototype">',
           '<section class="mail-overview-summary">',
             '<div class="mail-overview-title-line">',
-              '<span><span class="mail-overview-risk">[高风险]</span> 欢迎加入玩家</span>',
+              mailIdentityLineHtml('欢迎加入玩家', [{ kind: 'risk', label: '高风险' }, { kind: 'required', label: '必读' }]),
               '<span class="mail-overview-status">部分成功</span>',
             '</div>',
             '<div class="mail-overview-meta">',
@@ -2167,7 +2577,7 @@
 
             '<section class="mail-overview-panel" data-mail-panel="info">',
               '<div class="mail-info-grid">',
-                '<div class="mail-info-label">邮件标题</div><div class="mail-info-value"><span class="mail-overview-risk">[高风险]</span> 欢迎加入玩家</div>',
+                '<div class="mail-info-label">邮件标题</div><div class="mail-info-value">' + mailIdentityLineHtml('欢迎加入玩家', [{ kind: 'risk', label: '高风险' }, { kind: 'required', label: '必读' }]) + '</div>',
                 '<div class="mail-info-label">邮件类型</div><div class="mail-info-value">通知邮件</div>',
                 '<div class="mail-info-label">邮件内容</div><div class="mail-info-value full mail-info-content">为建设好游戏环境，现已建立官方 QQ 群，方便您与其他玩家交流。感谢您的支持，祝您游戏愉快。</div>',
                 '<div class="mail-info-label">附件物品</div><div class="mail-info-value">无</div>',
@@ -2240,6 +2650,7 @@
       if (name === 'list') {
         enhanceMailSearchFilters(view);
         enhanceEmailListColumns(view);
+        enhanceMailTitleTags(view);
         enhanceEmailStatusSummary(view);
         enhanceMailTableTools(view);
       }
@@ -2407,6 +2818,7 @@
         });
         document.body.appendChild(host);
         enhanceChannelGroupDetail(host);
+        decorateDetailDialogTitle(host);
         return;
       }
       const data = rowDataFromAction(action).filter((item) => !["", "操作"].includes(item.label));
@@ -2559,6 +2971,13 @@
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
 
 
 
