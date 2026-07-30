@@ -2557,7 +2557,7 @@
             '<div class="mail-section-head"><div class="mail-section-title">数据概况</div><span class="mail-section-note">统计数据以最新回传结果为准</span></div>',
             '<table class="mail-overview-stats-table">',
               '<thead>',
-                '<tr><th colspan="4" class="mail-stat-group">发送数据<span class="mail-help-wrap"><button class="mail-help-trigger" type="button" aria-label="查看发送数据说明">?</button><span class="mail-help-tooltip" role="tooltip"><span><strong>总发送人数：</strong>平台成功推送到 Socket 的人数。</span><br><span><strong>发送成功人数：</strong>游戏成功投递至具体收件人的人数。</span><br><span><strong>发送失败人数：</strong>游戏未成功投递至具体收件人的人数。</span><br><span><strong>撤回成功人数：</strong>游戏通知平台撤回成功的人数。</span></span></span></th><th colspan="4" class="mail-stat-group">接收数据<span class="mail-help-wrap align-right"><button class="mail-help-trigger" type="button" aria-label="查看接收数据说明">?</button><span class="mail-help-tooltip" role="tooltip"><span><strong>已读邮件人数：</strong>游戏内已读邮件并通知平台的人数。</span><br><span><strong>未读邮件人数：</strong>游戏内未读取邮件并通知平台的人数。</span><br><span><strong>已领取物品人数：</strong>游戏内已领取附件并通知平台的人数；无附件邮件为 0。</span><br><span><strong>已删除邮件人数：</strong>游戏内已删除该邮件并通知平台的人数。</span></span></span></th></tr>',
+                '<tr><th colspan="4" class="mail-stat-group">发送数据<span class="mail-help-wrap"><button class="mail-help-trigger" type="button" aria-label="查看发送数据说明">?</button><span class="mail-help-tooltip" role="tooltip"><span><strong>总发送人数：</strong>游戏通知平台总发送人数，含发送成功加发送失败的。</span><br><span><strong>发送成功人数：</strong>游戏成功投递至具体收件人的人数。</span><br><span><strong>发送失败人数：</strong>游戏未成功投递至具体收件人的人数。</span><br><span><strong>撤回成功人数：</strong>游戏通知平台撤回成功的人数。</span></span></span></th><th colspan="4" class="mail-stat-group">接收数据<span class="mail-help-wrap align-right"><button class="mail-help-trigger" type="button" aria-label="查看接收数据说明">?</button><span class="mail-help-tooltip" role="tooltip"><span><strong>已读邮件人数：</strong>游戏内已读邮件并通知平台的人数。</span><br><span><strong>未读邮件人数：</strong>游戏内未读取邮件并通知平台的人数。</span><br><span><strong>已领取物品人数：</strong>游戏内已领取附件并通知平台的人数；无附件邮件为 0。</span><br><span><strong>已删除邮件人数：</strong>游戏内已删除该邮件并通知平台的人数。</span></span></span></th></tr>',
                 '<tr>',
                   '<th class="mail-stat-label">总发送人数</th><th class="mail-stat-label">发送成功人数</th><th class="mail-stat-label">发送失败人数</th><th class="mail-stat-label">撤回成功人数</th>',
                   '<th class="mail-stat-label">已读邮件人数</th><th class="mail-stat-label">未读邮件人数</th><th class="mail-stat-label">已领取物品人数</th><th class="mail-stat-label">已删除邮件人数</th>',
@@ -2590,12 +2590,10 @@
             '</section>',
 
             '<section class="mail-overview-panel" data-mail-panel="server" hidden>',
-              '<div class="mail-server-count">共 <span class="mail-status-fail">2</span> 个异常区服</div>',
-
-              '<table class="mail-overview-table"><thead><tr><th style="width:16%">区服</th><th style="width:12%">目标人数</th><th style="width:17%">平台推送结果</th><th style="width:18%">游戏投递结果</th><th style="width:13%">发送结果</th><th>失败原因</th></tr></thead><tbody>',
-                '<tr data-server-success hidden><td>S1-主服</td><td>50,000</td><td class="mail-status-success">成功 50,000</td><td class="mail-status-success">成功 50,000</td><td class="mail-status-success">已发送</td><td>-</td></tr>',
-                '<tr><td>S2-活动服</td><td>30,115</td><td class="mail-status-fail">成功 29,965 / 失败 150</td><td class="mail-status-success">成功 29,965</td><td class="mail-status-partial">部分成功</td><td class="mail-failure-reason">150 人对应区服连接失败</td></tr>',
-                '<tr><td>S5-新服</td><td>35,000</td><td class="mail-status-success">成功 35,000</td><td><span class="mail-status-success">成功 34,950</span> / <span class="mail-status-fail">失败 50</span></td><td class="mail-status-partial">部分成功</td><td class="mail-failure-reason">50 人游戏投递失败</td></tr>',
+              '<table class="mail-overview-table"><thead><tr><th style="width:24%">区服</th><th style="width:18%">推送结果</th><th>失败原因</th></tr></thead><tbody>',
+                '<tr data-server-success hidden><td>S1-主服</td><td class="mail-status-success">成功</td><td>-</td></tr>',
+                '<tr><td>S2-活动服</td><td class="mail-status-fail">失败</td><td class="mail-failure-reason">150 人对应区服连接失败</td></tr>',
+                '<tr><td>S5-新服</td><td class="mail-status-fail">失败</td><td class="mail-failure-reason">50 人游戏投递失败</td></tr>',
               '</tbody></table>',
               '<div class="mail-recipient-pagination">',
                 '<button class="mail-page-button" type="button" aria-label="上一页">‹</button>',
@@ -2971,6 +2969,10 @@
   </script>
 </body>
 </html>
+
+
+
+
 
 
 
