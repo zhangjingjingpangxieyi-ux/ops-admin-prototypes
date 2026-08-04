@@ -1786,6 +1786,240 @@
       border-radius: 2px;
       font-size: 12px;
     }
+    .social-recipient-panel {
+      display: none;
+      width: 100%;
+      max-width: 1080px;
+    }
+
+    .social-recipient-panel.active { display: block; }
+
+    .social-recipient-form-item .ant-form-item-control,
+    .role-recipient-form-item .ant-form-item-control {
+      max-width: none;
+    }
+
+    .social-group-id-input,
+    .role-recipient-id-input {
+      width: 760px;
+      max-width: 100%;
+      height: 96px;
+      resize: none;
+      vertical-align: top;
+    }
+
+    .social-recipient-toolbar,
+    .social-recipient-summary,
+    .social-recipient-selected {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .social-recipient-toolbar {
+      margin-top: 12px;
+      margin-bottom: 12px;
+    }
+
+    .social-recipient-panel .social-recipient-toolbar {
+      margin-top: 24px;
+      margin-bottom: 0;
+    }
+
+    .social-recipient-summary {
+      color: rgba(0, 0, 0, 0.65);
+      font-size: 12px;
+      line-height: 22px;
+    }
+
+    .social-recipient-selected { margin-top: 10px; }
+
+    .social-recipient-tag,
+    .social-group-tag {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 8px;
+      color: #0958d9;
+      background: #e6f4ff;
+      border: 1px solid #91caff;
+      border-radius: 2px;
+      font-size: 12px;
+    }
+
+    .social-recipient-remove {
+      margin-left: 6px;
+      color: #595959;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .social-recipient-warning {
+      margin-top: 6px;
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 12px;
+      line-height: 20px;
+    }
+
+    .social-group-id-input.social-group-input-error {
+      border-color: #ff4d4f;
+      box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+    }
+
+    .social-recipient-error {
+      display: none;
+      margin-top: 6px;
+      color: #ff4d4f;
+      font-size: 12px;
+      line-height: 20px;
+    }
+
+    .social-recipient-error.active {
+      display: block;
+    }
+    .social-group-list-summary {
+      position: relative;
+      display: inline-block;
+      margin-top: 4px;
+      color: inherit;
+      font-size: 14px;
+      line-height: 22px;
+      cursor: default;
+    }
+
+    .social-group-list-popover {
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 10px);
+      z-index: 20;
+      display: none;
+      width: max-content;
+      min-width: 360px;
+      max-width: 560px;
+      padding: 10px 12px;
+      color: rgba(0, 0, 0, 0.85);
+      background: #fff;
+      border-radius: 2px;
+      box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+      transform: translateX(-50%);
+      white-space: normal;
+    }
+
+    .social-group-list-popover::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -6px;
+      width: 12px;
+      height: 12px;
+      background: #fff;
+      box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.04);
+      transform: translateX(-50%) rotate(45deg);
+    }
+
+    .social-group-list-summary:hover .social-group-list-popover {
+      display: block;
+    }
+
+    .social-group-popover-text {
+      font-size: 12px;
+      line-height: 24px;
+      word-break: break-all;
+      white-space: normal;
+    }
+
+    .social-group-popover-text-line + .social-group-popover-text-line {
+      margin-top: 4px;
+    }
+    .social-group-detail-text {
+      max-height: 132px;
+      overflow-y: auto;
+      color: rgba(0, 0, 0, 0.85);
+      font-size: 13px;
+      line-height: 24px;
+      word-break: break-all;
+      white-space: normal;
+    }
+
+    .social-group-detail-text-line + .social-group-detail-text-line {
+      margin-top: 4px;
+    }
+    .social-group-overview {
+      margin-top: 8px;
+      padding: 10px 12px;
+      background: #fafafa;
+      border: 1px solid #f0f0f0;
+    }
+
+    .social-group-overview-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      color: #262626;
+      font-weight: 500;
+    }
+
+    .social-group-validation-table {
+      display: table;
+      width: 100%;
+      max-width: 1060px;
+      margin-top: 12px;
+      border: 1px solid #f0f0f0;
+      border-collapse: collapse;
+      table-layout: fixed;
+      background: #fff;
+      font-size: 13px;
+    }
+
+    .social-group-validation-table thead { display: table-header-group; }
+    .social-group-validation-table tbody { display: table-row-group; }
+    .social-group-validation-table tr { display: table-row; }
+
+    .social-group-validation-table th,
+    .social-group-validation-table td {
+      display: table-cell;
+      min-width: 0;
+      height: 38px;
+      padding: 8px 10px;
+      border: 1px solid #f0f0f0;
+      text-align: left;
+      vertical-align: middle;
+      word-break: break-all;
+      white-space: normal;
+    }
+
+    .social-group-validation-table th {
+      background: #fafafa;
+      color: #595959;
+      font-weight: 500;
+    }
+
+
+    .social-recipient-result-total {
+      margin-top: 12px;
+      color: rgba(0, 0, 0, 0.85);
+      font-size: 14px;
+      line-height: 22px;
+    }
+
+    .social-recipient-result-total strong {
+      margin: 0 2px;
+      font-weight: 500;
+    }
+
+    .social-recipient-result-total .success-count {
+      color: #52c41a;
+    }
+
+    .social-recipient-result-total .fail-count {
+      color: #ff4d4f;
+    }
+    .social-group-status-ok { color: #389e0d; }
+    .social-group-status-blocked { color: #d46b08; }
 </style>
 </head>
 <body>
@@ -1942,6 +2176,308 @@
     }
 
 
+    const socialGroupMailConfig = {
+      enabled: true,
+      displayName: '组织',
+      idLabel: '组织ID',
+      nameLabel: '组织名称',
+      groupKind: 'social_group',
+      memberResolveMode: 'SEND_TIME'
+    };
+
+    const socialGroupDirectory = [
+      { id: '91001', name: '曙光远征军', serverId: '10035', serverName: 'S35', members: [
+        { roleId: '3432423', roleName: 'Traveler339050' },
+        { roleId: '3432424', roleName: 'Ranger20881' }
+      ] },
+      { id: '91002', name: '星海同盟', serverId: '10035', serverName: 'S35', members: [
+        { roleId: '3432425', roleName: 'Nova55120' },
+        { roleId: '3432423', roleName: 'Traveler339050' }
+      ] },
+      { id: '91003', name: '极昼守望', serverId: '10035', serverName: 'S35', members: [
+        { roleId: '3432426', roleName: 'Dawn77001' }
+      ] },
+      { id: '92011', name: '晨星试炼团', serverId: '10002', serverName: 'S2', members: [
+        { roleId: '3432501', roleName: 'MoonTrial' }
+      ] }
+    ];
+
+    const socialGroupSelections = new WeakMap();
+    const socialGroupAllowedServers = new Set(['10035']);
+
+    function socialGroupLabel(suffix) {
+      return socialGroupMailConfig.displayName + suffix;
+    }
+
+    function socialGroupRecipientLabel() {
+      return '指定组织成员';
+    }
+
+    function socialGroupMemberCount(group) {
+      return (group.members || []).length;
+    }
+
+    function getSocialGroupSelection(view) {
+      if (!socialGroupSelections.has(view)) socialGroupSelections.set(view, []);
+      return socialGroupSelections.get(view);
+    }
+
+    function setSocialGroupSelection(view, groups) {
+      socialGroupSelections.set(view, groups);
+      syncSocialGroupPanel(view);
+    }
+
+    function findFormItemByLabel(view, candidates) {
+      const labels = [...view.querySelectorAll('label')];
+      const label = labels.find((node) => candidates.includes(textOf(node)) || candidates.includes(node.getAttribute('title') || ''));
+      return label?.closest('.ant-form-item, .ant-row');
+    }
+
+    function selectedRecipientMode(view) {
+      const active = view.querySelector('.social-recipient-mode.ant-radio-button-wrapper-checked, .social-recipient-mode.active');
+      if (active) return active.dataset.recipientMode;
+      const recipientItem = findFormItemByLabel(view, ['收件人']);
+      const checked = recipientItem?.querySelector('.ant-radio-button-wrapper-checked, .ant-radio-wrapper-checked');
+      const text = textOf(checked);
+      if (text.includes('指定角色')) return 'ROLE_IDS';
+      return 'ALL_ROLES';
+    }
+
+    function setRecipientMode(view, mode) {
+      const recipientItem = findFormItemByLabel(view, ['收件人']);
+      if (!recipientItem) return;
+      recipientItem.querySelectorAll('.ant-radio-button-wrapper, .ant-radio-wrapper').forEach((button) => {
+        const text = textOf(button);
+        const buttonMode = button.classList.contains('social-recipient-mode') ? 'SOCIAL_GROUP_MEMBERS' : (text.includes('指定角色') ? 'ROLE_IDS' : 'ALL_ROLES');
+        const active = buttonMode === mode;
+        button.classList.toggle('ant-radio-button-wrapper-checked', active);
+        button.classList.toggle('ant-radio-wrapper-checked', active);
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', active ? 'true' : 'false');
+        const input = button.querySelector('input[type="radio"]');
+        if (input) input.checked = active;
+      });
+      const roleItem = findFormItemByLabel(view, ['角色ID', '*角色ID']);
+      if (roleItem) roleItem.style.display = mode === 'ROLE_IDS' ? '' : 'none';
+      const socialItem = view.querySelector('.social-recipient-form-item');
+      if (socialItem) socialItem.style.display = mode === 'SOCIAL_GROUP_MEMBERS' ? '' : 'none';
+      const panel = view.querySelector('.social-recipient-panel');
+      if (panel) panel.classList.toggle('active', mode === 'SOCIAL_GROUP_MEMBERS');
+      if (mode !== 'SOCIAL_GROUP_MEMBERS') setSocialGroupSelection(view, []);
+      syncSocialGroupPanel(view);
+    }
+
+    function socialGroupPayload(groups) {
+      return {
+        recipientType: 'SOCIAL_GROUP_MEMBERS',
+        groupKind: socialGroupMailConfig.groupKind,
+        groupIds: groups.map((group) => group.id),
+        memberResolveMode: socialGroupMailConfig.memberResolveMode
+      };
+    }
+
+    function parseSocialGroupIds(value) {
+      return [...new Set(String(value || '').split(/[\s,，;；]+/).map((id) => id.trim()).filter(Boolean))];
+    }
+
+    function renderSocialGroupValidationRows(groups, invalidIds) {
+      const usedRoleIds = new Set();
+      const rows = [];
+      groups.forEach((group) => {
+        const allowed = socialGroupAllowedServers.has(group.serverId);
+        const members = group.members || [];
+        if (!allowed) {
+          rows.push('<tr><td>' + group.id + '</td><td>' + escapeHtml(group.name) + '</td><td>' + socialGroupMemberCount(group) + '</td><td>-</td><td>-</td><td>' + group.serverName + '(' + group.serverId + ')</td><td><span class="social-group-status-blocked">区服不匹配</span></td><td><button type="button" class="ant-btn ant-btn-link social-group-remove-row" data-group-id="' + group.id + '">移除</button></td></tr>');
+          return;
+        }
+        if (!members.length) {
+          rows.push('<tr><td>' + group.id + '</td><td>' + escapeHtml(group.name) + '</td><td>0</td><td>-</td><td>-</td><td>' + group.serverName + '(' + group.serverId + ')</td><td><span class="social-group-status-blocked">无有效成员</span></td><td><button type="button" class="ant-btn ant-btn-link social-group-remove-row" data-group-id="' + group.id + '">移除</button></td></tr>');
+          return;
+        }
+        members.forEach((member) => {
+          const duplicated = usedRoleIds.has(member.roleId);
+          if (!duplicated) usedRoleIds.add(member.roleId);
+          rows.push('<tr><td>' + group.id + '</td><td>' + escapeHtml(group.name) + '</td><td>' + socialGroupMemberCount(group) + '</td><td>' + member.roleId + '</td><td>' + escapeHtml(member.roleName) + '</td><td>' + group.serverName + '(' + group.serverId + ')</td><td>' + (duplicated ? '<span class="social-group-status-blocked">重复，已去重</span>' : '<span class="social-group-status-ok">成功</span>') + '</td><td>' + (duplicated ? '<button type="button" class="ant-btn ant-btn-link social-group-remove-row" data-group-id="' + group.id + '">移除</button>' : '-') + '</td></tr>');
+        });
+      });
+      invalidIds.forEach((id) => {
+        rows.push('<tr><td>' + escapeHtml(id) + '</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td><span class="social-group-status-blocked">组织不存在</span></td><td><button type="button" class="ant-btn ant-btn-link social-group-remove-row" data-group-id="' + escapeHtml(id) + '">移除</button></td></tr>');
+      });
+      return rows.join('') || '<tr><td colspan="8">暂无校验数据</td></tr>';
+    }
+
+    function setSocialGroupValidationState(panel, hasError, message) {
+      const input = panel?.querySelector('.social-group-id-input');
+      const error = panel?.querySelector('.social-recipient-error');
+      if (input) input.classList.toggle('social-group-input-error', Boolean(hasError));
+      if (error) {
+        error.textContent = message || '';
+        error.classList.toggle('active', Boolean(hasError && message));
+      }
+    }
+
+    function socialGroupFailureCount(groups, invalidIds, ids) {
+      if (!ids.length) return 1;
+      return invalidIds.length + groups.filter((group) => !socialGroupAllowedServers.has(group.serverId) || socialGroupMemberCount(group) === 0).length;
+    }
+
+    function validateSocialGroupRecipients(view) {
+      const panel = view.querySelector('.social-recipient-panel');
+      if (!panel) return;
+      const input = panel.querySelector('.social-group-id-input');
+      const ids = parseSocialGroupIds(input?.value);
+      const groups = ids.map((id) => socialGroupDirectory.find((group) => group.id === id)).filter(Boolean);
+      const validIds = new Set(groups.map((group) => group.id));
+      const invalidIds = ids.filter((id) => !validIds.has(id));
+      const sendableGroups = groups.filter((group) => socialGroupAllowedServers.has(group.serverId) && socialGroupMemberCount(group) > 0);
+      setSocialGroupSelection(view, sendableGroups);
+      const tbody = panel.querySelector('.social-group-validation-table tbody');
+      if (tbody) tbody.innerHTML = renderSocialGroupValidationRows(groups, invalidIds);
+      const total = [...new Set(sendableGroups.flatMap((group) => (group.members || []).map((member) => member.roleId)))].length;
+      const failCount = socialGroupFailureCount(groups, invalidIds, ids);
+      const successResult = panel.querySelector('[data-social-group-success-count]');
+      const failResult = panel.querySelector('[data-social-group-fail-count]');
+      if (successResult) successResult.textContent = total;
+      if (failResult) failResult.textContent = failCount;
+      const hasError = failCount > 0;
+      const errorMessage = !ids.length ? '请输入组织ID' : '组织校验失败，请重新输入';
+      setSocialGroupValidationState(panel, hasError, hasError ? errorMessage : '');
+      if (!ids.length) showToast('请输入组织ID');
+      else if (!total) showToast('未检测到可发送角色');
+      else showToast('校验完成，成功角色数：' + total + '，失败数：' + failCount);
+    }
+    function syncSocialGroupPanel(view) {
+      const panel = view.querySelector('.social-recipient-panel');
+      if (!panel) return;
+      const groups = getSocialGroupSelection(view);
+      const totalMembers = [...new Set(groups.flatMap((group) => (group.members || []).map((member) => member.roleId)))].length;
+      const summary = panel.querySelector('[data-social-group-summary]');
+      const payload = panel.querySelector('input[name="socialGroupRecipientPayload"]');
+      if (summary) summary.innerHTML = '<span class="social-group-count-chip">组织数量：' + groups.length + '</span><span class="social-group-count-chip">预计覆盖角色数：' + totalMembers + '</span><span>发送时重新解析组织成员，重复角色按角色ID去重</span>';
+      if (payload) payload.value = JSON.stringify(socialGroupPayload(groups));
+    }
+
+    function enhanceSocialGroupRecipient(view) {
+      if (!view || view.dataset.socialGroupRecipientEnhanced || !socialGroupMailConfig.enabled) return;
+      const recipientItem = findFormItemByLabel(view, ['收件人']);
+      if (!recipientItem) return;
+      view.dataset.socialGroupRecipientEnhanced = 'true';
+      const control = recipientItem.querySelector('.ant-form-item-control-input-content') || recipientItem;
+      const buttonHost = control.querySelector('.ant-radio-group, .ant-input-group-compact') || control;
+      if (!buttonHost.querySelector('.social-recipient-mode')) {
+        buttonHost.insertAdjacentHTML('beforeend', '<label class="ant-radio-button-wrapper social-recipient-mode" data-recipient-mode="SOCIAL_GROUP_MEMBERS" aria-pressed="false"><span class="ant-radio-button"><input type="radio" class="ant-radio-button-input"><span class="ant-radio-button-inner"></span></span><span>' + socialGroupRecipientLabel() + '</span></label>');
+      }
+      if (!findFormItemByLabel(view, ['角色ID', '*角色ID'])) {
+        const roleRecipientFormHtml = '<div class="ant-row ant-form-item role-recipient-form-item"><div class="ant-col ant-col-3 ant-form-item-label"><label class="ant-form-item-required" title="角色ID">角色ID</label></div><div class="ant-col ant-form-item-control"><div class="ant-form-item-control-input"><div class="ant-form-item-control-input-content"><textarea class="ant-input role-recipient-id-input" placeholder="填写角色ID，多个角色之间用英文逗号、空格或换行分隔"></textarea></div></div></div></div>';
+        recipientItem.insertAdjacentHTML('afterend', roleRecipientFormHtml);
+      }
+      const socialGroupFormHtml = `<div class="ant-row ant-form-item social-recipient-form-item"><div class="ant-col ant-col-3 ant-form-item-label"><label class="ant-form-item-required" title="组织ID">组织ID</label></div><div class="ant-col ant-form-item-control"><div class="ant-form-item-control-input"><div class="ant-form-item-control-input-content"><div class="social-recipient-panel"><textarea class="ant-input social-group-id-input" placeholder="填写组织ID，多个组织之间用英文逗号分开，例如：91001,91002"></textarea><div class="social-recipient-warning">多个组织ID请用英文逗号、空格或换行分隔；组织名称可按游戏理解为联盟、仙盟、公会、帮派等。</div><div class="social-recipient-error" aria-live="polite"></div><table class="social-group-validation-table social-group-detail-table"><thead><tr><th>组织ID</th><th>组织名称</th><th>组织成员数</th><th>角色ID</th><th>角色名称</th><th>所在区服</th><th>检测结果</th><th>操作</th></tr></thead><tbody><tr><td colspan="8">暂无校验数据</td></tr></tbody></table><div class="social-recipient-result-total">检测结果成功总数：<strong class="success-count" data-social-group-success-count>0</strong>；失败总数：<strong class="fail-count" data-social-group-fail-count>0</strong></div><div class="social-recipient-toolbar"><button type="button" class="ant-btn ant-btn-primary social-group-validate"><span>校 验</span></button><button type="button" class="ant-btn ant-btn-dangerous social-group-clear"><span>清 空</span></button></div><input type="hidden" name="socialGroupRecipientPayload"></div></div></div></div></div>`;
+      recipientItem.insertAdjacentHTML('afterend', socialGroupFormHtml);
+      recipientItem.addEventListener('click', (event) => {
+        const socialButton = event.target.closest('.social-recipient-mode');
+        if (socialButton) {
+          event.preventDefault();
+          event.stopPropagation();
+          setRecipientMode(view, 'SOCIAL_GROUP_MEMBERS');
+          return;
+        }
+        const choice = event.target.closest('.ant-radio-button-wrapper, .ant-radio-wrapper, button');
+        if (choice && !choice.classList.contains('social-recipient-mode')) setRecipientMode(view, textOf(choice).includes('指定角色') ? 'ROLE_IDS' : 'ALL_ROLES');
+      });
+      view.addEventListener('click', (event) => {
+        if (event.target.closest('.social-group-validate')) {
+          event.preventDefault();
+          event.stopPropagation();
+          validateSocialGroupRecipients(view);
+        }
+        if (event.target.closest('.social-group-clear')) {
+          event.preventDefault();
+          event.stopPropagation();
+          const panel = view.querySelector('.social-recipient-panel');
+          panel.querySelector('.social-group-id-input').value = '';
+          panel.querySelector('.social-group-validation-table tbody').innerHTML = '<tr><td colspan="8">暂无校验数据</td></tr>';
+          const successResult = panel.querySelector('[data-social-group-success-count]');
+          const failResult = panel.querySelector('[data-social-group-fail-count]');
+          if (successResult) successResult.textContent = '0';
+          if (failResult) failResult.textContent = '0';
+          setSocialGroupValidationState(panel, false, '');
+          setSocialGroupSelection(view, []);
+        }
+        const remove = event.target.closest('.social-group-remove-row');
+        if (remove) {
+          event.preventDefault();
+          event.stopPropagation();
+          const panel = view.querySelector('.social-recipient-panel');
+          const ids = parseSocialGroupIds(panel.querySelector('.social-group-id-input').value).filter((id) => id !== remove.dataset.groupId);
+          panel.querySelector('.social-group-id-input').value = ids.join(',');
+          validateSocialGroupRecipients(view);
+        }
+        const submit = event.target.closest('button');
+        if (submit && textOf(submit) === '提交' && selectedRecipientMode(view) === 'SOCIAL_GROUP_MEMBERS') {
+          const groups = getSocialGroupSelection(view);
+          if (!groups.length) {
+            event.preventDefault();
+            event.stopPropagation();
+            showToast('请先校验组织ID并确认有可发送角色');
+          }
+        }
+      });
+      setRecipientMode(view, 'ALL_ROLES');
+    }
+
+    function socialGroupMemberTextHtml(className) {
+      const groups = socialGroupDirectory.slice(0, 3);
+      return groups.map((group) => {
+        const members = (group.members || []).map((member) => escapeHtml(member.roleName) + '(' + member.roleId + ')').join('、');
+        return '<div class="' + className + '">' + escapeHtml(group.name) + '(' + group.id + ')： ' + members + '</div>';
+      }).join('');
+    }
+
+    function socialGroupDetailHtml() {
+      return '<div class="social-group-detail-text">' + socialGroupMemberTextHtml('social-group-detail-text-line') + '</div>';
+    }
+    function enhanceSocialGroupDetail(root) {
+      const scope = root || document;
+      if (scope.dataset?.socialGroupDetailEnhanced) return;
+      const rows = [...scope.querySelectorAll('.ant-descriptions-row')];
+      const recipientRow = rows.find((row) => normalizeHeaderText(row.textContent).includes('收件人所有角色'));
+      const recipientCell = recipientRow && [...recipientRow.querySelectorAll('.ant-descriptions-item-label')].find((cell) => normalizeHeaderText(cell.textContent) === '收件人')?.nextElementSibling;
+      if (recipientCell) recipientCell.innerHTML = socialGroupRecipientLabel();
+      if (recipientRow && !recipientRow.nextElementSibling?.classList.contains('social-group-detail-row')) {
+        recipientRow.insertAdjacentHTML('afterend', '<tr class="ant-descriptions-row social-group-detail-row"><th class="ant-descriptions-item-label" colspan="1">收件人</th><td class="ant-descriptions-item-content" colspan="3">' + socialGroupDetailHtml() + '</td></tr>');
+      }
+      if (scope.dataset) scope.dataset.socialGroupDetailEnhanced = 'true';
+    }
+
+    function enhanceSocialGroupOverview(view) {
+      if (!view || view.dataset.socialGroupOverviewEnhanced) return;
+      const infoGrid = view.querySelector('.mail-info-grid');
+      if (infoGrid && !infoGrid.querySelector('.social-group-overview')) {
+        infoGrid.insertAdjacentHTML('beforeend', '<div class="mail-info-label">收件人</div><div class="mail-info-value">' + socialGroupRecipientLabel() + '</div><div class="mail-info-label">组织覆盖</div><div class="mail-info-value"><span class="social-group-count-chip">组织数量：3</span> <span class="social-group-count-chip">预计覆盖角色数：4</span></div><div class="mail-info-label">组织成员明细</div><div class="mail-info-value full"><div class="social-group-overview"><div class="social-group-overview-head"><span>发送时按组织ID解析当前成员</span></div>' + socialGroupDetailHtml() + '</div></div>');
+      }
+      view.dataset.socialGroupOverviewEnhanced = 'true';
+    }
+    function enhanceSocialGroupListSummary(view) {
+      if (!view || view.dataset.socialGroupListEnhanced) return;
+      const tableRoots = [...view.querySelectorAll('.ant-table')];
+      tableRoots.forEach((tableRoot) => {
+        const tables = [...tableRoot.querySelectorAll('table')];
+        const headerTable = tables.find((table) => table.querySelector('thead th'));
+        const bodyTable = tables.find((table) => table.querySelector('tbody tr'));
+        if (!headerTable || !bodyTable) return;
+        const headers = [...headerTable.querySelectorAll('thead th')].map((cell) => normalizeHeaderText(cell.innerText || cell.textContent));
+        const recipientIndex = headers.findIndex((header) => header.includes('收件人'));
+        if (recipientIndex < 0) return;
+        const rows = [...bodyTable.querySelectorAll('tbody tr')].filter((item) => !item.classList.contains('ant-table-measure-row'));
+        const socialCell = rows[0]?.children[recipientIndex];
+        if (socialCell) {
+          socialCell.innerHTML = '<div class="social-group-list-summary">指定组织成员（3个组织145人）<div class="social-group-list-popover"><div class="social-group-popover-text">' + socialGroupMemberTextHtml('social-group-popover-text-line') + '</div></div></div>';
+        }
+        const roleCell = rows[1]?.children[recipientIndex];
+        if (roleCell && normalizeHeaderText(roleCell.textContent) === '所有角色') roleCell.textContent = '指定角色（24人）';
+      });
+      view.dataset.socialGroupListEnhanced = 'true';
+    }
     function clearMailTemplateConfiguration(view) {
       const templateSelect = view.querySelector('input#emailTemplateId')?.closest('.ant-select');
       if (templateSelect) {
@@ -2609,14 +3145,15 @@
                 '<button class="mail-overview-button primary" type="button" data-export-recipient>导 出</button>',
               '</div>',
               '<table class="mail-overview-table mail-recipient-table"><thead><tr>',
-                '<th style="width:24%">收件人 <span class="mail-table-tool">⌕</span></th>',
+                '<th style="width:20%">收件人 <span class="mail-table-tool">⌕</span></th>',
+                '<th style="width:18%">所属组织</th>',
                 '<th style="width:14%">接收时间 <span class="mail-sort-tool"><span>▲</span><span>▼</span></span></th>',
-                '<th style="width:36%">邮件状态 <span class="mail-table-tool">▼</span></th>',
+                '<th style="width:24%">邮件状态 <span class="mail-table-tool">▼</span></th>',
                 '<th style="width:14%">领取时间 <span class="mail-sort-tool"><span>▲</span><span>▼</span></span></th>',
                 '<th style="width:12%">撤回时间 <span class="mail-sort-tool"><span>▲</span><span>▼</span></span></th>',
               '</tr></thead><tbody>',
-                '<tr><td>13996（测试角色A）</td><td>2025-07-22 19:01:05</td><td class="mail-status-fail">已删除</td><td>2025-07-22 19:05:18</td><td>-</td></tr>',
-                '<tr><td>20881（测试角色B）</td><td>2025-07-22 19:01:07</td><td class="mail-status-fail">已删除</td><td>2025-07-22 19:06:32</td><td>-</td></tr>',
+                '<tr><td>13996（测试角色A）</td><td>91001（曙光远征军）</td><td>2025-07-22 19:01:05</td><td class="mail-status-fail">已删除</td><td>2025-07-22 19:05:18</td><td>-</td></tr>',
+                '<tr><td>20881（测试角色B）</td><td>91002（星海同盟）</td><td>2025-07-22 19:01:07</td><td class="mail-status-fail">已删除</td><td>2025-07-22 19:06:32</td><td>-</td></tr>',
               '</tbody></table>',
               '<div class="mail-recipient-pagination">',
                 '<button class="mail-page-button" type="button" aria-label="上一页">‹</button>',
@@ -2651,17 +3188,20 @@
         enhanceMailTitleTags(view);
         enhanceEmailStatusSummary(view);
         enhanceMailTableTools(view);
+        enhanceSocialGroupListSummary(view);
       }
       if (name === 'audit') {
         enhanceMailSearchFilters(view);
         enhanceEmailListColumns(view);
         enhanceMailTableTools(view);
+        enhanceSocialGroupListSummary(view);
       }
-      if (name === 'create') enhanceCreateChannelGroup(view, false);
-      if (name === 'copy') enhanceCreateChannelGroup(view, true);
+      if (name === 'create') { enhanceCreateChannelGroup(view, false); enhanceSocialGroupRecipient(view); }
+      if (name === 'copy') { enhanceCreateChannelGroup(view, true); enhanceSocialGroupRecipient(view); }
       if (name === 'batch') enhanceBatchChannelGroup(view);
       if (name === 'detail') {
         renderMailOverviewPrototype(view);
+        enhanceSocialGroupOverview(view);
       }
     }
     function activeViewName(name) {
@@ -2816,6 +3356,7 @@
         });
         document.body.appendChild(host);
         enhanceChannelGroupDetail(host);
+        enhanceSocialGroupDetail(host);
         decorateDetailDialogTitle(host);
         return;
       }
@@ -2969,6 +3510,39 @@
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
