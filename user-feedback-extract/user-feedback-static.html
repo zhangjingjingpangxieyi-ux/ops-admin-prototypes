@@ -40,6 +40,79 @@
 
 #feedbackPage .table-footer{flex-wrap:nowrap;min-width:0}#feedbackPage .prototype-pager{flex-wrap:nowrap;white-space:nowrap;gap:7px;min-width:0}#feedbackPage .prototype-pager>span{white-space:nowrap;flex:0 0 auto}#feedbackPage .prototype-pager .pager-limit{flex:0 0 78px;width:78px}#feedbackPage .prototype-pager .pager-input{flex:0 0 48px;width:48px}#feedbackPage .prototype-pager .pager-num{padding:0 4px;min-width:22px}
 
+.config-drawer-v2{width:min(720px,96vw)}.config-drawer-v2 .drawer-body{padding:0 24px 24px}.config-drawer-v2 .config-form{gap:0}.config-drawer-v2 .config-row{grid-template-columns:116px minmax(0,1fr);padding:10px 0;border-bottom:1px solid #f0f0f0}.config-drawer-v2 .config-row:last-child{border-bottom:0}.config-section-title{display:flex;align-items:baseline;gap:10px;padding:22px 0 8px;border-bottom:1px solid #d9d9d9}.config-section-title:first-child{padding-top:18px}.config-section-title h3{margin:0;color:#262626;font-size:15px;font-weight:600}.config-section-title span{color:#8c8c8c;font-size:12px}.inspection-scope{padding:16px 0 18px;border-bottom:1px solid #d9d9d9}.scope-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px}.scope-field>label{display:block;margin-bottom:6px;color:#595959;font-size:13px}.multi-select{position:relative}.multi-select summary{display:flex;align-items:center;height:32px;padding:0 28px 0 10px;border:1px solid #d9d9d9;border-radius:2px;background:#fff;cursor:pointer;list-style:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.multi-select summary::-webkit-details-marker{display:none}.multi-select summary:after{content:'▾';position:absolute;right:10px;color:#8c8c8c}.multi-select[open] summary{border-color:#40a9ff;box-shadow:0 0 0 2px rgba(24,144,255,.08)}.multi-options{position:absolute;z-index:45;top:36px;left:0;right:0;padding:6px 0;border:1px solid #e8e8e8;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.14)}.multi-options label{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer}.multi-options label:hover{background:#f5f7fa}.scope-estimate{display:grid;grid-template-columns:150px minmax(0,1fr);align-items:center;gap:18px;margin-top:16px;padding:10px 12px;border:1px solid #d9f7be;background:#f6ffed}.scope-estimate.over-limit{border-color:#ffe58f;background:#fffbe6}.estimate-main{white-space:nowrap;color:#595959}.estimate-main strong{margin:0 3px;color:#262626;font-size:17px}.estimate-rule{color:#595959;font-size:12px;line-height:1.6}.scope-estimate:not(.over-limit) .over-copy{display:none}.scope-estimate.over-limit .within-copy{display:none}.scope-note{margin-top:7px;color:#8c8c8c;font-size:12px;line-height:1.6}.run-summary{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:12px 0 2px}.run-summary-item{padding:10px 12px;background:#fafafa}.run-summary-item span{display:block;margin-bottom:3px;color:#8c8c8c;font-size:12px}.run-summary-item b{font-weight:400;color:#262626}@media(max-width:760px){.scope-grid,.run-summary{grid-template-columns:1fr}.scope-estimate{grid-template-columns:1fr;gap:4px}.config-drawer-v2 .config-row{grid-template-columns:100px minmax(0,1fr)}}
+.config-page{min-height:calc(100vh - 32px);background:#fff}.config-page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:20px 24px;border-bottom:1px solid #e8e8e8;background:#fff}.config-page-header h2{margin:12px 0 4px;color:#262626;font-size:20px;font-weight:600}.config-page-header p{margin:0;color:#8c8c8c}.config-back{font-size:13px}.config-page-actions{display:flex;gap:10px;padding-top:28px}.config-page-body{padding:0 24px 32px}.config-page .config-form{display:grid;grid-template-columns:1fr 1fr;column-gap:42px;max-width:1180px;margin:0 auto}.config-page .config-section-title{grid-column:1/-1;padding:24px 0 10px}.config-page .config-row{grid-template-columns:116px minmax(0,1fr);padding:12px 0;border-bottom:1px solid #f0f0f0}.config-page .config-row>label{padding-top:7px}.config-page .config-row .required:before{content:"*";margin-right:4px;color:#f5222d}.config-page .switch-row{display:flex;align-items:center;gap:10px;min-height:32px}.config-page .switch-status{color:#8c8c8c}.config-page .time-row{display:none}.config-page .validation{margin-top:5px}.config-page input.control{width:100%}.config-page .inspection-scope{grid-column:1/-1;padding:18px 0 22px}.config-page .scope-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 22px}.config-page .scope-estimate{grid-template-columns:170px minmax(0,1fr)}.config-page .run-summary{grid-column:1/-1;max-width:760px}.config-page .config-row[style*="display: none"]{display:none!important}.config-page .time-row.show{display:grid}.config-page .radio-line{display:flex;align-items:center;gap:20px;min-height:32px}.config-page .config-footer{display:none}.config-page .multi-options{z-index:55}.config-page .field-note{max-width:520px}@media(max-width:980px){.config-page .config-form{grid-template-columns:1fr}.config-page .config-section-title,.config-page .inspection-scope,.config-page .run-summary{grid-column:1}.config-page .scope-grid{grid-template-columns:1fr 1fr}}@media(max-width:680px){.config-page-header{display:block}.config-page-actions{padding-top:14px}.config-page .scope-grid{grid-template-columns:1fr}.config-page .config-row{grid-template-columns:100px minmax(0,1fr)}}
+/* Announcement-config inspired layout: single-column sections and aligned labels. */
+.config-page{background:#f2f3f5;padding:14px}.config-page-header{min-height:72px;padding:16px 24px;background:#fff}.config-page-header h2{margin:8px 0 0;font-size:18px}.config-page-header p{display:none}.config-page-actions{padding-top:18px}.config-page-body{padding:0 24px 36px;background:#fff}.config-page .config-form{display:block;max-width:none;margin:0}.config-page .config-section-title{display:flex;align-items:center;gap:16px;padding:28px 0 16px;border:0}.config-page .config-section-title:before{content:'';width:64px;height:1px;background:#e5e6eb;flex:0 0 auto}.config-page .config-section-title:after{content:'';height:1px;background:#e5e6eb;flex:1 1 auto}.config-page .config-section-title h3{order:1;margin:0;white-space:nowrap;color:#1f2329;font-size:18px;font-weight:600}.config-page .config-section-title span{order:2;white-space:nowrap;color:#8c8c8c;font-size:12px}.config-page .config-section-title:before{order:0}.config-page .config-section-title:after{order:3}.config-page .config-row{display:grid;grid-template-columns:150px minmax(0,760px);justify-content:start;align-items:start;padding:9px 0;border:0}.config-page .config-row>label{padding-top:7px;text-align:right;color:#303133}.config-page .config-row>div,.config-page .config-row>select{min-width:0}.config-page .control{max-width:560px}.config-page #cfgWebhook,.config-page #cfgSecret,.config-page #cfgGroupName{max-width:760px}.config-page .field-note{max-width:760px;margin-top:5px}.config-page .radio-line{min-height:32px;gap:26px}.config-page .inspection-scope{padding:0;border:0}.config-page .scope-grid{display:block}.config-page .scope-field{display:grid;grid-template-columns:150px minmax(0,560px);justify-content:start;align-items:start;padding:9px 0}.config-page .scope-field>label{margin:0;padding:7px 10px 0 0;text-align:right;color:#303133;font-size:14px}.config-page .multi-select,.config-page .scope-control{width:100%;max-width:560px}.config-page .scope-estimate{display:grid;grid-template-columns:150px minmax(0,760px);align-items:start;gap:0;margin:6px 0 0;padding:0;border:0;background:transparent}.config-page .scope-estimate.over-limit{border:0;background:transparent}.config-page .estimate-main{padding:7px 10px 0 0;text-align:right;color:#303133}.config-page .estimate-main strong{font-size:14px;font-weight:500}.config-page .estimate-rule{max-width:760px;padding:7px 12px;border:1px solid #d9f7be;background:#f6ffed;color:#595959}.config-page .scope-estimate.over-limit .estimate-rule{border-color:#ffe58f;background:#fffbe6}.config-page .scope-note{margin:6px 0 0 150px;max-width:760px;color:#8c8c8c}.config-page .run-summary{display:grid;grid-template-columns:150px minmax(0,760px);gap:0;max-width:none;padding:9px 0}.config-page .run-summary:before{content:'执行信息';padding:7px 10px 0 0;text-align:right;color:#303133}.config-page .run-summary-item{display:inline-block;margin-right:12px;padding:8px 12px;background:#fafafa}.config-page .run-summary-item span,.config-page .run-summary-item b{display:inline}.config-page .run-summary-item span{margin:0 8px 0 0}.config-page .multi-options{max-width:560px}.config-page .time-row.show{display:grid}@media(max-width:820px){.config-page{padding:8px}.config-page-header{display:block}.config-page-actions{padding-top:12px}.config-page-body{padding:0 16px 28px}.config-page .config-section-title:before{width:24px}.config-page .config-section-title span{display:none}.config-page .config-row,.config-page .scope-field,.config-page .scope-estimate,.config-page .run-summary{grid-template-columns:110px minmax(0,1fr)}.config-page .scope-note{margin-left:110px}.config-page .control,.config-page .multi-select,.config-page .scope-control{max-width:none}}
+html.config-route-active{height:auto!important;min-height:100%;overflow-x:hidden!important;overflow-y:scroll!important}
+html.config-route-active body.config-route-active{height:auto!important;min-height:100vh;overflow:visible!important}
+html.config-route-active body.config-route-active main.replay{height:auto!important;min-height:100vh;overflow:visible!important}
+html.config-route-active #configPage.active,
+html.config-route-active #configPage .config-page-body,
+html.config-route-active #configPage .config-form{height:auto!important;max-height:none!important;overflow:visible!important}
+.config-page .config-page-actions{position:sticky;z-index:20;right:0;bottom:0;display:flex;justify-content:flex-end;gap:10px;margin:0;padding:12px 28px;border-top:1px solid #e5e6eb;background:#fff;box-shadow:0 -2px 8px rgba(0,0,0,.06)}
+.config-page .config-row>div:has(>#cfgPlatform),
+.config-page .config-row>div:has(>#cfgPeriod){display:flex;align-items:center;gap:12px;max-width:760px}
+.config-page #cfgPlatform,
+.config-page #cfgPeriod{flex:0 1 560px;min-width:260px}
+.config-page #cfgPlatform+.field-note,
+.config-page #cfgPeriod+.field-note{flex:0 0 auto;margin:0;white-space:nowrap}
+.config-page #cfgTimeRow .field-note{color:#f5222d}
+.config-page #cfgTimeErr{display:none!important}
+@media(max-width:820px){
+  .config-page .config-row>div:has(>#cfgPlatform),
+  .config-page .config-row>div:has(>#cfgPeriod){display:block}
+  .config-page #cfgPlatform,
+  .config-page #cfgPeriod{min-width:0}
+  .config-page #cfgPlatform+.field-note,
+  .config-page #cfgPeriod+.field-note{margin-top:5px;white-space:normal}
+}
+.config-page .config-form.config-fields-disabled .config-row:not(:has(#cfgAuto)),
+.config-page .config-form.config-fields-disabled .inspection-scope,
+.config-page .config-form.config-fields-disabled .run-summary{opacity:.5;pointer-events:none}
+.config-page .config-form.config-fields-disabled details.multi-select summary{background:#f5f5f5;color:#8c8c8c;cursor:not-allowed}
+.config-page .config-form.config-fields-disabled input:disabled,
+.config-page .config-form.config-fields-disabled select:disabled,
+.config-page .config-form.config-fields-disabled textarea:disabled{cursor:not-allowed}
+.config-page .secret-input-wrap{position:relative;width:100%;max-width:760px}
+.config-page .secret-input-wrap #cfgSecret{width:100%;max-width:none;padding-right:38px}
+.config-page .secret-clear-inline{position:absolute;top:1px;right:1px;display:grid;place-items:center;width:30px;height:30px;margin:0;padding:0;border:0;background:transparent;color:#8c8c8c;font-size:18px;line-height:1;cursor:pointer}
+.config-page .secret-clear-inline:hover,
+.config-page .secret-clear-inline:focus{background:#f5f5f5;color:#262626}
+.config-page .run-summary-content{display:flex;align-items:center;flex-wrap:wrap;gap:8px 24px;min-width:0;min-height:32px;padding:7px 12px;background:#fafafa}
+.config-page .run-summary-content .run-summary-item{display:flex;align-items:center;gap:8px;margin:0;padding:0;background:transparent;white-space:nowrap}
+.config-page .run-summary-content .run-summary-item span{margin:0;color:#8c8c8c}
+.config-page .run-summary-content .run-summary-item b{font-weight:400;color:#262626}
+.config-page #cfgSecretState:empty{display:none}
+@media(max-width:680px){
+  .config-page .run-summary-content{align-items:flex-start;flex-direction:column}
+}
+.config-page .multi-options label.option-disabled,
+.config-page .multi-options label.option-disabled:hover{background:#fafafa;color:#bfbfbf;cursor:not-allowed}
+.config-page .multi-options label.option-disabled input{cursor:not-allowed}
+.config-page .config-row>div:has(>#cfgGroupName),
+.config-page .config-row>div:has(>#cfgWebhook){display:flex;align-items:center;gap:12px;max-width:760px}
+.config-page .config-row>div:has(>#cfgGroupName)>#cfgGroupName,
+.config-page .config-row>div:has(>#cfgWebhook)>#cfgWebhook{flex:1 1 auto;min-width:0;max-width:none}
+.config-page #cfgGroupName+.field-note,
+.config-page #cfgWebhook~.field-note{flex:0 0 auto;margin:0;white-space:nowrap}
+@media(max-width:820px){
+  .config-page .config-row>div:has(>#cfgGroupName),
+  .config-page .config-row>div:has(>#cfgWebhook){display:block}
+  .config-page #cfgGroupName+.field-note,
+  .config-page #cfgWebhook~.field-note{margin-top:5px;white-space:normal}
+}
+.config-page .config-row:has(#cfgWebhook){grid-template-columns:150px minmax(0,900px)}
+.config-page .config-row>div:has(>#cfgWebhook){display:grid;grid-template-columns:minmax(320px,1fr) max-content;align-items:center;gap:0 12px;width:100%;max-width:900px}
+.config-page .config-row>div:has(>#cfgWebhook)>#cfgWebhook{grid-column:1;grid-row:1;width:100%;max-width:none}
+.config-page #cfgWebhook~.field-note{grid-column:2;grid-row:1;margin:0;white-space:nowrap}
+.config-page #cfgWebhookErr{grid-column:1/-1;grid-row:2;margin-top:5px}
+@media(max-width:820px){
+  .config-page .config-row:has(#cfgWebhook){grid-template-columns:110px minmax(0,1fr)}
+  .config-page .config-row>div:has(>#cfgWebhook){display:block}
+  .config-page #cfgWebhook~.field-note{margin-top:5px;white-space:normal}
+}
+
 </style>
   <style>
     :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",Arial,sans-serif;color:#1f2329;background:#f2f3f5;font-size:14px}
@@ -70,7 +143,7 @@
       <div class="field combo-field"><label class="sr-only" for="serverMode">区服查询</label><div class="query-combo"><select class="control" id="serverMode" aria-label="区服模式"><option>当前区服</option><option>创角区服</option></select><select class="control" id="server" aria-label="选择区服"><option value="">请选择区服</option><option>S1001</option><option>S1002</option></select></div></div>
       <div class="field combo-field"><label class="sr-only" for="recordField">反馈记录查询字段</label><div class="query-combo"><select class="control" id="recordField" aria-label="反馈记录查询字段"><option value="id">记录ID</option><option value="roleId">角色ID</option><option value="roleName">角色名称</option><option value="passport">冰川通行证ID</option></select><input class="control" id="recordId" aria-label="查询内容" placeholder="请输入"></div></div>
       <div class="field hidden-filter"><label for="status">处理状态：</label><select class="control" id="status"><option>所有类型</option><option>未分类</option><option>未查看</option><option>已查看未处理</option><option>正在处理</option><option>处理完成</option></select></div>
-      <div class="field hidden-filter"><label for="userType">用户类型：</label><select class="control" id="userType"><option>不限</option><option>普通用户</option><option>新用户</option></select></div>
+      <div class="field hidden-filter"><label for="userType">用户类型：</label><select class="control" id="userType"><option>不限</option><option>登录前用户</option><option>登录后用户</option></select></div>
       <div class="field hidden-filter combo-field"><label class="sr-only" for="feedbackType">反馈类型与摘要</label><div class="query-combo"><select class="control" id="feedbackType" aria-label="反馈类型"><option>反馈类型</option><option>意见建议</option><option>错误报告</option><option>投诉</option><option>其他</option><option>AI客服</option></select><input class="control" id="summary" aria-label="反馈摘要" placeholder="反馈摘要"></div></div>
       <div class="field hidden-filter"><label for="description">问题描述：</label><input class="control" id="description" placeholder="问题描述"></div>
       <div class="field hidden-filter"><label for="urgency">紧急程度：</label><select class="control" id="urgency"><option>所有类型</option><option>高</option><option>中</option><option>低</option></select></div>
@@ -96,7 +169,7 @@
 <script id="capture-data" type="application/json">{"list":{"state":"default-list","capturedAt":"2026-07-29T10:41:06+08:00","url":"https://ops.test.q1oa.com/bugReport?gameId=2162&gameVersionId=2162-CN-DEV&currency=RMB&timeZone=8","title":"位面2-游戏运营后台","businessContainer":"main","shellRemoved":[".q1-sider",".q1-header",".q1-tag","global navigation","account widgets"],"filters":["平台","记录时间","区服模式","当前区服","记录ID"],"dateRange":["2026-07-23","2026-07-29"],"defaultPlatform":"内网手游平台","defaultServerMode":"当前区服","tableState":"empty","emptyText":"暂无数据","stylesheets":["assets/vendor-large-2a42e354.css","assets/vendors-253ae210.css","assets/commons-21833f8f.css","assets/vendors-2a42e354.css","assets/vendor-large-29b6936c.css","assets/main-e2e93592.css","assets/module-845.css","assets/module-175.css"]},"expanded":{"state":"expanded-filters","capturedAt":"2026-07-29T10:41:06+08:00","additionalFilters":["处理状态","用户类型","反馈类型","反馈摘要","问题描述","紧急程度","重要程度"],"collapseLabel":"收 起"},"status":{"state":"status-dropdown","capturedAt":"2026-07-29T10:41:06+08:00","label":"处理状态","options":["所有类型","未分类","未查看","已查看未处理","正在处理","处理完成"]}}</script>
 <script>
   const columns = [["id","记录ID",112],["roleId","角色ID",118],["roleName","角色名称",118],["vip","VIP等级",90],["passport","冰川通行证ID",138],["createdServer","创角区服",118],["currentServer","当前区服",118],["channel","渠道ID",90],["userType","用户类型",100],["isNew","是否新用户",106],["type","反馈类型",110],["summary","反馈摘要",180],["description","问题描述",220],["status","处理状态",110],["resolution","处理说明",160],["urgency","紧急程度",100],["importance","重要程度",100],["logUrl","日志地址链接",130],["logContent","日志内容",150],["log","日志",100],["direction","排查方向",130],["contact","联系方式",130],["device","设备",90],["deviceName","设备名称",120],["language","设备语言",100],["os","系统",90],["version","版本",90],["uuid","UUID",140],["ip","IP",120],["ipPort","IP及端口号",140],["country","国家/地区",100],["image","图片",90],["createdAt","记录时间",170]];
-  const sampleRows = [{"id":"DEMO-260729-001","roleId":"10082471","roleName":"原型示例玩家","vip":"6","passport":"BC-DEMO-82471","createdServer":"S1001","currentServer":"S1001","channel":"1000","userType":"普通用户","isNew":"否","type":"错误报告","summary":"战斗结算后界面停留","description":"原型示例数据：战斗结束后偶发未返回主界面。","status":"未查看","resolution":"-","urgency":"中","importance":"高","logUrl":"查看链接","logContent":"查看","log":"已上传","direction":"客户端战斗流程","contact":"-","device":"Android","deviceName":"Demo Phone","language":"简体中文","os":"Android 15","version":"1.0.0","uuid":"demo-uuid-001","ip":"192.0.2.10","ipPort":"192.0.2.10:443","country":"中国","image":"1 张","createdAt":"2026-07-29 09:42:18"},{"id":"DEMO-260729-002","roleId":"10091325","roleName":"体验账号","vip":"2","passport":"BC-DEMO-91325","createdServer":"S1002","currentServer":"S1002","channel":"1001","userType":"新用户","isNew":"是","type":"意见建议","summary":"希望增加阵容预设","description":"原型示例数据：希望可以保存并快速切换多套阵容。","status":"正在处理","resolution":"已转交玩法组评估","urgency":"低","importance":"中","logUrl":"-","logContent":"-","log":"无","direction":"阵容系统","contact":"-","device":"iOS","deviceName":"Demo iPhone","language":"简体中文","os":"iOS 19","version":"1.0.0","uuid":"demo-uuid-002","ip":"198.51.100.8","ipPort":"198.51.100.8:443","country":"中国","image":"-","createdAt":"2026-07-29 08:18:06"}];
+  const sampleRows = [{"id":"DEMO-260729-001","roleId":"10082471","roleName":"原型示例玩家","vip":"6","passport":"BC-DEMO-82471","createdServer":"S1001","currentServer":"S1001","channel":"1000","userType":"登录后用户","isNew":"否","type":"错误报告","summary":"战斗结算后界面停留","description":"原型示例数据：战斗结束后偶发未返回主界面。","status":"未查看","resolution":"-","urgency":"中","importance":"高","logUrl":"查看链接","logContent":"查看","log":"已上传","direction":"客户端战斗流程","contact":"-","device":"Android","deviceName":"Demo Phone","language":"简体中文","os":"Android 15","version":"1.0.0","uuid":"demo-uuid-001","ip":"192.0.2.10","ipPort":"192.0.2.10:443","country":"中国","image":"1 张","createdAt":"2026-07-29 09:42:18"},{"id":"DEMO-260729-002","roleId":"10091325","roleName":"体验账号","vip":"2","passport":"BC-DEMO-91325","createdServer":"S1002","currentServer":"S1002","channel":"1001","userType":"登录前用户","isNew":"是","type":"意见建议","summary":"希望增加阵容预设","description":"原型示例数据：希望可以保存并快速切换多套阵容。","status":"正在处理","resolution":"已转交玩法组评估","urgency":"低","importance":"中","logUrl":"-","logContent":"-","log":"无","direction":"阵容系统","contact":"-","device":"iOS","deviceName":"Demo iPhone","language":"简体中文","os":"iOS 19","version":"1.0.0","uuid":"demo-uuid-002","ip":"198.51.100.8","ipPort":"198.51.100.8:443","country":"中国","image":"-","createdAt":"2026-07-29 08:18:06"}];
   const state = {expanded:false, demo:true, compact:false, selected:new Set(), hidden:new Set()};
   const $ = id => document.getElementById(id);
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -138,6 +211,7 @@
 <script data-inline-source="prd-review-fixes.js">
 /* PRD v1.2.1 review alignment: local prototype behavior only. */
 (()=>{const $=id=>document.getElementById(id);function n(){const b=$('rb');if(!b)return;const r=[...b.querySelectorAll('tr')];if(!r.length){b.innerHTML='<tr><td colspan="10"><div class="empty">暂无巡检记录</div></td></tr>';return}r.forEach(x=>{const c=x.querySelectorAll('td');if(c.length<10)return;const s=c[4].innerText.trim();if(s==='执行中')[5,6,7].forEach(i=>c[i].textContent='-');if(s==='失败'){[5,6].forEach(i=>c[i].textContent='-');c[8].innerHTML='<span class="badge unknown">未发送</span>'}})}function l(){const b=$('rb');if(!b)return;new MutationObserver(n).observe(b,{childList:true});n();const p=b.closest('.table-panel')?.querySelector('.pagination');if(p)p.innerHTML='共 4 条　<select class="control pager-size" aria-label="每页条数"><option>10 条/页</option><option>20 条/页</option><option>50 条/页</option></select>　1 / 1　跳至 <input class="control pager-jump" type="number" min="1" value="1" aria-label="跳转页码"> 页'}function c(){const o=$('inspectionConfigV2'),s=$('cfg2Save');if(!o||!s)return;const period=$('cfgPeriod'),timeRow=$('cfgTimeRow'),syncPeriod=()=>{period.disabled=false;timeRow.classList.toggle('show',period.value==='daily')};period.addEventListener('change',syncPeriod);$('cfgAuto').addEventListener('click',()=>setTimeout(syncPeriod,0));syncPeriod();const b=document.createElement('button');b.type='button';b.className='link secret-clear';b.textContent='清空签名';$('cfgSecretState').after(b);$('cfgSecret').addEventListener('input',()=>{if($('cfgSecret').value)o.dataset.secretConfigured='true'});b.onclick=()=>{if(!o.dataset.secretConfigured)return;if(!window.confirm('确认清空已保存的钉钉机器人 Secret 吗？清空后开启自动巡检前需重新填写。'))return;o.dataset.secretConfigured='';$('cfgSecret').value='';$('cfgSecretState').textContent='未配置'};const q=s.cloneNode(true);s.replaceWith(q);q.onclick=()=>{['cfgTimeErr','cfgWebhookErr','cfgSecretErr'].forEach(i=>$(i).classList.remove('show'));const e=$('cfgAuto').getAttribute('aria-checked')==='true',d=$('cfgPeriod').value==='daily',h=$('cfgWebhook').value.trim(),z=!!$('cfgSecret').value||o.dataset.secretConfigured==='true';let v=true;if(e&&d&&!$('cfgDailyTime').value){$('cfgTimeErr').classList.add('show');v=false}if(e&&!/^https:\/\/.+/.test(h)){$('cfgWebhookErr').classList.add('show');v=false}if(e&&!z){$('cfgSecretErr').classList.add('show');v=false}if(!v)return;if($('cfgSecret').value)o.dataset.secretConfigured='true';$('cfgSecret').value='';$('cfgSecretState').textContent=o.dataset.secretConfigured==='true'?'已配置（不回显明文）':'未配置';o.classList.remove('open');$('toast').textContent='保存成功';$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1800)}}function r(){const p=$('reportPage');if(!p)return;const m=p.querySelector('.report-meta');if(m&&!m.querySelector('.version-meta'))m.insertAdjacentHTML('beforeend','<span class="version-meta"><b>Skill 版本</b>player-feedback-monitor v1.0.0</span><span class="version-meta"><b>模型版本</b>【待评审确认】</span>');const o=p.querySelector('.overview-scroll');if(o&&!p.querySelector('.failure-breakdown'))o.insertAdjacentHTML('afterend','<div class="failure-breakdown">失败分类：无日志 4｜下载失败 2｜解压失败 1｜解析失败 1｜证据不足 2（失败样本不参与风险与结论聚合）</div>');const y=p.querySelector('.report-pane[data-p="0"]');if(y&&!y.querySelector('.traceability-card'))y.insertAdjacentHTML('afterbegin','<section class="traceability-card"><h3>结论与风险判定依据</h3><p><b>技术风险：</b>读取 <code>inspection_result.json.overall_risk</code>；本轮为“高”，来源于已成功分析日志中的资源更新异常及 Lua 空引用证据。</p><p><b>主要结论：</b>由 <code>inspection_result.json.findings</code> 聚合同类异常生成；可通过“详细排查”和“单日志报告”回溯至反馈 ID、日志文件、行号与上下文。</p></section>');const d=p.querySelector('.report-pane[data-p="1"] tbody');if(d&&!d.querySelector('.failure-parse')){d.insertAdjacentHTML('beforeend','<tr class="failure-parse"><td>DEMO-032</td><td><span class="badge failed">解析失败</span></td><td>日志编码异常，无法判断</td><td>-</td></tr><tr><td>DEMO-037</td><td><span class="badge unknown">证据不足</span></td><td>无明确分类证据，不判定为无异常</td><td>-</td></tr>');const a=p.querySelector('.report-pane[data-p="1"] .detail-note');if(a)a.textContent='异常/不可判定明细 5 条，共 28 条已分析样本；失败样本不参与风险和结论聚合。';const g=p.querySelector('.report-pane[data-p="1"] .report-pager');if(g)g.textContent='共 5 条　10 条/页　‹　1　›'}const f=p.querySelector('.report-pane[data-p="4"] .desc');if(f&&!f.querySelector('.brief-time')){f.insertAdjacentHTML('beforeend','<dt class="brief-time">发送时间</dt><dd>2026-07-29 08:03:16</dd><dt>失败原因</dt><dd>-（发送失败时展示平台返回原因；不展示 Webhook 或 Secret）</dd><dt>后台报告</dt><dd><button class="link brief-report-link">查看巡检报告</button></dd>');f.querySelector('.brief-report-link').onclick=()=>window.location.hash='#records'}}function h(){const p=$('recordsPage');if(p&&!p.querySelector('.permission-hint'))p.insertAdjacentHTML('afterbegin','<div class="permission-hint">权限规则：无巡检记录查看权限时不展示本页；无原始日志下载权限时，报告中的下载入口不可用。</div>')}l();c();r();h()})();
+
 </script>
 <script data-inline-source="record-view-switcher.js">
 (()=>{const nav=document.querySelector('.module-tabs');if(!nav)return;nav.classList.add('module-tabs-hidden');const demo=document.getElementById('demoSwitch');if(demo){const box=demo.closest('.demo-switch');if(box)box.remove()}const setActive=route=>document.querySelectorAll('.view-switcher [data-route]').forEach(b=>b.classList.toggle('active',b.dataset.route===route));const routeTo=route=>{nav.querySelector('[data-r="'+route+'"]').click();setTimeout(()=>setActive(route),0)};const make=active=>{const wrap=document.createElement('nav');wrap.className='view-switcher';wrap.setAttribute('aria-label','记录视图切换');wrap.innerHTML='<button class="page-nav" type="button" disabled aria-label="上一页">‹</button><button class="view-page '+(active==='feedback'?'active':'')+'" type="button" data-route="feedback">反馈记录</button><button class="view-page '+(active==='records'?'active':'')+'" type="button" data-route="records">巡检记录</button><button class="page-nav" type="button" disabled aria-label="下一页">›</button>';wrap.querySelectorAll('[data-route]').forEach(b=>b.onclick=()=>routeTo(b.dataset.route));return wrap};const feedbackFooter=document.querySelector('#feedbackPage .table-footer');if(feedbackFooter&&!feedbackFooter.querySelector('.view-switcher'))feedbackFooter.append(make('feedback'));const recordPager=document.querySelector('#recordsPage .pagination');if(recordPager&&!recordPager.querySelector('.view-switcher'))recordPager.append(make('records'))})();
@@ -159,6 +233,161 @@
 </script>
 <script data-inline-source="inspection-risk-help.js">
 (()=>{const header=document.querySelector('#recordsPage .inspection-table thead th:nth-child(6)');if(!header||header.querySelector('.risk-help'))return;header.insertAdjacentHTML('beforeend','<span class="status-help risk-help" tabindex="0" aria-label="查看技术风险说明">?<span class="status-tooltip risk-tooltip" role="tooltip"><b>技术风险说明</b><span><em>高：</em>核心流程异常，且具有文件、行号和上下文证据。</span><span><em>中：</em>存在可定位的 SDK、模块、超时或性能异常，但未达到高风险。</span><span><em>低：</em>仅发现弱异常信号，未归入高或中风险。</span><span><em>未识别：</em>无可分类的成功分析结果；不代表无异常。</span></span></span>')})();
+</script>
+<script data-inline-source="inspection-scope-filters.js">
+(()=>{
+  const form=document.querySelector('#inspectionConfigV2 .config-form');
+  if(!form||form.querySelector('.inspection-scope'))return;
+  const platformRow=document.getElementById('cfgPlatform')?.closest('.config-row');
+  const autoRow=document.getElementById('cfgAuto')?.closest('.config-row');
+  if(!platformRow)return;
+  const platformNote=document.querySelector('#cfgPlatform + .field-note');
+  const periodNote=document.querySelector('#cfgPeriod + .field-note');
+  const periodSelect=document.getElementById('cfgPeriod');
+  const timeRow=document.getElementById('cfgTimeRow');
+  if(platformNote)platformNote.remove();
+  if(periodNote)periodNote.remove();
+  document.querySelector('#cfgChannel + .field-note')?.remove();
+  const groupNameNote=document.querySelector('#cfgGroupName + .field-note');
+  const webhookNote=document.querySelector('#cfgWebhook ~ .field-note');
+  if(groupNameNote)groupNameNote.textContent='（仅用于配置记录和页面展示，不参与消息路由）';
+  if(webhookNote)webhookNote.textContent='（编辑回显时将脱敏展示。）';
+  const secretInput=document.getElementById('cfgSecret');
+  const secretState=document.getElementById('cfgSecretState');
+  const secretClear=document.querySelector('.secret-clear');
+  const configOverlay=document.getElementById('inspectionConfigV2');
+  if(secretInput&&secretClear&&!secretInput.parentElement.classList.contains('secret-input-wrap')){
+    const secretInputWrap=document.createElement('div');
+    secretInputWrap.className='secret-input-wrap';
+    secretInput.before(secretInputWrap);
+    secretInputWrap.append(secretInput,secretClear);
+    secretClear.type='button';
+    secretClear.textContent='×';
+    secretClear.classList.add('secret-clear-inline');
+    secretClear.setAttribute('aria-label','清空签名');
+    secretClear.title='清空签名';
+    const clearSavedSecret=secretClear.onclick;
+    secretClear.onclick=event=>{
+      if(secretInput.value){
+        const hadSavedSecret=secretState?.textContent.includes('已配置');
+        secretInput.value='';
+        secretInput.dispatchEvent(new Event('input',{bubbles:true}));
+        if(!hadSavedSecret&&configOverlay)configOverlay.dataset.secretConfigured='';
+        return;
+      }
+      clearSavedSecret?.call(secretClear,event);
+    };
+  }
+  if(secretState){
+    const normalizeSecretState=()=>{
+      if(secretState.textContent.trim()==='未配置')secretState.textContent='';
+    };
+    new MutationObserver(normalizeSecretState).observe(secretState,{childList:true,characterData:true,subtree:true});
+    normalizeSecretState();
+  }
+  if(periodSelect){
+    const dailyOption=periodSelect.querySelector('option[value="daily"]');
+    const hourlyOption=periodSelect.querySelector('option[value="hourly"]');
+    if(dailyOption)dailyOption.textContent='每天（读取前 24 小时数据）';
+    if(hourlyOption)hourlyOption.textContent='每小时（读取前 1 小时数据）';
+    const syncTimeRow=()=>{
+      const autoEnabled=document.getElementById('cfgAuto')?.getAttribute('aria-checked')==='true';
+      const shouldShow=autoEnabled&&periodSelect.value==='daily';
+      timeRow?.classList.toggle('show',shouldShow);
+      if(timeRow)timeRow.style.display=shouldShow?'':'none';
+    };
+    periodSelect.addEventListener('change',syncTimeRow);
+    document.getElementById('cfgAuto')?.addEventListener('click',()=>setTimeout(syncTimeRow,0));
+    syncTimeRow();
+  }
+  const section=document.createElement('section');
+  section.className='inspection-scope';
+  section.innerHTML=`<div class="scope-grid">
+    <div class="scope-field"><label>反馈类型</label><details class="multi-select" data-filter="type"><summary>错误报告</summary><div class="multi-options"><label><input type="checkbox" value="错误报告" checked>错误报告</label><label><input type="checkbox" value="意见建议">意见建议</label><label><input type="checkbox" value="投诉">投诉</label><label><input type="checkbox" value="其他">其他</label><label class="option-disabled" title="当前不支持"><input type="checkbox" value="AI客服" data-always-disabled="true" disabled>AI客服</label></div></details></div>
+    <div class="scope-field"><label>用户类型</label><details class="multi-select" data-filter="user"><summary>登录前用户、登录后用户</summary><div class="multi-options"><label><input type="checkbox" value="登录前用户" checked>登录前用户</label><label><input type="checkbox" value="登录后用户" checked>登录后用户</label></div></details></div>
+    <div class="scope-field"><label for="scopeLog">日志状态</label><select class="control scope-control" id="scopeLog"><option value="all">不限</option><option value="has" selected>仅有日志</option><option value="none">仅无日志</option></select></div>
+    <div class="scope-field"><label>游戏版本</label><details class="multi-select" data-filter="version"><summary>当前版本 1.0.0</summary><div class="multi-options"><label><input type="checkbox" value="当前版本 1.0.0" checked>当前版本 1.0.0</label><label><input type="checkbox" value="0.9.9">0.9.9</label><label><input type="checkbox" value="0.9.8">0.9.8</label></div></details></div>
+    <div class="scope-field"><label>处理状态</label><details class="multi-select" data-filter="status"><summary>未分类、未查看、已查看未处理、正在处理</summary><div class="multi-options"><label><input type="checkbox" value="未分类" checked>未分类</label><label><input type="checkbox" value="未查看" checked>未查看</label><label><input type="checkbox" value="已查看未处理" checked>已查看未处理</label><label><input type="checkbox" value="正在处理" checked>正在处理</label><label><input type="checkbox" value="处理完成">处理完成</label></div></details></div>
+    <div class="scope-field"><label for="scopeServer">区服</label><select class="control scope-control" id="scopeServer"><option value="all">全部区服</option><option>S1001</option><option>S1002</option></select></div>
+    <div class="scope-field"><label for="scopeChannel">渠道</label><select class="control scope-control" id="scopeChannel"><option value="all">全部渠道</option><option>1000</option><option>1001</option></select></div>
+  </div>
+  <div class="scope-estimate" id="scopeEstimate"><div class="estimate-main">预计命中 <strong id="scopeCount">1,260</strong><span>条</span></div><div class="estimate-rule"><span class="within-copy">未超过单轮源数据上限 2,000 条，将全部进入 Skill 输入。</span><span class="over-copy">已超过单轮源数据上限 2,000 条，后端将按反馈类型分层并优先保留有日志数据，抽样至 2,000 条后交给 Skill。</span></div></div>
+  <div class="scope-note">预计数量按最近一个巡检周期的历史数据模拟；实际执行记录同时保留筛选命中数、后端输入数和 Skill 实际抽样数。</div>`;
+  const configRows=[...form.querySelectorAll(':scope > .config-row')];
+  const notifyRow=document.querySelector('input[name="cfgNotify"]')?.closest('.config-row');
+  const recentRow=configRows.find(row=>row.textContent.includes('最近执行时间'));
+  const nextRow=configRows.find(row=>row.textContent.includes('下次执行时间'));
+  const makeTitle=(title,note)=>{const el=document.createElement('div');el.className='config-section-title';el.innerHTML='<h3>'+title+'</h3>'+(note?'<span>'+note+'</span>':'');return el};
+  form.insertBefore(makeTitle('执行设置','设置巡检计划与触发频率'),platformRow);
+  if(autoRow)form.insertBefore(autoRow,platformRow);
+  form.insertBefore(makeTitle('巡检范围','筛选源数据，降低单轮处理压力'),notifyRow);
+  form.insertBefore(section,notifyRow);
+  form.insertBefore(makeTitle('通知设置','配置钉钉发送条件与通道'),notifyRow);
+  if(recentRow&&nextRow){
+    const run=document.createElement('div');
+    run.className='run-summary';
+    run.innerHTML='<div class="run-summary-content"><div class="run-summary-item"><span>最近执行时间</span><b>'+recentRow.querySelector('.config-readonly').textContent+'</b></div><div class="run-summary-item"><span>下次执行时间</span><b id="cfgNextRunMirror">未开启</b></div></div>';
+    nextRow.after(run);
+    const source=document.getElementById('cfgNextRun');
+    if(source){document.getElementById('cfgNextRunMirror').textContent=source.textContent;new MutationObserver(()=>document.getElementById('cfgNextRunMirror').textContent=source.textContent).observe(source,{childList:true})}
+    recentRow.style.display='none';
+    nextRow.style.display='none';
+  }
+  const details=[...section.querySelectorAll('.multi-select')];
+  const updateSummary=d=>{const values=[...d.querySelectorAll('input:checked')].map(x=>x.value);d.querySelector('summary').textContent=!values.length?'不限':values.length<=2?values.join('、'):values.slice(0,2).join('、')+' 等 '+values.length+' 项'};
+  const checked=name=>section.querySelectorAll('[data-filter="'+name+'"] input:checked').length;
+  const updateEstimate=()=>{let count=8750;const type=checked('type');count*=type?Math.min(1,type/3):1;const user=checked('user');count*=user===1?.58:1;const log=document.getElementById('scopeLog').value;if(log==='has')count*=.54;if(log==='none')count*=.46;const version=checked('version');count*=version?Math.min(1,version/2):1;if(checked('status')<5)count*=.8;if(document.getElementById('scopeServer').value!=='all')count*=.55;if(document.getElementById('scopeChannel').value!=='all')count*=.62;count=Math.max(0,Math.round(count/10)*10);document.getElementById('scopeCount').textContent=count.toLocaleString('zh-CN');document.getElementById('scopeEstimate').classList.toggle('over-limit',count>2000)};
+  details.forEach(d=>{d.querySelectorAll('input').forEach(input=>input.addEventListener('change',()=>{updateSummary(d);updateEstimate()}));updateSummary(d)});
+  section.querySelectorAll('.scope-control').forEach(x=>x.addEventListener('change',updateEstimate));
+  document.addEventListener('click',e=>details.forEach(d=>{if(d.open&&!d.contains(e.target))d.open=false}));
+  const autoButton=document.getElementById('cfgAuto');
+  const syncFormAvailability=()=>{
+    const enabled=autoButton?.getAttribute('aria-checked')==='true';
+    form.classList.toggle('config-fields-disabled',!enabled);
+    form.querySelectorAll('input,select,textarea,button').forEach(control=>{
+      if(control!==autoButton)control.disabled=control.dataset.alwaysDisabled==='true'||!enabled;
+    });
+    details.forEach(detail=>{
+      detail.setAttribute('aria-disabled',String(!enabled));
+      if(!enabled)detail.open=false;
+    });
+    const shouldShowTime=enabled&&periodSelect?.value==='daily';
+    timeRow?.classList.toggle('show',shouldShowTime);
+    if(timeRow)timeRow.style.display=shouldShowTime?'':'none';
+  };
+  autoButton?.addEventListener('click',()=>setTimeout(syncFormAvailability,0));
+  syncFormAvailability();
+  updateEstimate();
+})();
+(()=>{
+  const overlay=document.getElementById('inspectionConfigV2');
+  const main=document.querySelector('main.replay');
+  const form=overlay?.querySelector('.config-form');
+  const originalSave=document.getElementById('cfg2Save');
+  const configButton=[...document.querySelectorAll('button')].find(button=>button.textContent.includes('巡检配置'));
+  if(!overlay||!main||!form||!originalSave||!configButton||document.getElementById('configPage'))return;
+
+  const page=document.createElement('div');
+  page.className='page-view config-page';
+  page.id='configPage';
+  page.innerHTML='<section class="config-page-body"></section><footer class="config-page-actions"><button class="btn config-cancel" type="button">取 消</button><button class="btn primary config-save" type="button">保 存</button></footer>';
+  page.querySelector('.config-page-body').append(form);
+  main.append(page);
+
+  const hiddenPages=()=>document.querySelectorAll('.page-view').forEach(view=>view.classList.remove('active'));
+  const setConfigRouteActive=active=>{
+    document.documentElement.classList.toggle('config-route-active',active);
+    document.body.classList.toggle('config-route-active',active);
+  };
+  const showFeedback=()=>{setConfigRouteActive(false);hiddenPages();document.getElementById('feedbackPage')?.classList.add('active');history.replaceState(null,'','#feedback');window.scrollTo(0,0)};
+  const showConfig=()=>{setConfigRouteActive(true);hiddenPages();page.classList.add('active');history.replaceState(null,'','#config');window.scrollTo(0,0)};
+  configButton.onclick=showConfig;
+
+  page.querySelector('.config-cancel').onclick=showFeedback;
+  page.querySelector('.config-save').onclick=()=>{originalSave.click();if(!page.querySelector('.validation.show')){const toast=document.getElementById('toast');toast.textContent='保存成功';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1800)}};
+  overlay.remove();
+  if(location.hash==='#config')showConfig();
+})();
 </script>
 </body>
 </html>
