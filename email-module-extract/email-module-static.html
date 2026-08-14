@@ -1857,11 +1857,17 @@
       line-height: 1;
     }
 
-    .social-recipient-warning {
+    .social-recipient-warning,
+    .social-recipient-note {
       margin-top: 6px;
       color: rgba(0, 0, 0, 0.45);
       font-size: 12px;
       line-height: 20px;
+    }
+
+    .social-recipient-note {
+      margin-top: 0;
+      margin-bottom: 6px;
     }
 
     .social-group-id-input.social-group-input-error {
@@ -2356,7 +2362,7 @@
         const roleRecipientFormHtml = '<div class="ant-row ant-form-item role-recipient-form-item"><div class="ant-col ant-col-3 ant-form-item-label"><label class="ant-form-item-required" title="角色ID">角色ID</label></div><div class="ant-col ant-form-item-control"><div class="ant-form-item-control-input"><div class="ant-form-item-control-input-content"><textarea class="ant-input role-recipient-id-input" placeholder="填写角色ID，多个角色之间用英文逗号、空格或换行分隔"></textarea></div></div></div></div>';
         recipientItem.insertAdjacentHTML('afterend', roleRecipientFormHtml);
       }
-      const socialGroupFormHtml = `<div class="ant-row ant-form-item social-recipient-form-item"><div class="ant-col ant-col-3 ant-form-item-label"><label class="ant-form-item-required" title="组织ID">组织ID</label></div><div class="ant-col ant-form-item-control"><div class="ant-form-item-control-input"><div class="ant-form-item-control-input-content"><div class="social-recipient-panel"><textarea class="ant-input social-group-id-input" placeholder="填写组织ID，多个组织之间用英文逗号分开，例如：91001,91002"></textarea><div class="social-recipient-warning">多个组织ID请用英文逗号、空格或换行分隔；组织名称可按游戏理解为联盟、仙盟、公会、帮派等。</div><div class="social-recipient-error" aria-live="polite"></div><table class="social-group-validation-table social-group-detail-table"><thead><tr><th>组织ID</th><th>组织名称</th><th>组织成员数</th><th>角色ID</th><th>角色名称</th><th>所在区服</th><th>检测结果</th><th>操作</th></tr></thead><tbody><tr><td colspan="8">暂无校验数据</td></tr></tbody></table><div class="social-recipient-result-total">检测结果成功总数：<strong class="success-count" data-social-group-success-count>0</strong>；失败总数：<strong class="fail-count" data-social-group-fail-count>0</strong></div><div class="social-recipient-toolbar"><button type="button" class="ant-btn ant-btn-primary social-group-validate"><span>校 验</span></button><button type="button" class="ant-btn ant-btn-dangerous social-group-clear"><span>清 空</span></button></div><input type="hidden" name="socialGroupRecipientPayload"></div></div></div></div></div>`;
+      const socialGroupFormHtml = `<div class="ant-row ant-form-item social-recipient-form-item"><div class="ant-col ant-col-3 ant-form-item-label"><label class="ant-form-item-required" title="组织ID">组织ID</label></div><div class="ant-col ant-form-item-control"><div class="ant-form-item-control-input"><div class="ant-form-item-control-input-content"><div class="social-recipient-panel"><div class="social-recipient-note">通过组织ID筛选其下成员作为收件人</div><textarea class="ant-input social-group-id-input" placeholder="填写组织ID，多个组织之间用英文逗号分开，例如：91001,91002"></textarea><div class="social-recipient-error" aria-live="polite"></div><table class="social-group-validation-table social-group-detail-table"><thead><tr><th>组织ID</th><th>组织名称</th><th>组织成员数</th><th>角色ID</th><th>角色名称</th><th>所在区服</th><th>检测结果</th><th>操作</th></tr></thead><tbody><tr><td colspan="8">暂无校验数据</td></tr></tbody></table><div class="social-recipient-result-total">检测结果成功总数：<strong class="success-count" data-social-group-success-count>0</strong>；失败总数：<strong class="fail-count" data-social-group-fail-count>0</strong></div><div class="social-recipient-toolbar"><button type="button" class="ant-btn ant-btn-primary social-group-validate"><span>校 验</span></button><button type="button" class="ant-btn ant-btn-dangerous social-group-clear"><span>清 空</span></button></div><input type="hidden" name="socialGroupRecipientPayload"></div></div></div></div></div>`;
       recipientItem.insertAdjacentHTML('afterend', socialGroupFormHtml);
       recipientItem.addEventListener('click', (event) => {
         const socialButton = event.target.closest('.social-recipient-mode');
@@ -3495,6 +3501,7 @@
   </script>
 </body>
 </html>
+
 
 
 
