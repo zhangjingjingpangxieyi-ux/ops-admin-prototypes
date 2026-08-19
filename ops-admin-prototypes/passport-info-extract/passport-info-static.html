@@ -29,6 +29,7 @@ body {
 }
 button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
+[hidden] { display: none !important; }
 
 .app-shell { display: flex; min-height: 100vh; }
 .sider { width: 256px; flex: 0 0 256px; color: rgba(255,255,255,.72); background: var(--sider); }
@@ -103,13 +104,15 @@ select:focus, input:focus, textarea:focus { border-color: var(--blue-hover); box
 .result-summary .bad { color: var(--danger); }
 .result-tools { display: flex; gap: 8px; margin: 8px 0 10px; }
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); }
-table { width: 100%; min-width: 660px; border-collapse: collapse; table-layout: fixed; }
+table { width: 100%; min-width: 980px; border-collapse: collapse; table-layout: fixed; }
 th, td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; text-align: left; word-break: break-word; }
 th { color: var(--sub); background: #fafafa; font-weight: 500; }
 tr:last-child td { border-bottom: 0; }
 .col-index { width: 58px; text-align: center; color: var(--muted); }
 .col-platform { width: 132px; }
 .col-id { width: 116px; }
+.col-uuid { width: 190px; }
+.col-time { width: 160px; }
 .col-status { width: 92px; }
 .status { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
 .status::before { width: 7px; height: 7px; border-radius: 50%; background: currentColor; content: ""; }
@@ -117,7 +120,7 @@ tr:last-child td { border-bottom: 0; }
 .status-fail, .status-invalid { color: var(--danger); }
 .status-not_found { color: var(--muted); }
 .status-ambiguous { color: var(--warning); }
-.passport-id { color: var(--blue); font-family: Consolas, "SFMono-Regular", monospace; }
+.passport-id, .mono-text { color: var(--blue); font-family: Consolas, "SFMono-Regular", monospace; }
 .muted { color: #bfbfbf; }
 
 .toast { position: fixed; top: 18px; left: 50%; z-index: 60; padding: 9px 16px; color: var(--text); background: #fff; border: 1px solid #e8e8e8; box-shadow: 0 4px 12px rgba(0,0,0,.15); opacity: 0; transform: translate(-50%, -10px); pointer-events: none; transition: .2s; }
@@ -180,6 +183,105 @@ tr:last-child td { border-bottom: 0; }
 .file-remove:hover {
   color: var(--danger);
 }
+.passport-detail-card {
+  margin-top: 12px;
+  padding: 0 0 16px;
+  background: #fff;
+  border: 1px solid #edf0f2;
+}
+
+.passport-query-tag {
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 0;
+  padding: 0 8px 0 14px;
+  color: var(--blue);
+  background: #fff;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.passport-query-tag button {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #8c8c8c;
+  border: 0;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.passport-query-tag button:hover {
+  color: var(--danger);
+}
+
+.passport-detail-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 8px 16px;
+  border-top: 1px solid #f5f5f5;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-tab {
+  height: 34px;
+  padding: 0 10px;
+  color: #262626;
+  border: 1px solid #bfbfbf;
+  border-radius: 2px;
+  background: linear-gradient(#fff, #f5f5f5);
+}
+
+.detail-tab.is-active {
+  color: var(--blue);
+  border-color: #91caff;
+  background: #f6fbff;
+}
+
+.detail-panel {
+  display: none;
+  padding: 0 16px;
+}
+
+.detail-panel.is-active {
+  display: block;
+}
+
+.detail-table {
+  width: 100%;
+  min-width: 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+  border: 1px solid #e8e8e8;
+}
+
+.detail-table th,
+.detail-table td {
+  height: 54px;
+  padding: 10px 12px;
+  border: 1px solid #e8e8e8;
+  word-break: break-word;
+}
+
+.detail-table th {
+  width: 160px;
+  color: #111;
+  background: #fafafa;
+  text-align: right;
+  font-weight: 400;
+}
+
+.detail-table td {
+  color: #333;
+  background: #fff;
+}
+
+
 
 </style>
 </head>
@@ -241,15 +343,16 @@ tr:last-child td { border-bottom: 0; }
             <option>冰川通行证ID</option>
             <option>手机号</option>
           </select>
-          <input class="main-input" placeholder="请输入">
-          <button class="primary-btn">查 询</button>
+          <input class="main-input" id="main-input" placeholder="请输入">
+          <button class="primary-btn" id="main-query">查 询</button>
           <button class="default-btn" id="open-batch">批量名称查 ID</button>
         </section>
 
-        <section class="empty-card">
+        <section class="empty-card" id="empty-state">
           <div class="empty-icon">▤</div>
           <div>暂无数据</div>
         </section>
+        <section id="main-result-host"></section>
       </main>
     </section>
   </div>
@@ -333,18 +436,18 @@ const platforms = [
 ];
 
 const mockRecords = [
-  { platformId: 'mobile-cn', name: 'name001', passportId: '10001' },
-  { platformId: 'mobile-cn', name: 'name003', passportId: '10003' },
-  { platformId: 'mobile-cn', name: 'zhangsan', passportId: '88010023' },
-  { platformId: 'mobile-cn', name: 'player_2026', passportId: '88012026' },
-  { platformId: 'cn', name: 'name001', passportId: '20001' },
-  { platformId: 'cn', name: 'name004', passportId: '20004' },
-  { platformId: 'hmt', name: 'name003', passportId: '30003' },
-  { platformId: 'hmt', name: 'hmt_player', passportId: '30008' },
-  { platformId: 'mobile-cn', name: 'duplicate', passportId: '99001' },
-  { platformId: 'mobile-cn', name: 'duplicate', passportId: '99002' },
-  { platformId: 'cn', name: 'duplicate', passportId: '99003' },
-  { platformId: 'cn', name: 'duplicate', passportId: '99004' }
+  { platformId: 'mobile-cn', name: 'name001', passportId: '10001', lastLoginUuid: 'UUID-MCN-10001-A9F3', lastLoginTime: '2026-08-18 21:34:12' },
+  { platformId: 'mobile-cn', name: 'name003', passportId: '10003', lastLoginUuid: 'UUID-MCN-10003-C7D1', lastLoginTime: '2026-08-17 09:12:44' },
+  { platformId: 'mobile-cn', name: 'zhangsan', passportId: '88010023', lastLoginUuid: 'UUID-MCN-88010023-B652', lastLoginTime: '2026-08-16 18:20:05' },
+  { platformId: 'mobile-cn', name: 'player_2026', passportId: '88012026', lastLoginUuid: 'UUID-MCN-88012026-E801', lastLoginTime: '2026-08-19 08:45:31' },
+  { platformId: 'cn', name: 'name001', passportId: '20001', lastLoginUuid: 'UUID-CN-20001-19B4', lastLoginTime: '2026-08-18 14:08:27' },
+  { platformId: 'cn', name: 'name004', passportId: '20004', lastLoginUuid: 'UUID-CN-20004-6C20', lastLoginTime: '2026-08-15 23:51:09' },
+  { platformId: 'hmt', name: 'name003', passportId: '30003', lastLoginUuid: 'UUID-HMT-30003-D114', lastLoginTime: '2026-08-18 10:22:53' },
+  { platformId: 'hmt', name: 'hmt_player', passportId: '30008', lastLoginUuid: 'UUID-HMT-30008-77AB', lastLoginTime: '2026-08-14 16:06:18' },
+  { platformId: 'mobile-cn', name: 'duplicate', passportId: '99001', lastLoginUuid: 'UUID-MCN-99001-3AA0', lastLoginTime: '2026-08-12 11:11:11' },
+  { platformId: 'mobile-cn', name: 'duplicate', passportId: '99002', lastLoginUuid: 'UUID-MCN-99002-3AA1', lastLoginTime: '2026-08-12 11:12:11' },
+  { platformId: 'cn', name: 'duplicate', passportId: '99003', lastLoginUuid: 'UUID-CN-99003-4BB0', lastLoginTime: '2026-08-11 20:03:40' },
+  { platformId: 'cn', name: 'duplicate', passportId: '99004', lastLoginUuid: 'UUID-CN-99004-4BB1', lastLoginTime: '2026-08-11 20:05:40' }
 ];
 
 const statusText = {
@@ -367,6 +470,7 @@ const state = {
 
 function init() {
   hydratePlatformSelects();
+  bindMainQuery();
   bindDrawer();
   bindTabs();
   bindPaste();
@@ -377,6 +481,106 @@ function hydratePlatformSelects() {
   const options = platforms.filter(p => p.allowed).map(p => `<option value="${escapeAttr(p.id)}">${escapeHtml(p.name)}</option>`).join('');
   $('#paste-platform').innerHTML = options;
   $('#paste-platform').value = $('#main-platform').value || 'mobile-cn';
+}
+
+function bindMainQuery() {
+  const queryButton = $('#main-query');
+  if (!queryButton) return;
+  queryButton.addEventListener('click', () => {
+    const keyword = ($('#main-input')?.value || '').trim() || 'wxg008';
+    const queryType = $('.query-type')?.value || '冰川通行证名称';
+    renderPassportDetail(makePassportDetail(keyword, queryType));
+  });
+}
+
+function makePassportDetail(keyword, queryType) {
+  const platformId = $('#main-platform')?.value || 'mobile-cn';
+  const platform = platforms.find(item => item.id === platformId);
+  const seed = keyword.replace(/\s+/g, '') || 'wxg008';
+  const passportId = /^\d+$/.test(seed) ? seed : String(88010000 + Array.from(seed).reduce((sum, char) => sum + char.charCodeAt(0), 0)).slice(-8);
+  return {
+    queryType,
+    keyword: seed,
+    platformName: platform?.name || '内网手游平台',
+    base: [
+      ['冰川通行证ID', passportId, '冰川通行证名称', seed],
+      ['账号总充值额', '¥ 2,680.00', '最后登录时间及UUID', '2026-08-18 21:34:12 ，uuid：154545-fdf-4554545'],
+      ['注册IP', '113.108.208.36', '注册时间', '2025-11-03 14:26:09'],
+      ['实名认证姓名', '张*', '实名认证身份证号码', '440***********0928'],
+      ['通行证相关标识', `UUID-MCN-${passportId}-A9F3 / ${seed}@q1.com`, '归属游戏', '冰川网络示例游戏'],
+      ['归属时间', '2026-01-12 10:30:45', '广告ID', 'AD-20260818-09'],
+      ['子站点ID', 'SITE-2132', '合作商ID', 'PARTNER-Q1'],
+      ['微信', 'wx_' + seed, '各平台充值额', '内网手游平台 ¥1,280；国内冰川平台 ¥900；港澳台平台 ¥500'],
+      ['玩过的游戏', '远征手游、龙武、超能世界、运营后台演示游戏', '', '']
+    ],
+    security: [
+      ['绑定手机号', '138****0928', '绑定邮箱', `${seed}@example.com`],
+      ['登录密码状态', '已设置', '支付密码状态', '已设置'],
+      ['最近登录UUID', `UUID-MCN-${passportId}-A9F3`, '最近登录设备', 'Windows Chrome'],
+      ['最近登录IP', '113.108.208.36', '安全风险', '暂无异常']
+    ],
+    summary: [
+      ['累计充值', '¥ 2,680.00', '累计登录天数', '126 天'],
+      ['最近登录游戏', '冰川网络示例游戏', '最近登录区服', 'S2132 本地开发服'],
+      ['账号状态', '正常', '黑名单状态', '未命中'],
+      ['备注', '原型假数据，仅用于交互展示', '操作建议', '可复制通行证ID后继续查询']
+    ],
+    identity: [
+      ['认证状态', '已认证', '认证来源', '公安实名接口'],
+      ['认证姓名', '张*', '身份证号码', '440***********0928'],
+      ['认证时间', '2025-11-03 14:27:31', '认证结果', '一致'],
+      ['关联通行证数量', '1', '最近关联更新时间', '2026-08-18 21:34:12']
+    ]
+  };
+}
+
+function renderPassportDetail(data) {
+  const empty = $('#empty-state');
+  const host = $('#main-result-host');
+  if (!host) return;
+  if (empty) empty.hidden = true;
+  host.innerHTML = `
+    <section class="passport-detail-card">
+      <div class="passport-query-tag">
+        <span>${escapeHtml(data.queryType)}:${escapeHtml(data.keyword)}</span>
+        <button type="button" aria-label="关闭查询结果" data-detail-close>×</button>
+      </div>
+      <div class="passport-detail-tabs" role="tablist">
+        <button class="detail-tab is-active" type="button" data-detail-tab="base">通行证基本信息</button>
+        <button class="detail-tab" type="button" data-detail-tab="security">通行证安全信息</button>
+        <button class="detail-tab" type="button" data-detail-tab="summary">综合查询</button>
+        <button class="detail-tab" type="button" data-detail-tab="identity">认证身份证关联信息查询</button>
+      </div>
+      <div class="detail-panel is-active" data-detail-panel="base">${buildDetailTable(data.base)}</div>
+      <div class="detail-panel" data-detail-panel="security">${buildDetailTable(data.security)}</div>
+      <div class="detail-panel" data-detail-panel="summary">${buildDetailTable(data.summary)}</div>
+      <div class="detail-panel" data-detail-panel="identity">${buildDetailTable(data.identity)}</div>
+    </section>
+  `;
+  host.querySelector('[data-detail-close]').addEventListener('click', () => {
+    host.innerHTML = '';
+    if (empty) empty.hidden = false;
+  });
+  host.querySelectorAll('[data-detail-tab]').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.detailTab;
+      host.querySelectorAll('[data-detail-tab]').forEach(item => item.classList.toggle('is-active', item === tab));
+      host.querySelectorAll('[data-detail-panel]').forEach(panel => panel.classList.toggle('is-active', panel.dataset.detailPanel === target));
+    });
+  });
+}
+
+function buildDetailTable(rows) {
+  return `
+    <table class="detail-table">
+      <tbody>${rows.map(row => {
+        const isFullRow = !row[2] && !row[3];
+        if (isFullRow) {
+          return `<tr><th>${escapeHtml(row[0])}</th><td colspan="3">${escapeHtml(row[1])}</td></tr>`;
+        }
+        return `<tr><th>${escapeHtml(row[0])}</th><td>${escapeHtml(row[1])}</td><th>${escapeHtml(row[2])}</th><td>${escapeHtml(row[3])}</td></tr>`;
+      }).join('')}</tbody>
+    </table>`;
 }
 
 function bindDrawer() {
@@ -454,13 +658,13 @@ function resolveRows(rows) {
     }
     if (!row.name || !row.name.trim()) return result(row, 'invalid', '', '通行证名称为空');
     const hits = mockRecords.filter(item => item.platformId === row.platformId && item.name === row.name.trim());
-    if (hits.length === 1) return result(row, 'matched', hits[0].passportId, null);
+    if (hits.length === 1) return result(row, 'matched', hits[0], null);
     if (hits.length > 1) return result(row, 'ambiguous', '', '命中多个通行证');
     return result(row, 'not_found', '', '无匹配通行证');
   });
 }
 
-function result(row, status, passportId, message) {
+function result(row, status, record, message) {
   const platform = platforms.find(item => item.id === row.platformId);
   return {
     index: row.index,
@@ -468,7 +672,9 @@ function result(row, status, passportId, message) {
     platformName: platform ? platform.name : (row.platformName || row.platformRaw || ''),
     name: row.name,
     status,
-    passportId,
+    passportId: record?.passportId || '',
+    lastLoginUuid: record?.lastLoginUuid || '',
+    lastLoginTime: record?.lastLoginTime || '',
     message
   };
 }
@@ -483,7 +689,7 @@ function renderQueryResults(host, rows, scope) {
       查询结果：成功 <b class="ok">${counts.matched || 0}</b>，未找到 <b>${counts.not_found || 0}</b>，重复命中 <b>${counts.ambiguous || 0}</b>，输入无效 <b class="bad">${counts.invalid || 0}</b>
     </div>
     <div class="result-tools">
-      <button class="default-btn" data-action="copy" data-scope="${scope}">复制 ID</button>
+      <button class="default-btn" data-action="copy" data-scope="${scope}">复制 ID/UUID</button>
       <button class="default-btn" data-action="export" data-scope="${scope}">导出结果</button>
     </div>
     <div class="table-wrap">${buildResultTable(rows)}</div>
@@ -496,7 +702,7 @@ function buildResultTable(rows) {
   return `
     <table>
       <thead><tr>
-        <th class="col-index">序号</th><th class="col-platform">平台</th><th>输入名称</th><th class="col-id">通行证 ID</th><th class="col-status">状态</th><th>失败原因</th>
+        <th class="col-index">序号</th><th class="col-platform">平台</th><th>通行证名称</th><th class="col-id">通行证 ID</th><th class="col-uuid">最后登录 UUID</th><th class="col-time">最后登录时间</th><th class="col-status">状态</th><th>失败原因</th>
       </tr></thead>
       <tbody>${rows.map(row => `
         <tr>
@@ -504,6 +710,8 @@ function buildResultTable(rows) {
           <td>${escapeHtml(row.platformName || '-')}</td>
           <td>${escapeHtml(row.name || '')}</td>
           <td>${row.passportId ? `<span class="passport-id">${escapeHtml(row.passportId)}</span>` : '<span class="muted"> </span>'}</td>
+          <td>${row.lastLoginUuid ? `<span class="mono-text">${escapeHtml(row.lastLoginUuid)}</span>` : '<span class="muted"> </span>'}</td>
+          <td>${escapeHtml(row.lastLoginTime || '')}</td>
           <td><span class="status status-${row.status}">${statusText[row.status]}</span></td>
           <td>${escapeHtml(row.message || '-')}</td>
         </tr>`).join('')}
@@ -511,11 +719,18 @@ function buildResultTable(rows) {
     </table>`;
 }
 
+function isExcelFile(file) {
+  const name = (file.name || '').trim().toLowerCase();
+  const type = (file.type || '').toLowerCase();
+  return /\.(xlsx|xls)$/.test(name)
+    || type.includes('spreadsheet')
+    || type.includes('excel')
+    || type === 'application/vnd.ms-excel';
+}
 async function handleFileUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
-  const fileExt = file.name.split('.').pop().toLowerCase();
-  if (!['xlsx', 'xls'].includes(fileExt)) {
+  if (!isExcelFile(file)) {
     toast('请上传 .xlsx 或 .xls 格式文件');
     event.target.value = '';
     return;
@@ -531,7 +746,6 @@ async function handleFileUpload(event) {
 
 async function queryUploadedFile() {
   if (!state.selectedFile) return toast('请先上传文件');
-  if (state.selectedFile.name.split('.').pop().toLowerCase() === 'xls') return toast('当前原型暂不解析老版 .xls，请另存为 .xlsx 后上传');
   try {
     const rows = await readWorkbookRows(state.selectedFile);
     const normalized = normalizeImportedRows(rows);
@@ -550,6 +764,8 @@ async function queryUploadedFile() {
           name: row.name,
           status: 'invalid',
           passportId: '',
+          lastLoginUuid: '',
+          lastLoginTime: '',
           message: row.validationMessage
         };
       }
@@ -559,7 +775,7 @@ async function queryUploadedFile() {
     renderQueryResults($('#file-result-host'), state.fileResults, 'file');
   } catch (error) {
     console.error(error);
-    toast('文件解析失败，请检查模板格式');
+    toast(error.message || '文件解析失败，请检查模板格式');
   }
 }
 
@@ -570,18 +786,24 @@ function renderUploadedFile(fileName) {
   host.querySelector('.file-remove').addEventListener('click', clearFileState);
 }
 function normalizeImportedRows(rawRows) {
-  const header = rawRows[0] || [];
-  const platformIndex = header.findIndex(cell => cell.trim() === '平台');
-  const nameIndex = header.findIndex(cell => cell.trim() === '通行证名称');
-  if (platformIndex < 0 || nameIndex < 0) throw new Error('missing header');
+  const header = (rawRows[0] || []).map(cell => String(cell || '').trim());
+  const platformIndex = findHeaderIndex(header, ['平台', '平台名称']);
+  const nameIndex = findHeaderIndex(header, ['通行证名称', '输入名称', '账号名称']);
+  if (platformIndex < 0 || nameIndex < 0) {
+    throw new Error('请使用包含“平台”和“通行证名称/输入名称”的 Excel 文件');
+  }
   const rows = [];
   for (const raw of rawRows.slice(1)) {
-    const platformRaw = (raw[platformIndex] || '').trim();
-    const name = (raw[nameIndex] || '').trim();
+    const platformRaw = String(raw[platformIndex] || '').trim();
+    const name = String(raw[nameIndex] || '').trim();
     if (!platformRaw && !name) continue;
     rows.push(validateImportedRow(rows.length, platformRaw, name));
   }
   return { tooMany: rows.length > MAX_ROWS, rows };
+}
+
+function findHeaderIndex(header, aliases) {
+  return header.findIndex(cell => aliases.includes(cell));
 }
 
 function validateImportedRow(index, platformRaw, name) {
@@ -677,8 +899,8 @@ async function downloadTemplate() {
 
 async function exportResults(rows) {
   const data = [
-    ['序号', '平台', '输入名称', '通行证 ID', '状态', '失败原因'],
-    ...rows.map(row => [row.index + 1, row.platformName || '', row.name || '', row.passportId || '', statusText[row.status] || row.status, row.message || '-'])
+    ['序号', '平台', '通行证名称', '通行证 ID', '最后登录 UUID', '最后登录时间', '状态', '失败原因'],
+    ...rows.map(row => [row.index + 1, row.platformName || '', row.name || '', row.passportId || '', row.lastLoginUuid || '', row.lastLoginTime || '', statusText[row.status] || row.status, row.message || '-'])
   ];
   const stamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
   await downloadXlsx(data, `通行证名称查ID结果_${stamp}.xlsx`);
@@ -710,7 +932,7 @@ function buildSheetXml(rows) {
 }
 
 async function copyIds(rows) {
-  const text = rows.map(row => row.passportId || '').join('\n');
+  const text = rows.map(row => `${row.passportId || ''}\t${row.lastLoginUuid || ''}`).join('\n');
   try {
     await navigator.clipboard.writeText(text);
   } catch {
@@ -721,7 +943,7 @@ async function copyIds(rows) {
     document.execCommand('copy');
     area.remove();
   }
-  toast('复制成功');
+  toast('复制成功，已复制通行证 ID 和最后登录 UUID');
 }
 
 function toast(message) {
@@ -765,7 +987,21 @@ init();
 
 
 
-  </script>
+
+
+
+
+
+
+
+
+
+</script>
 </body>
 </html>
+
+
+
+
+
 
