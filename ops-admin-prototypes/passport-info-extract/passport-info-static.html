@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
@@ -388,13 +388,17 @@ tr:last-child td { border-bottom: 0; }
       </section>
 
       <section class="tab-panel" id="file-panel" data-panel="file">
+        <div class="form-row">
+          <label><span class="required">*</span> 平台：</label>
+          <select id="file-platform"></select>
+        </div>
         <div class="upload-line">
           <label><span class="required">*</span> 批量表格上传：</label>
           <label class="upload-btn" for="file-input">上传文件</label>
           <input id="file-input" type="file" accept=".xlsx,.xls" hidden>
           <button class="link-btn" id="download-template" type="button">模板下载</button>
         </div>
-        <div class="file-tip">支持 .xlsx 或 .xls 格式，单次最多 500 条。</div>
+        <div class="file-tip">模板仅需填写通行证ID，支持 .xlsx 或 .xls 格式，单次最多 500 条。</div>
         <div class="file-state" id="file-state">未上传时不展示查询结果和结果操作。</div>
         <div class="uploaded-file" id="uploaded-file" hidden></div>
         <div class="action-row file-actions" id="file-actions" hidden>
@@ -481,6 +485,11 @@ function hydratePlatformSelects() {
   const options = platforms.filter(p => p.allowed).map(p => `<option value="${escapeAttr(p.id)}">${escapeHtml(p.name)}</option>`).join('');
   $('#paste-platform').innerHTML = options;
   $('#paste-platform').value = $('#main-platform').value || 'mobile-cn';
+  const filePlatform = $('#file-platform');
+  if (filePlatform) {
+    filePlatform.innerHTML = options;
+    filePlatform.value = $('#main-platform').value || 'mobile-cn';
+  }
 }
 
 function bindMainQuery() {
@@ -748,12 +757,12 @@ async function queryUploadedFile() {
   if (!state.selectedFile) return toast('请先上传文件');
   try {
     const rows = await readWorkbookRows(state.selectedFile);
-    const normalized = normalizeImportedRows(rows);
+    const normalized = normalizeImportedRows(rows, $('#file-platform')?.value || '');
     if (normalized.tooMany) return toast('单次最多支持 500 条');
     state.fileRows = normalized.rows;
     const validRows = state.fileRows.filter(row => row.validationStatus === 'ok');
     if (!state.fileRows.length) return toast('文件内容为空');
-    const resolved = resolveRows(validRows.map(row => ({ index: row.index, platformId: row.platformId, name: row.name })));
+    const resolved = resolveRows(validRows.map(row => ({ index: row.index, platformId: row.platformId, name: row.passportId })));
     const resolvedByIndex = new Map(resolved.map(row => [row.index, row]));
     state.fileResults = state.fileRows.map(row => {
       if (row.validationStatus !== 'ok') {
@@ -785,19 +794,16 @@ function renderUploadedFile(fileName) {
   host.innerHTML = `<span>${escapeHtml(fileName)}</span><button class="file-remove" type="button" aria-label="移除文件">×</button>`;
   host.querySelector('.file-remove').addEventListener('click', clearFileState);
 }
-function normalizeImportedRows(rawRows) {
+function normalizeImportedRows(rawRows, selectedPlatformId) {
   const header = (rawRows[0] || []).map(cell => String(cell || '').trim());
   const platformIndex = findHeaderIndex(header, ['平台', '平台名称']);
-  const nameIndex = findHeaderIndex(header, ['通行证名称', '输入名称', '账号名称']);
-  if (platformIndex < 0 || nameIndex < 0) {
-    throw new Error('请使用包含“平台”和“通行证名称/输入名称”的 Excel 文件');
-  }
+  const idIndex = findHeaderIndex(header, ['通行证ID', '通行证 ID', '冰川通行证ID', '冰川通行证 ID']);
   const rows = [];
   for (const raw of rawRows.slice(1)) {
-    const platformRaw = String(raw[platformIndex] || '').trim();
-    const name = String(raw[nameIndex] || '').trim();
-    if (!platformRaw && !name) continue;
-    rows.push(validateImportedRow(rows.length, platformRaw, name));
+    const platformRaw = platformIndex >= 0 ? String(raw[platformIndex] || '').trim() : '';
+    const passportId = idIndex >= 0 ? String(raw[idIndex] || '').trim() : '';
+    if (!platformRaw && !passportId) continue;
+    rows.push(validateImportedRow(rows.length, platformRaw, passportId, selectedPlatformId));
   }
   return { tooMany: rows.length > MAX_ROWS, rows };
 }
@@ -806,29 +812,26 @@ function findHeaderIndex(header, aliases) {
   return header.findIndex(cell => aliases.includes(cell));
 }
 
-function validateImportedRow(index, platformRaw, name) {
-  const platform = platforms.find(item => item.name === platformRaw || item.id === platformRaw);
+function validateImportedRow(index, platformRaw, passportId, selectedPlatformId) {
+  const platform = platforms.find(item => item.name === platformRaw || item.id === platformRaw || item.id === selectedPlatformId);
   let validationStatus = 'ok';
   let validationMessage = '-';
-  if (!platformRaw) {
+  if (!passportId) {
     validationStatus = 'fail';
-    validationMessage = '平台为空';
+    validationMessage = '通行证ID为空';
   } else if (!platform) {
     validationStatus = 'fail';
     validationMessage = '平台不存在';
   } else if (!platform.allowed) {
     validationStatus = 'fail';
     validationMessage = '平台无权限';
-  } else if (!name) {
-    validationStatus = 'fail';
-    validationMessage = '通行证名称为空';
   }
   return {
     index,
-    platformRaw,
-    platformId: platform ? platform.id : '',
-    platformName: platform ? platform.name : platformRaw,
-    name,
+    platformRaw: platformRaw || selectedPlatformId || '',
+    platformId: platform ? platform.id : (selectedPlatformId || ''),
+    platformName: platform ? platform.name : (selectedPlatformId ? (platforms.find(item => item.id === selectedPlatformId)?.name || selectedPlatformId) : platformRaw),
+    passportId,
     validationStatus,
     validationMessage
   };
@@ -889,12 +892,12 @@ function parseSheet(xml, shared) {
 
 async function downloadTemplate() {
   const rows = [
-    ['平台', '通行证名称'],
-    ['内网手游平台', 'name001'],
-    ['国内冰川平台', 'name004'],
-    ['港澳台平台', 'hmt_player']
+    ['通行证ID'],
+    ['10001'],
+    ['10003'],
+    ['88012026']
   ];
-  await downloadXlsx(rows, '通行证名称查ID导入模板.xlsx');
+  await downloadXlsx(rows, '通行证ID导入模板.xlsx');
 }
 
 async function exportResults(rows) {
@@ -996,9 +999,11 @@ init();
 
 
 
+
 </script>
 </body>
 </html>
+
 
 
 
