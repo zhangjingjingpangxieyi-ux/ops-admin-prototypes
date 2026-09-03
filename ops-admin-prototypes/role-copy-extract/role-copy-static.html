@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>角色复制 - 静态原型</title>
+  <style>
+    :root { --blue:#1890ff; --border:#e8e8e8; --muted:#8c8c8c; --text:#262626; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-width:960px; background:#f5f7fa; color:var(--text); font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",Arial,sans-serif; }
+    .content { min-height:100vh; padding:16px; background:#fff; }
+    .notice { padding:22px 20px 18px; background:#f5f5f5; color:#111; line-height:2.1; }
+    .notice strong { font-weight:600; }
+    .notice ol { margin:4px 0 0; padding-left:20px; }
+    .notice em { color:#f5222d; font-style:normal; }
+    .notice a { color:#1890ff; text-decoration:none; }
+    .notice a:hover { text-decoration:underline; }
+    .steps { display:flex; align-items:center; margin:30px 100px 30px; color:#333; }
+    .step { display:flex; align-items:center; white-space:nowrap; }
+    .step-number { display:grid; place-items:center; width:32px; height:32px; margin-right:9px; border:1px solid #d9d9d9; border-radius:50%; color:#999; background:#fff; }
+    .step.active .step-number, .step.done .step-number { color:#fff; background:var(--blue); border-color:var(--blue); }
+    .step.done .step-number::after { content:"✓"; font-size:18px; }
+    .step.done .step-number { font-size:0; }
+    .connector { flex:1; height:1px; margin:0 16px; background:#e8e8e8; }
+    .connector.active { background:var(--blue); }
+    .form-wrap { padding:0 10.5%; }
+    .row { display:flex; align-items:flex-start; min-height:56px; }
+    .label { width:140px; padding:6px 12px 0 0; text-align:right; color:#333; }
+    .required::before { content:"*"; margin-right:4px; color:#f5222d; }
+    .control { width:340px; position:relative; }
+    input, .select-trigger { width:100%; height:32px; border:1px solid #d9d9d9; border-radius:2px; background:#fff; color:#333; font:inherit; }
+    input { padding:4px 11px; outline:none; }
+    input:focus, .select-trigger.open { border-color:#40a9ff; box-shadow:0 0 0 2px rgba(24,144,255,.12); }
+    input:disabled { background:#f5f5f5; color:#bfbfbf; cursor:not-allowed; }
+    .select-trigger { display:flex; align-items:center; justify-content:space-between; padding:0 11px; cursor:pointer; }
+    .placeholder { color:#bfbfbf; }
+    .chevron { color:#bfbfbf; font-size:16px; }
+    .options { display:none; position:absolute; z-index:2; top:36px; left:0; width:100%; max-height:254px; overflow:auto; padding:4px 0; border:1px solid #e8e8e8; box-shadow:0 3px 6px rgba(0,0,0,.16); background:#fff; }
+    .options.show { display:block; }
+    .option { padding:6px 12px; cursor:pointer; }
+    .option:hover { background:#e6f7ff; }
+    .field-help { padding-top:5px; color:#8c8c8c; font-size:13px; }
+    .input-with-help { display:flex; align-items:flex-start; width:max-content; }
+    .input-with-help input { flex:0 0 340px; }
+    .input-with-help .field-help { margin-left:12px; padding-top:5px; white-space:nowrap; }
+    .passport-row { display:none; }
+    .passport-row.visible { display:flex; }
+    .mode-note { display:none; width:440px; margin:-7px 0 14px 140px; padding:8px 10px; border:1px solid #bae7ff; background:#e6f7ff; color:#0050b3; font-size:13px; }
+    .mode-note.visible { display:block; }
+    .file-button { display:inline-flex; align-items:center; height:32px; padding:0 14px; border:1px solid var(--blue); border-radius:2px; color:#fff; background:var(--blue); cursor:pointer; }
+    .file-button:hover, .primary:hover { background:#40a9ff; }
+    .file-name { margin-left:10px; color:#595959; }
+    .divider { height:1px; margin:10px 0 24px; background:#f0f0f0; }
+    .actions { display:flex; justify-content:flex-end; gap:24px; padding-right:32%; }
+    button { height:32px; padding:0 16px; border:1px solid #d9d9d9; border-radius:2px; color:#333; background:#fff; cursor:pointer; font:inherit; }
+    button.primary { color:#fff; border-color:var(--blue); background:var(--blue); }
+    button:disabled { color:rgba(0,0,0,.25); border-color:#d9d9d9; background:#f5f5f5; cursor:not-allowed; }
+    .result { display:none; }
+    .result.show, .form-view.hide { display:block; }
+    .form-view.hide { display:none; }
+    .summary { margin:0 0 24px; padding:15px 10px; background:#f5f5f5; line-height:1.8; }
+    .summary b { margin-left:4px; }
+    .progress { display:flex; align-items:center; gap:10px; margin:0 0 20px; }
+    .bar { height:8px; flex:1; overflow:hidden; border-radius:6px; background:#f0f0f0; }
+    .bar span { display:block; width:100%; height:100%; background:#1dd21d; }
+    table { width:100%; border-collapse:collapse; text-align:left; }
+    thead { background:#fafafa; }
+    th { font-weight:500; }
+    th, td { height:54px; padding:0 16px; border-bottom:1px solid #f0f0f0; }
+    .success { color:#389e0d; }
+    .success::before { content:"•"; padding-right:6px; font-size:20px; vertical-align:-1px; }
+    .complete { margin:30px 0 42px; text-align:center; font-size:16px; font-weight:600; }
+    .result-actions { text-align:center; }
+    .toast { position:fixed; right:32px; bottom:28px; display:none; padding:10px 16px; border-radius:2px; box-shadow:0 3px 10px rgba(0,0,0,.18); color:#fff; background:#52c41a; }
+    .toast.show { display:block; }
+    @media (max-width:1100px) { .form-wrap { padding:0 5%; } .steps { margin-left:30px; margin-right:30px; } }
+  </style>
+</head>
+<body>
+  <main class="content">
+    <section class="notice">
+      <strong>温馨提示：</strong>角色数据仅支持从外网导入内网或预演环境。
+      <ol>
+        <li>请于外网区服选择需要复制的角色，在 <em>角色管理-角色查询/角色详情查询</em>并导出角色数据清单；</li>
+        <li>请选择目标区服并上传角色复制文件。未填写目标冰川通行证 ID 时，按复制角色数批量生成 Test 账号；</li>
+        <li>如需将角色导入预演服指定账号，请填写目标冰川通行证 ID，可点击“<a href="#" id="passportLookup">查询通行证 ID</a>”获取。指定账号模式仅支持单次复制，且可能覆盖该账号在同一区服下的原角色数据。</li>
+      </ol>
+    </section>
+    <section class="steps">
+      <div class="step active" id="stepOne"><span class="step-number">1</span><span>填写复制信息</span></div>
+      <div class="connector" id="stepConnector"></div>
+      <div class="step" id="stepTwo"><span class="step-number">2</span><span>复制进度</span></div>
+    </section>
+    <section class="form-view" id="formView">
+      <div class="form-wrap">
+        <div class="row"><div class="label required">目的区服</div><div class="control">
+          <div class="select-trigger" id="serverSelect"><span class="placeholder" id="serverText">请选择区服</span><span class="chevron">⌄</span></div>
+          <div class="options" id="serverOptions"></div>
+        </div></div>
+        <div class="row passport-row visible" id="passportRow"><div class="label">目标冰川通行证 ID</div><div class="control"><div class="input-with-help"><input id="passport" placeholder="请选择预演服后填写" inputmode="numeric" disabled><div class="field-help" id="passportHelp">仅预演服支持指定目标冰川通行证 ID。</div></div></div></div>
+        <div class="mode-note" id="modeNote">指定账号模式仅支持单次复制；如该通行证在同一区服下已有关联角色，复制后将覆盖原角色数据。</div>
+        <div class="row"><div class="label required">复制角色数</div><div class="control"><div class="input-with-help"><input id="count" placeholder="请输入" inputmode="numeric"><div class="field-help" id="countHelp">导入成功后，请使用生成的游戏账号登录内网游戏，无需密码。</div></div></div></div>
+        <div class="row"><div class="label required">上传源角色</div><div class="control"><label class="file-button" for="file">选择文件</label><input id="file" type="file" hidden><span class="file-name" id="fileName"></span><div class="field-help">仅限导入外网角色数据，文件大小为50M以内</div></div></div>
+        <div class="divider"></div><div class="actions"><button id="reset">重 置</button><button class="primary" id="submit" disabled>确定复制</button></div>
+      </div>
+    </section>
+    <section class="result" id="resultView">
+      <div class="summary">目标服务器：<b id="resultServer"></b><br>导出角色数量：<b>1个</b><br><span id="passportSummary"></span></div>
+      <div class="progress"><div class="bar"><span></span></div><span>1 / 1</span></div>
+      <table><thead><tr><th>序号</th><th>游戏账号</th><th>目标冰川通行证 ID</th><th>角色名称</th><th>角色ID</th><th>状态</th></tr></thead>
+      <tbody><tr><td>1</td><td id="gameAccount">test10793</td><td id="resultPassport">-</td><td>test23637</td><td>23637</td><td class="success">成功</td></tr></tbody></table>
+      <div class="complete">所有角色复制完成！复制成功的角色已同步至目标环境</div>
+      <div class="result-actions"><button class="primary" id="download">下载复制结果</button><button id="back" style="margin-left:44px">返回重新复制</button></div>
+    </section>
+  </main>
+  <div class="toast" id="toast">已生成本地复制结果</div>
+  <script>
+    const servers = ['1008国内-江和鹏(1008)','1229服(1229)','1291-彭虹森(1291)','1422国内主干-曾俊铭(1422)','1423国内分支-曾俊铭(1423)','1518国内-丁一笑(1518)','平台IT测试用(1919)','平台IT测试用-2(1920)','平台IT测试用-3(1921)','1922(1922)'];
+    const previewServer = '1229服(1229)';
+    const $ = id => document.getElementById(id);
+    let selectedServer = '';
+    $('serverOptions').innerHTML = servers.map(name => `<div class="option" data-server="${name}">${name}</div>`).join('');
+    function isPreview() { return selectedServer === previewServer; }
+    function updateMode() {
+      const preview = isPreview();
+      const batchMode = preview && Number($('count').value) > 1;
+      if (!preview || batchMode) $('passport').value = '';
+      $('passport').disabled = !preview || batchMode;
+      $('passport').placeholder = !preview ? '请选择预演服后填写' : batchMode ? '批量复制时不可填写' : '请输入目标冰川通行证 ID';
+      $('passportHelp').textContent = !preview ? '仅预演服支持指定目标冰川通行证 ID。' : batchMode ? '复制角色数大于 1 时，仅支持批量生成 Test 账号。' : '导入成功后，请使用该通行证对应的账密登录预演服。';
+      $('modeNote').classList.toggle('visible', preview && !!$('passport').value.trim());
+      $('count').disabled = preview && !!$('passport').value.trim();
+      if (preview && $('passport').value.trim()) { $('count').value = '1'; $('countHelp').textContent = '指定通行证时仅支持单次复制'; }
+      else if (batchMode) { $('countHelp').textContent = '已启用批量生成 Test 账号模式'; }
+      else { $('countHelp').textContent = preview ? '未指定通行证时，可批量生成 Test 账号。' : '导入成功后，请使用生成的游戏账号登录内网游戏，无需密码。'; }
+      validate();
+    }
+    function validate() { const ready = !!selectedServer && !!$('file').files.length && (isPreview() ? (!!$('passport').value.trim() || !!$('count').value.trim()) : !!$('count').value.trim()); $('submit').disabled = !ready; }
+    $('serverSelect').onclick = () => { $('serverOptions').classList.toggle('show'); $('serverSelect').classList.toggle('open'); };
+    $('passportLookup').onclick = e => e.preventDefault();
+    $('serverOptions').onclick = e => { const item = e.target.closest('.option'); if (!item) return; selectedServer = item.dataset.server; $('serverText').textContent = selectedServer; $('serverText').classList.remove('placeholder'); $('serverOptions').classList.remove('show'); $('serverSelect').classList.remove('open'); updateMode(); };
+    $('passport').oninput = updateMode; $('count').oninput = updateMode;
+    $('file').onchange = () => { $('fileName').textContent = $('file').files[0]?.name || ''; validate(); };
+    $('reset').onclick = () => { selectedServer=''; $('serverText').textContent='请选择区服'; $('serverText').classList.add('placeholder'); $('file').value=''; $('fileName').textContent=''; $('passport').value=''; $('count').value=''; updateMode(); };
+    $('submit').onclick = () => { const passport = $('passport').value.trim(); $('resultServer').textContent = selectedServer; $('resultPassport').textContent = passport || '-'; $('passportSummary').textContent = passport ? `目标冰川通行证 ID：${passport}` : ''; $('gameAccount').textContent = passport ? 'game10793' : 'test10793'; $('formView').classList.add('hide'); $('resultView').classList.add('show'); $('stepOne').className='step done'; $('stepConnector').className='connector active'; $('stepTwo').className='step active'; $('toast').classList.add('show'); setTimeout(()=> $('toast').classList.remove('show'), 2000); };
+    $('back').onclick = () => { $('resultView').classList.remove('show'); $('formView').classList.remove('hide'); $('stepOne').className='step active'; $('stepConnector').className='connector'; $('stepTwo').className='step'; };
+    $('download').onclick = () => { const blob = new Blob(['游戏账号,目标冰川通行证ID,角色名称,角色ID,状态\\n'+$('gameAccount').textContent+','+$('resultPassport').textContent+',test23637,23637,成功'], {type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='角色复制结果.csv'; a.click(); URL.revokeObjectURL(a.href); };
+  </script>
+</body>
+</html>
