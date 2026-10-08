@@ -13,5 +13,6 @@
 - 角色物品回收：`pages/recycle/role-item-recycle.html`
 - 调查问卷：`pages/survey/survey-questionnaire.html`
 - 问卷数据统计：`pages/survey/survey-stats.html`
+- 客服渠道人员配置：`ops-admin-prototypes/channel-staff-config/staff-channel-list.html`
 
 后续新增功能时，优先按业务域创建目录，并同步更新根目录 `index.html`。
