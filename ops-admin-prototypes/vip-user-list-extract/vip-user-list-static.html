@@ -259,9 +259,9 @@ const fieldHelp = {
     ['配置来源','由SDK管理后台配置的客服方案ID产生。']
   ]},
   responsible_staff:{title:'负责客服',items:[
-    ['字段含义','用于VIP用户后续维护、跟进和支撑人员的匹配管理；客服可根据负责关系维护VIP用户情况并更新记录。'],
+    ['字段含义','展示负责该VIP后续维护、跟进和支撑的客服人员，按所属渠道的绑定关系匹配；未绑定客服时为空。'],
     ['配置入口','在「客服渠道配置」菜单中，配置客服与当前项目版本渠道的绑定关系。'],
-    ['权限说明','非本人负责渠道的VIP用户，其定制或私密信息显示“无查看权限”，不可查询或编辑；拥有全部渠道查看及编辑权限的人员不受渠道范围限制。']
+    ['权限说明','当前用户在本项目版本未配置渠道绑定时，默认可查看所有渠道的定制信息；配置后，仅可查看定制信息及编辑绑定渠道的VIP记录，其他渠道定制字段显示“无查看权限”，编辑按钮置灰。具体字段仍遵循原有编辑权限和只读规则。']
   ]},
   userfreeze:{title:'账号状态',items:[
     ['字段含义','表示账号是否被封禁。'],
@@ -541,7 +541,7 @@ function wireActiveControls(){
   const toolbar=icons[0]?.parentElement.parentElement;
   const card=table.closest('[id^=q1-antd-table-card]')||table.closest('.ant-card-body')||table.parentElement.parentElement.parentElement.parentElement;
   card.classList.add('table-card');
-  const tools=document.createElement('div');tools.className='prototype-tools';tools.innerHTML='<span class="mode-label" id="mode-label"></span><span class="extension-legend"><i aria-hidden="true"></i>扩展字段</span><span class="permission-demo-note">当前演示客服：林夏（仅负责渠道A，无全渠道权限） · 表头 ? 可查看字段说明</span><label><input type="checkbox" id="demo-toggle">加载演示数据</label><button class="link-btn" id="restore-demo">重置演示</button>';
+  const tools=document.createElement('div');tools.className='prototype-tools';tools.innerHTML='<span class="mode-label" id="mode-label"></span><span class="extension-legend"><i aria-hidden="true"></i>扩展字段</span><span class="permission-demo-note">当前演示客服：林夏（本项目版本已绑定渠道A） · 表头 ? 可查看字段说明</span><label><input type="checkbox" id="demo-toggle">加载演示数据</label><button class="link-btn" id="restore-demo">重置演示</button>';
   card.prepend(tools);
   icons.forEach(icon=>{const name=icon.getAttribute('aria-label');const button=document.createElement('button');button.className='table-icon';button.type='button';button.title=({'download':'导出本地CSV','column-height':'表格密度','setting':'列设置'})[name];button.setAttribute('aria-label',button.title);icon.replaceWith(button);button.append(icon);button.onclick=()=>{
     if(name==='download'){downloadCsv();return;}
