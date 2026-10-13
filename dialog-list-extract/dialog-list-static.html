@@ -8407,20 +8407,20 @@ ul, ul:focus { list-style-type: none; }
           return item;
         };
         const sceneDefinitions = [
-          { id: '1', name: '不分区内容弹窗', help: '无需选择素材位，内容作为一组提供给游戏。推荐用于拍脸图、弹屏、普通活动弹窗等；具体展示方式由游戏决定。' },
-          { id: '2', name: '分区内容弹窗', help: '每条记录需选择素材位，同一素材位下可配置多条内容。推荐用于多 Tab 弹窗、多内容区域等；具体展示方式由游戏决定。' }
+          { id: '1', name: '普通弹窗', help: '无需选择素材位，内容作为一组提供给游戏。推荐用于拍脸图、弹屏、普通活动弹窗等；具体展示方式由游戏决定。' },
+          { id: '2', name: '多内容区弹窗', help: '每条记录需选择素材位，同一素材位下可配置多条内容。推荐用于多 Tab 弹窗、多内容区域等；具体展示方式由游戏决定。' }
         ];
         const enabledSceneIds = new Set((view.getAttribute('data-enabled-scene-ids') ?? '1,2').split(',').map((id) => id.trim()).filter(Boolean));
         const availableScenes = sceneDefinitions.filter((definition) => enabledSceneIds.has(definition.id));
         const helpIcon = (label, content) => `<button type="button" class="replay-help-icon" aria-label="${label}">?<span class="replay-help-pop" role="tooltip">${content}</span></button>`;
         const sceneOptions = availableScenes.map((definition, index) => `<span class="replay-scene-choice"><label class="ant-radio-wrapper${index === 0 ? ' ant-radio-wrapper-checked' : ''}"><span class="ant-radio${index === 0 ? ' ant-radio-checked' : ''}"><input type="radio" class="ant-radio-input" name="${prefix}-scene" value="${definition.id}"${index === 0 ? ' checked' : ''} aria-label="${definition.name}"><span class="ant-radio-inner"></span></span><span>${definition.name}</span></label>${helpIcon(`${definition.name}使用说明`, definition.help)}</span>`).join('');
         const scene = field('使用场景', availableScenes.length ? `<div class="replay-scene-options" role="radiogroup" aria-label="使用场景">${sceneOptions}</div>` : '<span class="replay-scene-empty">当前游戏未配置使用场景，请联系平台配置。</span>');
-        scene.querySelector('.ant-form-item-label').insertAdjacentHTML('beforeend', helpIcon('使用场景说明', '每条弹窗记录选择一个使用场景。平台支持不分区内容弹窗和分区内容弹窗两种配置方式；分区内容弹窗可按素材位配置多组内容，适用于多 Tab 等展示需求。如需开通，请联系平台。'));
+        scene.querySelector('.ant-form-item-label').insertAdjacentHTML('beforeend', helpIcon('使用场景说明', '每条弹窗记录选择一个使用场景。平台支持普通弹窗和多内容区弹窗两种配置方式；多内容区弹窗可按素材位配置多组内容，适用于多 Tab 等展示需求。如需开通，请联系平台。'));
         form.classList.toggle('has-face', availableScenes[0]?.id === '1');
         form.classList.toggle('has-welfare', availableScenes[0]?.id === '2');
         name.before(scene);
         const slot = field('素材位', `<select class="replay-slot-select" aria-label="素材位"><option value="">请选择素材位</option><option value="1">福利中心</option><option value="2">官方资讯</option><option value="3">社区专区</option></select>`, 'replay-scene-only');
-        type.before(slot);
+        name.before(slot);
         const order = field('素材排序', `<div class="ant-input-number replay-scene-input" style="width:120px"><div class="ant-input-number-input-wrap"><input class="ant-input-number-input" id="${prefix}-scene-order" aria-label="素材排序" type="number" min="0" max="100" value="0"></div></div>`, 'replay-scene-only');
         faceOrder.after(order);
         image.classList.add('replay-image-row');
@@ -8460,7 +8460,7 @@ ul, ul:focus { list-style-type: none; }
         filters.className = filters.className.replace(/filter-box__item__display-none__\d+/, '').trim();
         const combinedFilter = document.createElement('div');
         combinedFilter.className = 'ant-row ant-form-item filterbox-item-nomarl filter-col-xl-6 pdrt-10 filter-box-custom replay-combined-filter';
-        combinedFilter.innerHTML = `<div class="ant-col ant-form-item-control"><div class="ant-form-item-control-input"><div class="ant-form-item-control-input-content"><div class="replay-combined-filter-controls"><select id="${view.dataset.view}-scene-filter" aria-label="使用场景"><option value="">使用场景</option><option value="1">不分区内容弹窗</option><option value="2">分区内容弹窗</option></select><select id="${view.dataset.view}-slot-filter" aria-label="素材位"><option value="">素材位</option><option value="1">福利中心</option><option value="2">官方资讯</option><option value="3">社区专区</option></select></div></div></div></div>`;
+        combinedFilter.innerHTML = `<div class="ant-col ant-form-item-control"><div class="ant-form-item-control-input"><div class="ant-form-item-control-input-content"><div class="replay-combined-filter-controls"><select id="${view.dataset.view}-scene-filter" aria-label="使用场景"><option value="">使用场景</option><option value="1">普通弹窗</option><option value="2">多内容区弹窗</option></select><select id="${view.dataset.view}-slot-filter" aria-label="素材位"><option value="">素材位</option><option value="1">福利中心</option><option value="2">官方资讯</option><option value="3">社区专区</option></select></div></div></div></div>`;
         filters.querySelector('.filterbox-item-btn')?.before(combinedFilter);
         const sceneSelect = combinedFilter.querySelector('select[aria-label="使用场景"]');
         const slotSelect = combinedFilter.querySelector('select[aria-label="素材位"]');
@@ -8500,7 +8500,7 @@ ul, ul:focus { list-style-type: none; }
           const demoSlot = index < (view.dataset.view === 'audit' ? 2 : 3) ? String(index + 1) : '';
           row.dataset.sceneId = demoSlot ? '2' : '1';
           row.dataset.slotId = demoSlot;
-          const values = [demoSlot ? '分区内容弹窗' : '不分区内容弹窗', demoSlot ? ['', '福利中心', '官方资讯', '社区专区'][Number(demoSlot)] : '—'];
+          const values = [demoSlot ? '多内容区弹窗' : '普通弹窗', demoSlot ? ['', '福利中心', '官方资讯', '社区专区'][Number(demoSlot)] : '—'];
           let previous = row.children[statusIndex];
           values.forEach((value) => {
             const td = document.createElement('td');
