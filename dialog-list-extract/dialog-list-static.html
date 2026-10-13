@@ -8189,6 +8189,8 @@ ul, ul:focus { list-style-type: none; }
     .replay-view { display: none; padding: 0 12px 48px; }
     .replay-view.active { display: block; }
     .replay-view .q1-content { min-height: 100vh; width: auto !important; margin: 0 !important; }
+    html:has(.replay-view.active[data-view="create"]), html:has(.replay-view.active[data-view="edit"]), body:has(.replay-view.active[data-view="create"]), body:has(.replay-view.active[data-view="edit"]) { height: auto !important; min-height: 100%; overflow-y: auto !important; }
+    .replay-view.active[data-view="create"] .q1-content, .replay-view.active[data-view="edit"] .q1-content { height: auto !important; max-height: none !important; overflow: visible !important; }
     .q1-header, .q1-sider, .q1-tag, .q1-sider-backdrop, .q1-resize, .feedback-tab, .q1-container > .ant-layout-sider { display: none !important; }
     .ant-spin-nested-loading > div > .ant-spin { display: none !important; }
     .ant-table-wrapper, .ant-table { max-width: 100%; }
