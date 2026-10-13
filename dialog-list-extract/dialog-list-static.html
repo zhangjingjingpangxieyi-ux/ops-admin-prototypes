@@ -8209,11 +8209,33 @@ ul, ul:focus { list-style-type: none; }
     .replay-watermark { display: none; }
     .replay-view[data-view="create"] .ant-form-item, .replay-view[data-view="edit"] .ant-form-item { display: flex; align-items: flex-start; }
     .replay-view[data-view="create"] .ant-form-item-label, .replay-view[data-view="edit"] .ant-form-item-label { flex: 0 0 150px; max-width: 150px; width: 150px !important; text-align: right; padding-right: 8px; }
+    .replay-view[data-view="create"] .replay-scene-form .ant-form-item-label, .replay-view[data-view="edit"] .replay-scene-form .ant-form-item-label { overflow: visible; }
     .replay-view[data-view="create"] .ant-form-item-label > label, .replay-view[data-view="edit"] .ant-form-item-label > label { min-height: 32px; display: inline-flex; align-items: center; white-space: normal; }
     .replay-view[data-view="create"] .ant-form-item-control, .replay-view[data-view="edit"] .ant-form-item-control { flex: 1 1 auto; max-width: none; }
     .replay-view[data-view="create"] .ant-input, .replay-view[data-view="edit"] .ant-input { max-width: 100%; }
     .replay-view[data-view="create"] .ant-input-number-handler-wrap, .replay-view[data-view="edit"] .ant-input-number-handler-wrap { display: none !important; }
     .replay-view[data-view="create"] .ant-input-number-input, .replay-view[data-view="edit"] .ant-input-number-input { padding-right: 11px !important; }
+    .replay-scene-options { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; min-height: 32px; }
+    .replay-scene-options .ant-radio-wrapper { margin: 0; }
+    .replay-scene-choice { display: inline-flex; align-items: center; gap: 5px; }
+    .replay-help-icon { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; padding: 0; border: 1px solid #91a3b7; border-radius: 50%; background: #fff; color: #718399; font-size: 11px; line-height: 1; cursor: help; vertical-align: middle; }
+    .replay-help-icon:hover, .replay-help-icon:focus { border-color: #1890ff; color: #1890ff; outline: none; }
+    .replay-help-pop { display: none; position: absolute; z-index: 30; top: 23px; left: 0; width: 300px; padding: 9px 12px; border: 1px solid #d9d9d9; border-radius: 2px; box-shadow: 0 3px 8px rgba(0,0,0,.14); background: #fff; color: rgba(0,0,0,.75); text-align: left; white-space: normal; font-size: 12px; font-weight: 400; line-height: 1.6; pointer-events: none; }
+    .replay-help-icon:hover .replay-help-pop, .replay-help-icon:focus .replay-help-pop { display: block; }
+    .replay-scene-empty { color: rgba(0,0,0,.45); font-size: 12px; line-height: 32px; }
+    .replay-slot-select { width: 320px; max-width: 100%; height: 32px; padding: 4px 11px; color: rgba(0,0,0,.85); background: #fff; border: 1px solid #d9d9d9; border-radius: 2px; outline: none; }
+    .replay-slot-select:focus { border-color: #40a9ff; box-shadow: 0 0 0 2px rgba(24,144,255,.2); }
+    .replay-view[data-view="create"] .replay-scene-form .replay-scene-only, .replay-view[data-view="edit"] .replay-scene-form .replay-scene-only { display: none; }
+    .replay-view[data-view="create"] .replay-scene-form.has-welfare .replay-scene-only, .replay-view[data-view="edit"] .replay-scene-form.has-welfare .replay-scene-only { display: flex; }
+    .replay-scene-form .replay-scene-input { max-width: 420px !important; }
+    .replay-combined-filter .ant-form-item-control, .replay-combined-filter .ant-form-item-control-input, .replay-combined-filter .ant-form-item-control-input-content { width: 100%; min-width: 0; }
+    .replay-combined-filter-controls { display: flex; width: 100%; height: 32px; }
+    .replay-combined-filter-controls select { min-width: 0; height: 32px; padding: 4px 24px 4px 11px; border: 1px solid #d9d9d9; border-radius: 0; background: #fff; color: rgba(0,0,0,.85); font-size: 14px; outline: 0; }
+    .replay-combined-filter-controls select:first-child { flex: 0 0 44%; border-radius: 2px 0 0 2px; }
+    .replay-combined-filter-controls select:last-child { flex: 1 1 56%; margin-left: -1px; border-radius: 0 2px 2px 0; }
+    .replay-combined-filter-controls select:focus { position: relative; z-index: 1; border-color: #40a9ff; box-shadow: 0 0 0 2px rgba(24,144,255,.2); }
+    .replay-combined-filter-controls select:disabled { background: #f5f5f5; color: rgba(0,0,0,.25); cursor: not-allowed; }
+    .replay-list-filter-empty td { padding: 30px 16px !important; text-align: center !important; color: rgba(0,0,0,.45); }
     .replay-view[data-view="audit"] .replay-audit-actions { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
     .replay-view[data-view="audit"] .replay-audit-actions .ant-btn-link { padding: 0; height: auto; }
     .replay-audit-modal-wrap { position: fixed; inset: 0; z-index: 2600; display: none; }
@@ -8262,6 +8284,7 @@ ul, ul:focus { list-style-type: none; }
             <tr><th></th><td colspan="3"><span class="replay-audit-section"></span></td></tr>
             <tr><th>弹窗ID</th><td data-audit-field="id">121</td><th>弹窗名称</th><td data-audit-field="name">11</td></tr>
             <tr><th>弹窗类型</th><td data-audit-field="type">单页</td><th>审核状态</th><td>待审核</td></tr>
+            <tr><th>使用场景</th><td data-audit-field="scene">—</td><th>素材位</th><td data-audit-field="slot">—</td></tr>
             <tr><th>弹窗内容</th><td colspan="3" data-audit-field="content">手动添加区服-1101、1103合并国内-叶佳彬</td></tr>
             <tr><th>区服</th><td colspan="3" data-audit-field="server">手动添加区服-1101、1103合并国内-叶佳彬、1120合并国内分支-吴泳发、1212合并国内主干-刘苏鹏</td></tr>
             <tr><th>渠道</th><td data-audit-field="channel">所有渠道</td><th>对外状态</th><td data-audit-field="status">待审核</td></tr>
@@ -8303,22 +8326,25 @@ ul, ul:focus { list-style-type: none; }
       const modal = document.getElementById("auditModal");
       if (!modal) return;
       const row = source && source.closest("tr.ant-table-row");
-      const cells = row ? [...row.querySelectorAll("td")] : [];
-      const cellText = (index) => (cells[index] ? cells[index].innerText.replace(/s+/g, " ").trim() : "");
+      const cells = row ? [...row.querySelectorAll("td")].filter((cell) => !cell.classList.contains('replay-scene-column')) : [];
+      const cellText = (index) => (cells[index] ? cells[index].innerText.replace(/\s+/g, " ").trim() : "");
       const htmlText = (index) => (cells[index] ? cells[index].innerHTML : "");
-      setAuditField("id", cellText(0));
-      setAuditField("name", cellText(1));
-      setAuditField("type", cellText(2).split(/s+/)[0] || "单页");
-      setAuditField("content", cellText(5) || cellText(1));
-      setAuditField("server", cellText(5));
-      setAuditField("channel", cellText(6) || "所有渠道");
-      setAuditField("status", cellText(3) || "待审核");
-      setAuditField("time", (cellText(4) || "").replace(/结束时间/g, String.fromCharCode(10) + "结束时间"));
-      setAuditField("rule", cellText(11) || "每次登录");
-      setAuditField("count", cellText(12) || "1");
-      const opText = cellText(13);
-      const submitTime = (opText.match(/d{4}-d{2}-d{2}s+d{2}:d{2}:d{2}/) || [""])[0];
-      setAuditField("operator", opText.replace(/操作人：?/, "").replace(/d{4}-d{2}-d{2}.*/, "").trim() || "张静");
+      setAuditField("id", cellText(1));
+      setAuditField("name", cellText(2));
+      setAuditField("type", cellText(3).split(/\s+/)[0] || "单页");
+      const scenarioCells = row ? [...row.querySelectorAll('td.replay-scene-column')] : [];
+      setAuditField("scene", scenarioCells[0]?.textContent.trim() || '—');
+      setAuditField("slot", scenarioCells[1]?.textContent.trim() || '—');
+      setAuditField("content", cellText(3) || cellText(2));
+      setAuditField("server", cellText(6));
+      setAuditField("channel", cellText(7) || "所有渠道");
+      setAuditField("status", cellText(4) || "待审核");
+      setAuditField("time", (cellText(5) || "").replace(/结束时间/g, String.fromCharCode(10) + "结束时间"));
+      setAuditField("rule", cellText(12) || "每次登录");
+      setAuditField("count", cellText(13) || "1");
+      const opText = cellText(14);
+      const submitTime = (opText.match(/\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}/) || [""])[0];
+      setAuditField("operator", opText.replace(/操作人：?/, "").replace(/\d{4}-\d{2}-\d{2}.*/, "").trim() || "张静");
       setAuditField("submitTime", submitTime || "2026-07-07 17:00:54");
       modal.classList.add("active");
       modal.setAttribute("aria-hidden", "false");
@@ -8360,6 +8386,168 @@ ul, ul:focus { list-style-type: none; }
       });
     }
 
+    function enhanceScenarioForms() {
+      document.querySelectorAll('.replay-view[data-view="create"], .replay-view[data-view="edit"]').forEach((view) => {
+        const form = view.querySelector('form.ant-form');
+        if (!form || form.classList.contains('replay-scene-form')) return;
+        form.classList.add('replay-scene-form');
+        const fields = [...form.querySelectorAll('.ant-form-item')];
+        const byLabel = (name) => fields.find((item) => item.querySelector('.ant-form-item-label label')?.textContent.trim() === name);
+        const name = byLabel('弹窗名称');
+        const type = byLabel('弹窗类型');
+        const image = byLabel('轮播图路径和排序');
+        const frequency = byLabel('弹窗频率');
+        const faceOrder = byLabel('多弹窗时展示顺序');
+        if (!name || !type || !image || !frequency || !faceOrder) return;
+        const prefix = view.dataset.view;
+        const field = (label, control, extraClass = '') => {
+          const item = document.createElement('div');
+          item.className = `ant-row ant-form-item ${extraClass}`;
+          item.innerHTML = `<div class="ant-col ant-col-4 ant-form-item-label"><label class="ant-form-item-required">${label}</label></div><div class="ant-col ant-form-item-control"><div class="ant-form-item-control-input"><div class="ant-form-item-control-input-content">${control}</div></div></div>`;
+          return item;
+        };
+        const sceneDefinitions = [
+          { id: '1', name: '不分区内容弹窗', help: '无需选择素材位，内容作为一组提供给游戏。推荐用于拍脸图、弹屏、普通活动弹窗等；具体展示方式由游戏决定。' },
+          { id: '2', name: '分区内容弹窗', help: '每条记录需选择素材位，同一素材位下可配置多条内容。推荐用于多 Tab 弹窗、多内容区域等；具体展示方式由游戏决定。' }
+        ];
+        const enabledSceneIds = new Set((view.getAttribute('data-enabled-scene-ids') ?? '1,2').split(',').map((id) => id.trim()).filter(Boolean));
+        const availableScenes = sceneDefinitions.filter((definition) => enabledSceneIds.has(definition.id));
+        const helpIcon = (label, content) => `<button type="button" class="replay-help-icon" aria-label="${label}">?<span class="replay-help-pop" role="tooltip">${content}</span></button>`;
+        const sceneOptions = availableScenes.map((definition, index) => `<span class="replay-scene-choice"><label class="ant-radio-wrapper${index === 0 ? ' ant-radio-wrapper-checked' : ''}"><span class="ant-radio${index === 0 ? ' ant-radio-checked' : ''}"><input type="radio" class="ant-radio-input" name="${prefix}-scene" value="${definition.id}"${index === 0 ? ' checked' : ''} aria-label="${definition.name}"><span class="ant-radio-inner"></span></span><span>${definition.name}</span></label>${helpIcon(`${definition.name}使用说明`, definition.help)}</span>`).join('');
+        const scene = field('使用场景', availableScenes.length ? `<div class="replay-scene-options" role="radiogroup" aria-label="使用场景">${sceneOptions}</div>` : '<span class="replay-scene-empty">当前游戏未配置使用场景，请联系平台配置。</span>');
+        scene.querySelector('.ant-form-item-label').insertAdjacentHTML('beforeend', helpIcon('使用场景说明', '每条弹窗记录选择一个使用场景。平台支持不分区内容弹窗和分区内容弹窗两种配置方式；分区内容弹窗可按素材位配置多组内容，适用于多 Tab 等展示需求。如需开通，请联系平台。'));
+        form.classList.toggle('has-face', availableScenes[0]?.id === '1');
+        form.classList.toggle('has-welfare', availableScenes[0]?.id === '2');
+        name.before(scene);
+        const slot = field('素材位', `<select class="replay-slot-select" aria-label="素材位"><option value="">请选择素材位</option><option value="1">福利中心</option><option value="2">官方资讯</option><option value="3">社区专区</option></select>`, 'replay-scene-only');
+        type.before(slot);
+        const order = field('素材排序', `<div class="ant-input-number replay-scene-input" style="width:120px"><div class="ant-input-number-input-wrap"><input class="ant-input-number-input" id="${prefix}-scene-order" aria-label="素材排序" type="number" min="0" max="100" value="0"></div></div>`, 'replay-scene-only');
+        faceOrder.after(order);
+        image.classList.add('replay-image-row');
+        image.dataset.originalLabel = image.querySelector('.ant-form-item-label label')?.textContent.trim() || '';
+        const syncScene = () => {
+          const face = scene.querySelector('input[value="1"]');
+          const welfare = scene.querySelector('input[value="2"]');
+          scene.querySelectorAll('.ant-radio').forEach((box) => {
+            const checked = box.querySelector('input').checked;
+            box.classList.toggle('ant-radio-checked', checked);
+            box.closest('.ant-radio-wrapper').classList.toggle('ant-radio-wrapper-checked', checked);
+          });
+          form.classList.toggle('has-face', !!face?.checked);
+          form.classList.toggle('has-welfare', !!welfare?.checked);
+          image.querySelector('.ant-form-item-label label').textContent = welfare?.checked ? '素材图片与跳转' : image.dataset.originalLabel;
+          const imageHeader = image.querySelector('th:nth-child(2)');
+          if (imageHeader) imageHeader.textContent = welfare?.checked ? '素材图片' : '资源列表';
+        };
+        scene.addEventListener('change', (event) => {
+          if (!event.target.matches('input[type="radio"]')) return;
+          syncScene();
+        });
+        syncScene();
+      });
+    }
+    function enhanceScenarioLists() {
+      document.querySelectorAll('.replay-view[data-view="list"], .replay-view[data-view="audit"]').forEach((view) => {
+        if (view.dataset.scenarioListReady) return;
+        const filters = view.querySelector('.filterbox-wrap');
+        const table = view.querySelector('.ant-table-container');
+        const headerTable = table?.querySelector('.ant-table-header table');
+        const bodyTable = table?.querySelector('.ant-table-body table');
+        const headerRow = headerTable?.querySelector('thead tr');
+        const tbody = bodyTable?.querySelector('tbody');
+        if (!filters || !headerRow || !tbody) return;
+        view.dataset.scenarioListReady = 'true';
+        filters.className = filters.className.replace(/filter-box__item__display-none__\d+/, '').trim();
+        const combinedFilter = document.createElement('div');
+        combinedFilter.className = 'ant-row ant-form-item filterbox-item-nomarl filter-col-xl-6 pdrt-10 filter-box-custom replay-combined-filter';
+        combinedFilter.innerHTML = `<div class="ant-col ant-form-item-control"><div class="ant-form-item-control-input"><div class="ant-form-item-control-input-content"><div class="replay-combined-filter-controls"><select id="${view.dataset.view}-scene-filter" aria-label="使用场景"><option value="">使用场景</option><option value="1">不分区内容弹窗</option><option value="2">分区内容弹窗</option></select><select id="${view.dataset.view}-slot-filter" aria-label="素材位"><option value="">素材位</option><option value="1">福利中心</option><option value="2">官方资讯</option><option value="3">社区专区</option></select></div></div></div></div>`;
+        filters.querySelector('.filterbox-item-btn')?.before(combinedFilter);
+        const sceneSelect = combinedFilter.querySelector('select[aria-label="使用场景"]');
+        const slotSelect = combinedFilter.querySelector('select[aria-label="素材位"]');
+        const syncSlotFilter = () => {
+          slotSelect.disabled = sceneSelect.value !== '2';
+          if (slotSelect.disabled) slotSelect.value = '';
+        };
+        sceneSelect.addEventListener('change', syncSlotFilter);
+        syncSlotFilter();
+        const statusIndex = [...headerRow.children].findIndex((cell) => /^(对外状态|审核状态)$/.test(cell.textContent.trim()));
+        if (statusIndex < 0) return;
+        const columns = [{ title: '使用场景', width: 150 }, { title: '素材位', width: 120 }];
+        [headerTable, bodyTable].forEach((currentTable) => {
+          const colgroup = currentTable.querySelector('colgroup');
+          const anchor = colgroup?.children[statusIndex];
+          if (!anchor) return;
+          let previous = anchor;
+          columns.forEach(({ width }) => {
+            const col = document.createElement('col');
+            col.style.width = `${width}px`;
+            col.style.minWidth = `${width}px`;
+            previous.after(col);
+            previous = col;
+          });
+        });
+        let previousHeader = headerRow.children[statusIndex];
+        columns.forEach(({ title }) => {
+          const th = document.createElement('th');
+          th.className = 'ant-table-cell replay-scene-column';
+          th.style.textAlign = 'left';
+          th.textContent = title;
+          previousHeader.after(th);
+          previousHeader = th;
+        });
+        [...tbody.querySelectorAll('tr.ant-table-row')].forEach((row, index) => {
+          // The captured records predate these fields. Give a few rows illustrative values for prototype review.
+          const demoSlot = index < (view.dataset.view === 'audit' ? 2 : 3) ? String(index + 1) : '';
+          row.dataset.sceneId = demoSlot ? '2' : '1';
+          row.dataset.slotId = demoSlot;
+          const values = [demoSlot ? '分区内容弹窗' : '不分区内容弹窗', demoSlot ? ['', '福利中心', '官方资讯', '社区专区'][Number(demoSlot)] : '—'];
+          let previous = row.children[statusIndex];
+          values.forEach((value) => {
+            const td = document.createElement('td');
+            td.className = 'ant-table-cell replay-scene-column';
+            td.style.textAlign = 'left';
+            td.textContent = value;
+            previous.after(td);
+            previous = td;
+          });
+        });
+        const originalWidth = parseFloat(bodyTable.style.width) || 0;
+        if (originalWidth) bodyTable.style.width = `${originalWidth + columns.reduce((sum, column) => sum + column.width, 0)}px`;
+        const empty = document.createElement('tr');
+        empty.className = 'replay-list-filter-empty';
+        empty.style.display = 'none';
+        empty.innerHTML = `<td colspan="${headerRow.children.length}">暂无符合条件的弹窗记录</td>`;
+        tbody.append(empty);
+        const applyFilters = () => {
+          let visible = 0;
+          tbody.querySelectorAll('tr.ant-table-row').forEach((row) => {
+            const match = (!sceneSelect.value || row.dataset.sceneId === sceneSelect.value) && (!slotSelect.value || row.dataset.slotId === slotSelect.value);
+            row.style.display = match ? '' : 'none';
+            if (match) visible++;
+          });
+          empty.style.display = visible ? 'none' : '';
+        };
+        view.querySelector('.filterbox-item-btn button')?.addEventListener('click', (event) => {
+          event.stopPropagation();
+          applyFilters();
+        });
+      });
+    }
+    function alignScenarioListColumns() {
+      const view = document.querySelector('.replay-view.active[data-scenario-list-ready]');
+      const header = view?.querySelector('.ant-table-header table');
+      const body = view?.querySelector('.ant-table-body table');
+      const row = body?.querySelector('tbody tr.ant-table-row');
+      if (!header || !body || !row) return;
+      const headerCols = [...header.querySelectorAll('colgroup col')];
+      [...row.children].forEach((cell, index) => {
+        const width = cell.getBoundingClientRect().width;
+        if (!headerCols[index] || !width) return;
+        headerCols[index].style.width = `${width}px`;
+        headerCols[index].style.minWidth = `${width}px`;
+      });
+      header.style.width = `${body.getBoundingClientRect().width + 6}px`;
+    }
     function setRoute(route) {
       state.route = route;
       location.hash = route;
@@ -8368,6 +8556,9 @@ ul, ul:focus { list-style-type: none; }
       enhanceAuditActions();
       enhanceListCopyActions();
       enhanceToolbar();
+      enhanceScenarioForms();
+      enhanceScenarioLists();
+      alignScenarioListColumns();
     }
     function toggleFilters() {
       const active = document.querySelector(".replay-view.active");
