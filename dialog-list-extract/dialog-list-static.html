@@ -8423,8 +8423,6 @@ ul, ul:focus { list-style-type: none; }
         name.before(scene);
         const slot = field('素材位', `<select class="replay-slot-select" aria-label="素材位"><option value="">请选择素材位</option><option value="1">福利中心</option><option value="2">官方资讯</option><option value="3">社区专区</option></select>`, 'replay-scene-only');
         name.before(slot);
-        const order = field('素材排序', `<div class="ant-input-number replay-scene-input" style="width:120px"><div class="ant-input-number-input-wrap"><input class="ant-input-number-input" id="${prefix}-scene-order" aria-label="素材排序" type="number" min="0" max="100" value="0"></div></div>`, 'replay-scene-only');
-        faceOrder.after(order);
         image.classList.add('replay-image-row');
         image.dataset.originalLabel = image.querySelector('.ant-form-item-label label')?.textContent.trim() || '';
         const syncScene = () => {
