@@ -50,7 +50,110 @@ main,#monitor-form,.body{height:auto;max-height:none;overflow:visible}
 <div class="row"><span class="label required">告警方式</span><div class="control"><div id="channels"></div><button type="button" id="add-channel" class="btn">＋ 添加告警方式</button></div></div>
 </div><div class="footer"><button type="submit" class="btn primary">提 交</button></div></form></main>
 <dialog id="dialog"><h3 id="dialog-title"></h3><pre id="dialog-text"></pre><div style="text-align:right"><button type="button" class="btn primary" id="close-dialog">关闭</button></div></dialog><div id="toast" class="toast" hidden role="status"></div>
-<script>(() => {
+<script>(function (root) {
+  'use strict';
+  const clone = value => JSON.parse(JSON.stringify(value));
+  const number = (code, name, min, unit) => ({field_code:code, field_name:name, component:'number', value_type:'integer', required:true, min, unit});
+  const operations = [
+    {business_code:'union_intervention', business_name:'联盟干预业务', operation_code:'union_dissolve', operation_name:'联盟解散', object_type:'union', object_fields:['server_id','union_id'], show_sort:false, parameter_schema:[]},
+    {business_code:'union_intervention', business_name:'联盟干预业务', operation_code:'union_kick', operation_name:'联盟踢人', object_type:'member', object_fields:['server_id','union_id','role_id'], show_sort:true, parameter_schema:[number('kick_limit','每个联盟最多处理',1,'人'),number('remain_member_limit','联盟至少保留',0,'人')]},
+    {business_code:'union_intervention', business_name:'联盟干预业务', operation_code:'union_position_change', operation_name:'阶级/职位变更', object_type:'member', object_fields:['server_id','union_id','role_id'], show_sort:true, parameter_schema:[{field_code:'target_rank',field_name:'目标阶级',component:'select',required:true,options:{R1:'R1',R2:'R2',R3:'R3',R4:'R4',R5:'R5'}},{field_code:'target_position',field_name:'目标职位',component:'select',required:true,depends_on:'target_rank',options_source:'union_position_dictionary'},number('appoint_count','每个联盟任命人数',1,'人')]},
+    {business_code:'union_intervention', business_name:'联盟干预业务', operation_code:'union_transfer', operation_name:'联盟变更', object_type:'member', object_fields:['server_id','union_id','role_id'], show_sort:true, parameter_schema:[{field_code:'target_union_mode',field_name:'目标联盟选择方式',component:'select',required:true,options:{rule:'按规则匹配',manual:'手动指定联盟'}},{field_code:'target_union_id',field_name:'目标联盟ID',component:'input',required:true,visible_when:{target_union_mode:'manual'}},...['start','end'].map((part,i)=>({...number('target_union_rank_'+part,'目标联盟排名'+(i?'结束':'起始'),1,''),visible_when:{target_union_mode:'rule'},...(i?{gte_field:'target_union_rank_start'}:{})})),{...number('target_union_remain_limit','目标剩余人数下限',0,'人'),visible_when:{target_union_mode:'rule'}},number('single_target_transfer_limit','单目标联盟迁入上限',1,'人'),{field_code:'assign_strategy',field_name:'分配策略',component:'select',required:true,visible_when:{target_union_mode:'rule'},options:{rank_first:'优先排名靠前',capacity_first:'优先剩余容量多',power_match:'按战力匹配'}}]}
+  ];
+  const extensions = ['12823','DEMO-UNION','DEMO-MEMBER'].map(report_id=>({report_id,action_code:'create_audit',action_name:'创建待审核记录',allowed_operation_codes:report_id==='DEMO-MEMBER'?['union_kick','union_position_change','union_transfer']:['union_dissolve']}));
+  const definitions = [
+    ['data_time','数据时间','datetime','context'],['time_zone','时区','string','context'],['server_id','区服ID','string','context'],['server_name','区服名称','string','context'],['union_id','联盟ID','string','union'],['union_name','联盟名称','string','union'],['role_id','角色ID','string','member'],['role_name','角色名称','string','member'],['open_days','开服天数','number','union'],['union_rank','联盟排名','number','union'],['union_member_count','联盟当前人数','number','union'],['union_active_count','联盟活跃人数','number','union'],['management_risk','管理风险度','enum','union'],['r4_count','当前R4人数','number','union'],['r4_online_count_24h','近24小时在线过的R4人数','number','union'],['leader_role_id','盟主角色ID','string','union'],['leader_name','盟主名称','string','union'],['leader_level','盟主等级','number','union'],['leader_recharge_total','盟主累计充值金额','number','union'],['leader_offline_hours','盟主离线时长','number','union'],['member_power','成员战力','number','member'],['member_offline_hours','成员离线时长','number','member'],['member_recharge_total','成员累计充值金额','number','member'],['member_is_online','成员在线状态','boolean','member'],['member_message_count','成员发言数量','number','member'],['member_rank','成员当前阶级','enum','member'],['member_position','成员当前职位','enum','member']
+  ].map(([code,name,type,level])=>({code,name,type,level}));
+  const memberRows = Array.from({length:10},(_,i)=>({data_time:'2026-10-14 05:00:00',time_zone:'Asia/Shanghai',server_id:'10001',server_name:'示例区服',union_id:i<5?'200101':'200102',union_name:i<5?'A联盟':'B联盟',role_id:String(30001+i),role_name:'成员'+(i+1),open_days:2,union_rank:i<5?10:25,union_member_count:100,union_active_count:30,management_risk:'risk',r4_count:0,r4_online_count_24h:0,leader_role_id:i<5?'30005':'30010',leader_name:i<5?'成员5':'成员10',leader_level:8,leader_recharge_total:0,leader_offline_hours:12,member_power:1000+i*100,member_offline_hours:30-i,member_recharge_total:i%2?100:0,member_is_online:false,member_message_count:i,member_rank:i%5===4?'R5':'R1',member_position:i%5===4?'leader':'none'}));
+  const op = value => operations.find(x=>x.operation_code===value||x.operation_name===value);
+  const allowed = id => operations.filter(x=>extensions.some(e=>e.report_id===id&&e.allowed_operation_codes.includes(x.operation_code)));
+  const positionOptions = rank => rank==='R5'?{leader:'盟主'}:rank==='R4'?{war:'战神',diplomat:'外交官',goddess:'女神',strategist:'军师',none:'无官职'}:{none:'无官职'};
+  function validateFields(operation, metadata, rows) {
+    if(!operation)return ['操作配置不存在'];
+    const errors = operation.object_fields.filter(code=>!metadata.some(f=>f.code===code)).map(code=>'缺少 '+code);
+    rows.forEach((row,i)=>operation.object_fields.forEach(code=>{if(metadata.some(f=>f.code===code)&&(typeof row[code]!=='string'||!row[code].trim()))errors.push('第'+(i+1)+'行 '+code+' 为空或格式无效');}));
+    return errors;
+  }
+  function validateParams(operation, values) {
+    const errors=[];
+    for(const field of operation.parameter_schema){
+      if(field.visible_when&&!Object.entries(field.visible_when).every(([key,value])=>values[key]===value))continue;
+      const value=values[field.field_code];
+      if(field.required&&(value===undefined||value===null||String(value).trim()==='')){errors.push('请填写'+field.field_name);continue;}
+      if(field.component==='number'&&(!Number.isInteger(Number(value))||Number(value)<field.min))errors.push(field.field_name+'必须为不小于'+field.min+'的整数');
+      const options=field.options_source?positionOptions(values.target_rank):field.options;
+      if(options&&!(value in options))errors.push(field.field_name+'选项无效');
+      if(field.gte_field&&Number(value)<Number(values[field.gte_field]))errors.push(field.field_name+'不得小于起始值');
+    }
+    return errors;
+  }
+  const key = (operation,row) => operation.operation_code+':'+operation.object_fields.map(f=>row[f]).join(':');
+  function matches(row,rules,metadata) {
+    const values=rules.map(rule=>{
+      const code=metadata.find(f=>f.code===rule.field||f.name===rule.field)?.code||rule.field;
+      const a=row[code],b=rule.value;
+      if(a===null||a===undefined)throw Error('条件字段缺值：'+code);
+      switch(rule.op){case '大于':return Number(a)>Number(b);case '大于等于':return Number(a)>=Number(b);case '小于':return Number(a)<Number(b);case '小于等于':return Number(a)<=Number(b);case '不等于':return String(a)!==String(b);case '包含':return String(a).includes(b);case '不包含':return !String(a).includes(b);default:return String(a)===String(b);}
+    });
+    if(rules.slice(1).some(r=>r.relation==='或')&&rules.slice(1).some(r=>r.relation!=='或'))throw Error('混合且/或分组规则尚未确认');
+    return rules.slice(1).some(r=>r.relation==='或')?values.some(Boolean):values.every(Boolean);
+  }
+  function seed() {return {seq:0,audits:[],runs:{},tasks:[]};}
+  const storageKey='monitor-audit-prototype-v3';
+  let fallback=seed();
+  function read(){try{return JSON.parse(root.localStorage.getItem(storageKey))||clone(fallback);}catch{return clone(fallback);}}
+  function write(data){fallback=clone(data);try{root.localStorage.setItem(storageKey,JSON.stringify(data));}catch{}}
+  function run(data,task,rows,metadata,settings={}) {
+    if(!task.enabled)throw Error('停用任务不能巡检');
+    const id='M'+task.id+'-'+(++data.seq),time=settings.time||'2026-10-14 '+String(5+data.seq).padStart(2,'0')+':00:00';
+    const operation=op(task.operation),parameters=task.parameters||{},rules=task.rules||[],sorts=task.sorts||[];
+    const result={id,time,query:settings.queryFailed?'失败':'成功',alert:'未触发',hits:null,generated:0,failed:0,changes:[],selected:[],request:{report_id:task.report_id,parameters:clone(task.reportParams||{}),time},response:settings.queryFailed?{status:'error',error:'报表查询超时'}:{status:'ok',data_time:time,rows:clone(rows)}};
+    data.runs[task.id]||=[];data.runs[task.id].unshift(result);
+    if(settings.queryFailed)return result;
+    let candidates;
+    try{candidates=rows.filter(row=>matches(row,rules,metadata));result.hits=operation?.object_type==='union'?new Set(candidates.map(row=>row.server_id+':'+row.union_id)).size:candidates.length;}catch(error){result.ruleError=error.message;if(task.audit){result.actionError='规则判断失败：'+error.message;result.recordType='命中处理';}return result;}
+    if(candidates.length&&task.alarm)result.alert=settings.alertFailed?'失败':'成功';
+    if(!task.audit)return result;
+    result.operation=operation?.operation_name||task.operation;
+    if(!operation||!allowed(task.report_id).includes(operation)){result.actionError='报表未开放该操作';return result;}
+    if(!['union_dissolve','union_kick'].includes(operation.operation_code)){result.actionError='业务算法待确认，本地不模拟执行';return result;}
+    const objectErrors=validateFields(operation,metadata,rows);
+    const paramErrors=validateParams(operation,parameters);
+    if(objectErrors.length||paramErrors.length){result.actionError=[...objectErrors,...paramErrors].join('；');result.recordType='命中处理';return result;}
+    const own=data.audits.filter(a=>a.taskId===task.id&&a.operation===operation.operation_code&&a.status==='待审核');
+    const groups=new Map();candidates.forEach(row=>{const group=row.server_id+':'+row.union_id;if(!groups.has(group))groups.set(group,[]);if(!groups.get(group).some(x=>key(operation,x)===key(operation,row)))groups.get(group).push(row);});
+    const chosen=[],protectedGroups=new Set();
+    for(const [group,items] of groups){
+      if(operation.object_type==='union'){chosen.push(items[0]);continue;}
+      const applicable=sorts.every(sort=>metadata.some(f=>f.code===sort.field&&f.level==='member'&&['number','datetime'].includes(f.type)));
+      if(!sorts.length||!applicable||items.some(row=>sorts.some(s=>row[s.field]===null||row[s.field]===undefined||!Number.isFinite(Number(row[s.field]))))||items.some(row=>!Number.isFinite(row.union_member_count))){protectedGroups.add(group);result.changes.push({object:items[0].union_name,result:'处理失败',reason:'排序或联盟人数数据异常，旧待审保留'});continue;}
+      const eligible=items.filter(row=>row.role_id!==row.leader_role_id&&row.member_rank!=='R5');
+      items.filter(row=>!eligible.includes(row)).forEach(row=>result.changes.push({object:row.union_name+' / '+row.role_name,result:'未入选',reason:'现任盟主禁止踢出'}));
+      eligible.sort((a,b)=>{for(const s of sorts){const diff=Number(a[s.field])-Number(b[s.field]);if(diff)return ['desc','从大到小','从晚到早','降序'].includes(s.direction)?-diff:diff;}return key(operation,a).localeCompare(key(operation,b));});
+      const otherOccupancy=data.audits.filter(a=>a.operation===operation.operation_code&&a.taskId!==task.id&&a.status==='待审核'&&a.snapshot.object.server_id+':'+a.snapshot.object.union_id===group&&!eligible.some(row=>key(operation,row)===a.objectKey)).length;
+      const limit=Math.max(0,Math.min(Number(parameters.kick_limit)-otherOccupancy,items[0].union_member_count-Number(parameters.remain_member_limit)-otherOccupancy));
+      chosen.push(...eligible.slice(0,limit));eligible.slice(limit).forEach(row=>result.changes.push({object:row.union_name+' / '+row.role_name,result:'未入选',reason:'排序、人数限额或保留人数限制'}));
+    }
+    const selectedKeys=chosen.map(row=>key(operation,row));result.selected=selectedKeys;result.selectedCount=chosen.length;
+    for(const old of own){const group=old.snapshot.object.server_id+':'+old.snapshot.object.union_id;if(!selectedKeys.includes(old.objectKey)&&!protectedGroups.has(group)){old.status='已失效';old.version++;old.invalidAt=time;old.invalidReason=candidates.some(row=>key(operation,row)===old.objectKey)?'本轮排序后未入选':'本轮不再符合规则';old.invalidRunId=id;result.changes.push({object:old.objectName,result:'已失效',auditId:old.id,reason:old.invalidReason});}}
+    for(const row of chosen){
+      const objectKey=key(operation,row),objectName=row.union_name+(operation.object_type==='member'?' / '+row.role_name:'');
+      const existing=data.audits.find(a=>a.objectKey===objectKey&&a.status==='待审核');
+      if(existing){if(existing.taskId===task.id){existing.lastHitAt=time;existing.linkedRuns.push(id);}result.changes.push({object:objectName,result:existing.taskId===task.id?'沿用':'跨任务冲突',auditId:existing.id,reason:existing.taskId===task.id?'重复命中，不重复创建':'任务'+existing.taskId+'已有待审，不接管'});continue;}
+      if(settings.createFailed&&result.generated===0&&result.failed===0){result.failed++;result.changes.push({object:objectName,result:'创建失败',reason:'模拟审核接口超时'});continue;}
+      const auditId='A-'+id+'-'+(result.generated+1);
+      data.audits.unshift({id:auditId,taskId:task.id,operation:operation.operation_code,operationName:operation.operation_name,objectType:operation.object_type,objectKey,objectName,status:'待审核',version:1,generatedAt:time,firstHitAt:time,lastHitAt:time,linkedRuns:[id],sourceNo:id,auditor:'-',auditAt:'-',remark:'-',snapshot:{task:clone(task),object:clone(row),rules:clone(rules),sorts:clone(sorts),parameters:clone(parameters),report_id:task.report_id}});
+      result.generated++;result.changes.push({object:objectName,result:'新建',auditId});
+    }
+    if(candidates.length||result.changes.length)result.recordType=candidates.length?'命中处理':'待审状态更新';
+    return result;
+  }
+  function review(data,id,version,status,reason,permitted=true){const record=data.audits.find(a=>a.id===id);if(!record)return '记录不存在';if(!permitted)return '无审核权限';if(record.status!=='待审核'||record.version!==version)return '记录状态或版本已变化，请刷新';if(status==='已拒绝'&&!reason?.trim())return '拒绝原因必填';record.status=status;record.version++;record.auditor='当前用户';record.auditAt='2026-10-14 12:00:00';record.remark=reason||'审核通过';return null;}
+  root.MonitorPrototype={clone,operations,extensions,definitions,memberRows,op,allowed,positionOptions,validateFields,validateParams,key,matches,seed,read,write,run,review,storageKey};
+  if(typeof module!=='undefined')module.exports=root.MonitorPrototype;
+})(typeof window==='undefined'?globalThis:window);
+
+(() => {
   'use strict';
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
@@ -116,38 +219,26 @@ main,#monitor-form,.body{height:auto;max-height:none;overflow:visible}
   $('#monitor-form').onsubmit=e=>{e.preventDefault();if(!state.loaded)return toast('请先调试报表');if(state.rules.some(r=>!r.field||r.value===''))return toast('请完善规则');if($('[name=timeMode]:checked').value==='specified'&&!state.slots.flat().some(Boolean))return toast('请选择巡检时段');if($('#editor').innerText.length>2000||!$('#editor').innerText.trim())return toast('请填写2000字以内的告警内容');if(!state.chosen.length)return toast('请选择报警参数');if(state.channels.some(c=>!(c.type==='Webhook'?/^https?:\/\//.test(c.url):c.users)))return toast('请完善告警方式');const data={name:$('#name').value,description:$('#description').value,report:$('#report').value,rules:state.rules,cycle:$('#cycle').value,unit:$('#cycle-unit').value,channelTypes:state.channels.map(c=>c.type)};dialog('本地提交预览',JSON.stringify(data,null,2)+'\n\n仅完成本地校验，未创建后台任务。');};
   function route(){const editMode=location.hash==='#edit';$('#page-title').textContent=editMode?'编辑监控':'新建监控';}
   window.addEventListener('hashchange',route);route();renderRules();renderTransfer();renderChannels();renderSchedule();
-// Added inside replay's closure to reuse the local form and report state.
-const catalog = {
-  '联盟干预业务': {
-    '联盟踢人': {reports:['12823','DEMO-MEMBER'],keys:['区服ID','联盟ID'],supportsSort:true,memberLookup:true,params:[['每个联盟最多处理','number','人'],['联盟至少保留','number','人']]},
-    '联盟解散': {reports:['12823','DEMO-UNION'],keys:['区服ID','联盟ID'],supportsSort:false,params:[]},
-    '阶级/职位变更': {reports:['12823','DEMO-MEMBER'],keys:['区服ID','联盟ID','角色ID'],supportsSort:true,params:[['目标阶级',['R1','R2','R3','R4','R5']],['目标职位',['无官职']],['推荐对象',['命中对象','联盟内成员','按处理顺序推荐','手动指定']],['每个联盟任命','number','人']]},
-    '联盟变更': {reports:['12823','DEMO-MEMBER'],keys:['区服ID','联盟ID','角色ID'],supportsSort:true,params:[['目标联盟选择方式',['按规则匹配','手动指定联盟']],['目标联盟排名起始','number','名'],['目标联盟排名结束','number','名'],['目标剩余人数下限','number','人'],['单目标联盟迁入上限','number','人'],['分配策略',['优先排名靠前','优先剩余坑位多','按战力匹配','人工指定']]]}
-  },
-  'VIP业务': {
-    'VIP补偿': {reports:['DEMO-VIP'],keys:['区服ID','角色ID'],supportsSort:true,params:[['补偿模板',['请选择','示例补偿模板A','示例补偿模板B']],['邮件标题','text'],['邮件内容','textarea'],['每日发放上限','number','人'],['单角色发放上限','number','次']]},
-    '客服跟进': {reports:['DEMO-VIP'],keys:['区服ID','角色ID'],supportsSort:true,params:[['跟进团队',['请选择','示例客服团队A','示例客服团队B']],['跟进优先级',['普通','高','紧急']],['话术模板',['请选择','示例话术模板A']],['处理期限','number','小时']]}
-  }
-};
-const extensionActions={create_audit:{reports:['12823','DEMO-MEMBER','DEMO-UNION','DEMO-VIP']}};
-const body = $('.body');
-const alarmHeader = $$('.section-title').find(x=>x.textContent==='告警');
-const alarmPanel = document.createElement('section');alarmPanel.id='alarm-panel';
+// Configuration-driven local forms; no live requests.
+const core=window.MonitorPrototype;
+const catalog={};
+core.operations.forEach(operation=>{(catalog[operation.business_name]||={})[operation.operation_name]=operation;});
+const extensionActions={create_audit:{reports:core.extensions.map(row=>row.report_id)}};
+const body=$('.body'),alarmHeader=$$('.section-title').find(x=>x.textContent==='告警');
+const alarmPanel=document.createElement('section');alarmPanel.id='alarm-panel';
 let sibling=alarmHeader.nextElementSibling;
 while(sibling){const next=sibling.nextElementSibling;alarmPanel.append(sibling);sibling=next;}
 alarmHeader.textContent='触发动作';
-const toggles=document.createElement('div');toggles.className='action-choices';
 const actionLayout=document.createElement('div');actionLayout.className='action-layout';
 const actionNav=document.createElement('nav');actionNav.className='action-nav';actionNav.setAttribute('aria-label','触发动作配置');
-actionNav.innerHTML='<button type="button" class="action-tab" data-action-tab="alarm"><input id="use-alarm" class="action-toggle" type="checkbox" checked><span>发送告警</span><span class="action-state" data-state="alarm"></span></button><button type="button" class="action-tab" data-action-tab="audit"><input id="use-audit" class="action-toggle" type="checkbox"><span>创建待审核记录</span><span class="action-state" data-state="audit"></span></button>';
+actionNav.innerHTML='<button type="button" class="action-tab" data-action-tab="alarm"><input id="use-alarm" class="action-toggle" type="checkbox" checked><span>发送告警</span></button><button type="button" class="action-tab" data-action-tab="audit"><input id="use-audit" class="action-toggle" type="checkbox"><span>创建待审核记录</span></button>';
 const actionPanels=document.createElement('div');actionPanels.className='action-panels';
-body.append(actionLayout);
-// The left action navigation already names the active panel; avoid repeating it inside the panel.
-const audit=document.createElement('section');audit.id='audit-panel';audit.hidden=true;
-audit.innerHTML='<div class="row"><label class="label required" for="business">业务类型</label><div class="control"><select id="business" class="standard">'+options(Object.keys(catalog))+'</select></div></div><div class="row"><label class="label required" for="operation">操作类型</label><div class="control"><select id="operation" class="standard"></select><div id="audit-fields-status" role="status"></div></div></div><div class="row" id="sort-row"><span class="label">处理顺序</span><div class="control"><div id="action-sorts"></div><button class="link" type="button" id="add-sort">＋ 添加排序</button></div></div><div id="action-params"></div>';
-actionPanels.append(alarmPanel,audit);actionLayout.append(actionNav,actionPanels);
+const audit=document.createElement('section');audit.id='audit-panel';
+audit.innerHTML='<div class="row"><label class="label required" for="business">业务类型</label><div class="control"><select id="business" class="standard"></select></div></div><div class="row"><label class="label required" for="operation">操作类型</label><div class="control"><select id="operation" class="standard"></select></div></div><div class="row"><span class="label">审核对象所需字段</span><div class="control"><div id="audit-fields-status" role="status"></div></div></div><div class="row" id="sort-row"><span class="label">处理顺序</span><div class="control"><div id="action-sorts"></div><button class="link" type="button" id="add-sort">＋ 添加排序</button></div></div><div id="action-params"></div>';
+actionPanels.append(alarmPanel,audit);actionLayout.append(actionNav,actionPanels);body.append(actionLayout);
 let activeAction='alarm';
 const style=document.createElement('style');style.textContent='.action-layout{display:grid;grid-template-columns:190px minmax(0,1fr);gap:20px;margin:0 0 24px;border:1px solid #f0f0f0;background:#fff}.action-nav{padding:8px;background:#fafafa;border-right:1px solid #f0f0f0}.action-tab{display:flex;align-items:center;gap:8px;width:100%;min-height:38px;padding:8px 10px;border:0;border-left:3px solid transparent;background:transparent;text-align:left;color:#595959;cursor:pointer;font:inherit}.action-tab:hover{background:#f0f7ff;color:#1890ff}.action-tab.active{border-left-color:#1890ff;background:#e6f7ff;color:#096dd9;font-weight:500}.action-tab.disabled{color:#999}.action-toggle{accent-color:#1890ff;flex:0 0 auto}.action-state{width:7px;height:7px;border-radius:50%;display:inline-block;background:#d9d9d9;margin-left:auto}.action-state.enabled{background:#52c41a}.action-state.incomplete{background:#ff4d4f}.action-panels{min-width:0;padding:20px 20px 20px}.action-panels>.action-panel-hidden{display:none}.action-title{font-size:14px;font-weight:500;margin:16px 0;padding:0 12px;border-left:3px solid #d9d9d9}.action-sort{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}.action-sort select{width:180px}#audit-fields-status{font-size:12px;margin-top:8px;max-width:700px}#action-params textarea{width:640px;height:90px}.demo-controls{display:flex;align-items:center;gap:8px;color:#888;font-size:12px;flex-wrap:wrap;padding:8px 24px;border-bottom:1px solid #eee}.demo-controls select{height:28px}@media(max-width:650px){.action-layout{display:block}.action-nav{display:flex;gap:4px;overflow:auto;border-right:0;border-bottom:1px solid #f0f0f0}.action-tab{width:auto;min-width:190px}.action-panels{padding:16px 12px 16px}#action-params .row{display:block}#action-params .label{display:block;text-align:left}.action-sort select{width:140px}}';document.head.append(style);
+
 const fixtures={
   '用户反馈':{fields:[...fields],samples:[...samples],id:'13124'},
   '联盟监控报表 12823':{
@@ -168,101 +259,144 @@ const fixtures={
   '联盟':{fields:['区服ID','联盟ID','联盟名称','联盟排名','活跃人数'],samples:[['10001','20001','示例联盟A',80,3],['10001','20002','示例联盟B',95,5]],id:'DEMO-UNION'},
   'VIP角色':{fields:['区服ID','角色ID','VIP等级','累计充值金额','最后登录天数','流失风险'],samples:[['10001','30001',12,5000,15,'高'],['10001','30002',10,3000,20,'高']],id:'DEMO-VIP'}
 };
-// Added columns are fictional member details, associated with each report row for prototype testing.
-fixtures['联盟监控报表 12823'].fields.push('角色ID','离线时长','战力','累计充值金额');
-[[610001,72,420,880],[610002,48,760,3200],[610003,19,1120,6800],[610004,44,530,1200],[610005,36,680,2400]].forEach((values,i)=>fixtures['联盟监控报表 12823'].samples[i].push(...values));
-const demo=document.createElement('div');demo.className='demo-controls';demo.innerHTML='<span>本地演示数据</span><select id="demo-data" aria-label="本地演示数据">'+options(Object.keys(fixtures))+'</select>';
-$('#page-title').after(demo);
+
+const memberFixture=fixtures['联盟成员'];
+memberFixture.fields=core.definitions.map(f=>f.name);memberFixture.samples=core.memberRows.map(row=>core.definitions.map(f=>row[f.code]));memberFixture.metadata=core.clone(core.definitions);
+fixtures['联盟'].metadata=[{code:'server_id',name:'区服ID',type:'string',level:'context'},{code:'union_id',name:'联盟ID',type:'string',level:'union'},{code:'union_name',name:'联盟名称',type:'string',level:'union'},{code:'union_rank',name:'联盟排名',type:'number',level:'union'},{code:'union_active_count',name:'活跃人数',type:'number',level:'union'}];
 const originalParams=$('#params').innerHTML;
-const report12823Params=[
-  ['W End Time','relative'],['Gameid','2177'],['E Ranks',''],
-  ['游戏世界ID',''],['W Start Time','relative'],['游戏版本','2177-US-ZS'],
-  ['B Ranks',''],['Sysusername','示例运营A'],['结束时间','2026-09-28'],
-  ['联盟ID',''],['Country Compute','不分地区'],['Management State',''],
-  ['运营渠道ID',''],['开始时间','2026-09-28'],['Offline Duration',''],
-  ['Risk Level','']
-];
-function renderReport12823Params(){
-  $('#params').className='report-params';
-  $('#params').innerHTML=report12823Params.map(([name,value])=>{
-    const control=value==='relative'?'<select aria-label="'+esc(name)+'日期方式"><option>相对日期</option><option>指定日期</option></select><input type="text" aria-label="'+esc(name)+'" placeholder="请选择" value="">':name==='开始时间'||name==='结束时间'?'<select aria-label="'+esc(name)+'日期方式"><option>指定日期</option><option>相对日期</option></select><input type="date" aria-label="'+esc(name)+'" value="'+value+'">':'<input type="text" aria-label="'+esc(name)+'" value="'+esc(value)+'">';
-    return '<label class="report-param"><span>'+esc(name)+'</span><span class="report-param-control">'+control+'</span></label>';
-  }).join('');
-  $('#params').hidden=false;$('#get-params').hidden=true;
+const demo=document.createElement('div');demo.className='demo-controls';
+demo.innerHTML='<span>本地演示数据</span><select id="demo-data">'+options(Object.keys(fixtures))+'</select><select id="debug-case" aria-label="调试场景">'+options(['正常','零行','缺少对象字段','对象值无效','报表查询失败','配置查询失败'])+'</select>';
+$('#page-title').after(demo);
+const actionDrafts={};let previousOperation='',confirmedReport='',debugSequence=0;
+function metadataFor(fixture){
+ if(fixture.metadata)return fixture.metadata;
+ return fixture.fields.map(name=>({name,code:name==='游戏世界ID'?'server_id':name==='联盟ID'?'union_id':name,type:fixture.samples.some(row=>typeof row[fixture.fields.indexOf(name)]==='number')?'number':'string',level:'union'}));
 }
-window.loadReportParams=()=>{if($('#report').value.trim()!=='12823')return false;renderReport12823Params();toast('已加载报表12823的演示传参');return true;};
-function syncReportParams(){if($('#report').value.trim()==='12823')renderReport12823Params();else{$('#params').className='param inline';$('#params').innerHTML=originalParams;$('#params').hidden=true;$('#get-params').hidden=false;}}
-function setFixture(key,updateId){const f=fixtures[key];if(!f)return;$('#demo-data').value=key;fields=[...f.fields];samples=f.samples.map(r=>[...r]);if(updateId)$('#report').value=f.id;$('#report').dispatchEvent(new Event('change'));syncReportParams();syncReportActions();}
+function metadata(){return state.metadata||metadataFor(fixtures[$('#demo-data').value]);}
+function rowsFromPreview(){return samples.map(row=>Object.fromEntries(metadata().map((f,i)=>[f.code,row[i]])));}
+function current(){return core.op($('#operation').value);}
+function availableBusinesses(){return [...new Set((state.loaded?core.allowed(confirmedReport):[]).map(x=>x.business_name))];}
+function availableOperations(business){return (state.loaded?core.allowed(confirmedReport):[]).filter(x=>x.business_name===business).map(x=>x.operation_name);}
+function sortableFields(){return state.loaded?metadata().filter(f=>['number','datetime'].includes(f.type)&&(!current()||current().object_type!=='member'||f.level==='member')).map(f=>f.name):[];}
+function directions(field){return metadata().find(f=>f.name===field)?.type==='datetime'?['从早到晚','从晚到早']:['从小到大','从大到小'];}
+function stash(){if(previousOperation)actionDrafts[previousOperation]={params:$$('#action-params [data-param]').map(e=>({name:e.dataset.param,value:e.value})),sorts:$$('.action-sort').map(x=>({field:x.querySelector('[data-sort-field]').value,direction:x.querySelector('[data-sort-direction]').value}))};}
+function addSort(saved){
+ const allowed=sortableFields(),used=$$('[data-sort-field]').map(x=>x.value),available=allowed.filter(x=>!used.includes(x));if(!available.length&&!saved)return toast('没有更多可用排序字段');
+ const field=allowed.includes(saved?.field)?saved.field:available[0];if(!field)return;
+ const row=document.createElement('div');row.className='action-sort';
+ row.innerHTML='<button type="button" class="link sort-handle" draggable="true" title="拖动调整优先级" aria-label="拖动调整优先级">☰</button><span class="sort-priority"></span><select data-sort-field aria-label="排序字段">'+options(allowed,field)+'</select><select data-sort-direction aria-label="排序方向">'+options(directions(field),saved?.direction||directions(field)[0])+'</select><button type="button" class="link sort-delete" title="删除排序">×</button>';
+ row.querySelector('[data-sort-field]').onchange=e=>{row.querySelector('[data-sort-direction]').innerHTML=options(directions(e.target.value));updateSortPriorities();};
+ row.querySelector('.sort-delete').onclick=()=>{row.remove();updateSortPriorities();};
+ const handle=row.querySelector('.sort-handle');
+ handle.ondragstart=event=>{draggedSort=row;event.dataTransfer.setData('text/plain','sort');row.classList.add('dragging');};
+ handle.ondragend=()=>{$$('.action-sort').forEach(x=>x.classList.remove('drop-target','dragging'));draggedSort=null;};
+ handle.onkeydown=e=>{if(e.key==='ArrowUp'&&row.previousElementSibling){e.preventDefault();row.parentNode.insertBefore(row,row.previousElementSibling);}if(e.key==='ArrowDown'&&row.nextElementSibling){e.preventDefault();row.parentNode.insertBefore(row.nextElementSibling,row);}updateSortPriorities();};
+ row.ondragover=e=>{if(draggedSort){e.preventDefault();row.classList.add('drop-target');}};
+ row.ondragleave=()=>row.classList.remove('drop-target');
+ row.ondrop=e=>{e.preventDefault();if(draggedSort&&draggedSort!==row){const before=e.clientY<row.getBoundingClientRect().top+row.offsetHeight/2;row.parentNode.insertBefore(draggedSort,before?row:row.nextSibling);}updateSortPriorities();};
+ $('#action-sorts').append(row);updateSortPriorities();
+}
+let draggedSort=null;
+function updateSortPriorities(){$$('.action-sort').forEach((row,i)=>{row.querySelector('.sort-priority').textContent=String(i+1);row.classList.remove('drop-target');});}
+function paramValues(){return Object.fromEntries($$('#action-params [data-code]').map(e=>[e.dataset.code,e.value]));}
+function missingObjectFields(){return current()?core.validateFields(current(),metadata(),[]):[];}
+function refreshAuditFields(){
+ const cfg=current(),target=$('#audit-fields-status');if(!cfg){target.textContent='请先成功调试报表并选择操作';return;}
+ const names=cfg.object_fields.map(code=>metadata().find(f=>f.code===code)?.name||core.definitions.find(f=>f.code===code)?.name||code);
+ const errors=state.loaded?core.validateFields(cfg,metadata(),rowsFromPreview()):[];
+ target.className=errors.length?'error':'muted';
+ target.textContent=names.join('、')+'；'+(!state.loaded?'请先成功调试报表':errors.length?errors.join('；'):samples.length?'校验通过':'字段齐全，本次无数据，尚未验证对象值');
+ $('#add-sort').disabled=!state.loaded||!sortableFields().length;
+}
+function renderAction(){
+ const cfg=current();$('#action-sorts').innerHTML='';$('#sort-row').hidden=!cfg?.show_sort;
+ $('#action-params').innerHTML=!cfg?'':cfg.parameter_schema.length?cfg.parameter_schema.map(f=>{
+ const control=f.component==='select'?'<select class="standard" data-code="'+f.field_code+'" data-param="'+f.field_name+'"><option value="">请选择</option>'+Object.entries(f.options||{}).map(([value,label])=>'<option value="'+value+'">'+label+'</option>').join('')+'</select>':'<input class="standard" data-code="'+f.field_code+'" data-param="'+f.field_name+'" type="'+(f.component==='number'?'number':'text')+'" '+(f.component==='number'?'min="'+f.min+'" step="1"':'')+'>';
+ return '<div class="row" data-schema="'+f.field_code+'"><label class="label required">'+f.field_name+'</label><div class="control inline">'+control+(f.unit||'')+'</div></div>';
+ }).join(''):'<div class="row"><span class="label">处理规则</span><div class="control muted">无需额外处理参数</div></div>';
+ const saved=actionDrafts[$('#operation').value];if(saved){saved.params.forEach(p=>{const el=$$('[data-param]').find(x=>x.dataset.param===p.name);if(el)el.value=p.value;});saved.sorts.forEach(addSort);}
+ previousOperation=$('#operation').value;linkParams();refreshAuditFields();
+}
+function linkParams(){
+ const cfg=current();if(!cfg)return;const values=paramValues();
+ cfg.parameter_schema.forEach(f=>{const el=$('[data-code="'+f.field_code+'"]');if(!el)return;
+ if(f.options_source){const opts=core.positionOptions(values.target_rank),old=el.value;el.innerHTML='<option value="">请选择</option>'+Object.entries(opts).map(([value,label])=>'<option value="'+value+'">'+label+'</option>').join('');el.value=old in opts?old:'';}
+ const visible=!f.visible_when||Object.entries(f.visible_when).every(([key,value])=>values[key]===value);
+ el.closest('.row').hidden=!visible;el.required=$('#use-audit').checked&&visible&&f.required;el.setAttribute('aria-label',f.field_name);
+ });
+}
+function loadOperations(){const selected=$('#operation').value,names=availableOperations($('#business').value);$('#operation').innerHTML=options(names,names.includes(selected)?selected:names[0]);renderAction();}
+function syncReportActions(){
+ const selected=$('#business').value,names=availableBusinesses();$('#business').innerHTML=options(names,names.includes(selected)?selected:names[0]);
+ loadOperations();$('#use-audit').disabled=!names.length;if(!names.length)$('#use-audit').checked=false;renderActionTabs();
+}
+function renderActionTabs(){
+ const available=state.loaded&&availableBusinesses().length>0;
+ if(!available&&activeAction==='audit')activeAction='alarm';
+ actionNav.querySelector('[data-action-tab="audit"]').hidden=!available;
+ $$('.action-tab').forEach(tab=>tab.classList.toggle('active',tab.dataset.actionTab===activeAction));
+ alarmPanel.hidden=activeAction!=='alarm'||!$('#use-alarm').checked;audit.hidden=activeAction!=='audit'||!$('#use-audit').checked;
+}
+function toggleActions(){if(!$('#use-'+activeAction).checked)activeAction=$('#use-audit').checked?'audit':'alarm';linkParams();refreshAuditFields();renderActionTabs();}
+$$('.action-tab').forEach(tab=>tab.onclick=e=>{activeAction=tab.dataset.actionTab;renderActionTabs();});
+$('#use-alarm').onchange=toggleActions;$('#use-audit').onchange=toggleActions;
+$('#use-alarm').onclick=e=>e.stopPropagation();$('#use-audit').onclick=e=>{e.stopPropagation();if(e.target.checked)activeAction='audit';renderActionTabs();};
+$('#business').onchange=()=>{stash();loadOperations();};$('#operation').onchange=()=>{stash();renderAction();};
+$('#action-params').onchange=e=>{if(e.target.dataset.code==='target_rank'){const position=$('[data-code="target_position"]');if(position)position.value='';}linkParams();};
+$('#add-sort').onclick=()=>addSort();
+function invalidateDebug(){debugSequence++;state.loaded=false;$('#results').innerHTML=empty();$('#sample-tag').hidden=true;renderRules();renderTransfer();$('#audit-fields-status').textContent='请重新调试报表';renderActionTabs();}
+$('#report').onchange=()=>{window.selectReportFixture?.();invalidateDebug();};
+$('#report').oninput=invalidateDebug;
+$('#params').addEventListener('input',invalidateDebug);$('#params').addEventListener('change',invalidateDebug);$('#bulk').addEventListener('input',invalidateDebug);$('#debug-case').onchange=invalidateDebug;
+$$('[name=mode]').forEach(r=>r.addEventListener('change',invalidateDebug));
+function setFixture(key,updateId){const f=fixtures[key];if(!f)return;$('#demo-data').value=key;fields=[...f.fields];samples=core.clone(f.samples);if(updateId)$('#report').value=f.id;state.metadata=metadataFor(f);invalidateDebug();syncReportParams();}
 $('#demo-data').onchange=e=>setFixture(e.target.value,true);
 window.selectReportFixture=()=>{const key=Object.keys(fixtures).find(name=>fixtures[name].id===$('#report').value.trim());if(key&&$('#demo-data').value!==key)setFixture(key,false);};
+function syncReportParams(){const id=$('#report').value.trim();if(id==='DEMO-MEMBER'||id==='DEMO-UNION'){$('#params').innerHTML='<label>区服ID <input id="query-server" class="small" value="10001"></label>';$('#params').hidden=false;$('#get-params').hidden=true;}else{$('#params').innerHTML=originalParams;$('#get-params').hidden=false;$('#params').hidden=true;}}
 window.syncReportParams=syncReportParams;
-style.textContent+=' .sort-source-note{font-size:12px;margin-bottom:8px}.report-params{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:16px;border-top:1px solid #e8e8e8;border-left:1px solid #e8e8e8}.report-param{display:grid;grid-template-columns:110px minmax(0,1fr);min-height:60px;border-right:1px solid #e8e8e8;border-bottom:1px solid #e8e8e8}.report-param>span:first-child{background:#fafafa;display:flex;align-items:center;justify-content:center;padding:8px;text-align:center;overflow-wrap:anywhere}.report-param-control{display:flex;align-items:center;min-width:0;padding:8px;gap:0}.report-param-control>input{width:100%;min-width:0}.report-param-control>select{width:110px;flex:none}.preview:has(th:nth-child(20)){max-height:460px;overflow:auto}.preview:has(th:nth-child(20)) th{position:sticky;top:0;z-index:1}.preview:has(th:nth-child(20)) table{width:max-content;min-width:100%}.preview:has(th:nth-child(20)) th,.preview:has(th:nth-child(20)) td{min-width:110px}@media(max-width:1050px){.report-params{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){.report-params{grid-template-columns:1fr}.report-param{grid-template-columns:110px minmax(0,1fr)}}';
-const actionDrafts={};
-let previousOperation='';
-function current(){return catalog[$('#business').value]?.[$('#operation').value];}
-function availableBusinesses(){const reportId=$('#report').value.trim();if(!extensionActions.create_audit.reports.includes(reportId))return [];return Object.keys(catalog).filter(business=>Object.values(catalog[business]).some(operation=>operation.reports.includes(reportId)));}
-function availableOperations(business){const reportId=$('#report').value.trim();return Object.keys(catalog[business]||{}).filter(operation=>catalog[business][operation].reports.includes(reportId));}
-function syncReportActions(){
- const businesses=availableBusinesses(),selectedBusiness=$('#business').value;
- $('#business').innerHTML=options(businesses,businesses.includes(selectedBusiness)?selectedBusiness:businesses[0]);
- loadOperations();
- const available=businesses.length>0,auditTab=actionNav.querySelector('[data-action-tab="audit"]');
- $('#use-audit').disabled=!available;
- auditTab.title=available?'':'当前报表未配置创建待审核记录';
- if(!available)$('#use-audit').checked=false;
- if(!available&&activeAction==='audit')activeAction='alarm';
- renderActionTabs();
-}
-function stash(){if(previousOperation)actionDrafts[previousOperation]={params:$$('#action-params [data-param]').map(e=>({name:e.dataset.param,value:e.value})),sorts:$$('.action-sort').map(x=>({field:x.querySelector('[data-sort-field]').value,direction:x.querySelector('[data-sort-direction]').value}))};}
-function paramRow(name,type,unit){let control;if(Array.isArray(type))control='<select data-param="'+name+'" class="standard">'+options(type)+'</select>';else if(type==='textarea')control='<textarea data-param="'+name+'"></textarea>';else control='<input data-param="'+name+'" class="standard" type="'+type+'" '+(type==='number'?'min="'+(name.includes('至少保留')||name.includes('下限')?'0':'1')+'" step="1"':'')+'>';return '<div class="row"><label class="label required">'+name+'</label><div class="control inline">'+control+(unit?'<span>'+unit+'</span>':'')+'</div></div>';}
-// These types model report column metadata, not business-action field permissions.
-const reportTypes = {
-  '用户反馈': {'反馈次数':'number','反馈设备数':'number'},
-  '联盟监控报表 12823': {'日期':'datetime','开服天数':'number','同盟高级礼物数量':'number','联盟总人数':'number','R4管理员数量':'number','联盟排名':'number','联盟战力':'number','联盟礼包等级':'number','联盟邮件数量':'number','管理累积踢出人数':'number','科技捐献次数':'number','同盟日常礼物数量':'number','占领城池数量':'number','同盟帮助次数':'number','累充金额':'number','累充人数':'number','活跃人数':'number','当前在线人数':'number','R4在线人数':'number','R4 24小时在线人数':'number','R4管理总积分':'number','盟主管理积分':'number','公告数':'number','风险持续时间':'number','每日联盟捐献次数':'number','每日联盟礼物次数':'number','ranks':'number','联盟解散时间':'datetime'},
-  '联盟成员': {'联盟人数':'number','离线时长':'number','战力':'number','累计充值金额':'number','VIP等级':'number','等级':'number'},
-  '联盟': {'联盟排名':'number','活跃人数':'number'},
-  'VIP角色': {'VIP等级':'number','累计充值金额':'number','最后登录天数':'number','流失风险':'enum'}
+window.loadReportParams=()=>{syncReportParams();$('#params').hidden=false;$('#get-params').hidden=true;return true;};
+$('#debug').onclick=async()=>{
+ const reportId=$('#report').value.trim();if(!reportId)return toast('请填写报表ID');
+ if($('[name=mode]:checked').value==='bulk'){try{JSON.parse($('#bulk').value);}catch{return toast('传参不是有效JSON');}}
+ window.selectReportFixture?.();const sequence=++debugSequence,mode=$('#debug-case').value,changed=confirmedReport!==reportId;
+ $('#debug').disabled=true;$('#debug').textContent='调试中';
+ await new Promise(resolve=>setTimeout(resolve,120));
+ if(sequence!==debugSequence){$('#debug').disabled=false;$('#debug').textContent='调 试';return;}
+ $('#debug').disabled=false;$('#debug').textContent='调 试';
+ if(['报表查询失败','配置查询失败'].includes(mode)){state.loaded=false;renderActionTabs();return toast(mode+'，请重试');}
+ const fixture=fixtures[$('#demo-data').value];state.metadata=core.clone(metadataFor(fixture));fields=[...fixture.fields];samples=core.clone(fixture.samples);
+ const objectColumn=state.metadata.some(f=>f.code==='role_id')?'role_id':'union_id';
+ if(mode==='缺少对象字段'){const index=state.metadata.findIndex(f=>f.code===objectColumn);if(index>=0){state.metadata.splice(index,1);fields.splice(index,1);samples.forEach(row=>row.splice(index,1));}}
+ if(mode==='对象值无效'&&samples.length){const index=state.metadata.findIndex(f=>f.code===objectColumn);if(index>=0)samples[0][index]=' ';}
+ if(mode==='零行')samples=[];
+ if(changed){state.rules=[{field:'',op:'大于等于',value:''}];state.chosen=[];Object.keys(actionDrafts).forEach(k=>delete actionDrafts[k]);}
+ confirmedReport=reportId;state.loaded=true;
+ $('#sample-tag').hidden=false;$('#results').innerHTML='<table><thead><tr>'+fields.map(f=>'<th>'+esc(f)+'</th>').join('')+'</tr></thead><tbody>'+samples.map(row=>'<tr>'+row.map(v=>'<td>'+esc(v??'null')+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+ renderRules();renderTransfer();syncReportActions();toast('调试完成，返回'+samples.length+'条模拟数据');
 };
-Object.assign(reportTypes['联盟监控报表 12823'],{'离线时长':'number','战力':'number','累计充值金额':'number'});
-function sortTypes(){return reportTypes[$('#demo-data').value]||{};}
-function sortableFields(){const types=sortTypes(),fixture=fixtures[$('#demo-data').value];return state.loaded?fields.filter(f=>['number','datetime'].includes(types[f])&&(!current()?.memberLookup||fixture?.rowLevel!=='union'||fixture.memberFields?.includes(f))):[];}
-function directions(field){return sortTypes()[field]==='datetime'?['从晚到早','从早到晚']:['从大到小','从小到大'];}
-function addSort(saved){const used=$$('[data-sort-field]').map(x=>x.value);const allowed=sortableFields();const available=allowed.filter(x=>!used.includes(x));if(!available.length)return toast('没有更多可用排序字段');const field=allowed.includes(saved?.field)?saved.field:available[0];const el=document.createElement('div');el.className='action-sort';el.innerHTML='<select data-sort-field aria-label="排序字段">'+options(allowed,field)+'</select><select data-sort-direction aria-label="排序方向">'+options(directions(field),saved?.direction||directions(field)[0])+'</select><button type="button" class="link" title="删除排序">×</button>';el.querySelector('[data-sort-field]').onchange=e=>{el.querySelector('[data-sort-direction]').innerHTML=options(directions(e.target.value));};el.querySelector('button').onclick=()=>el.remove();$('#action-sorts').append(el);}
-function missingObjectFields(){const cfg=current();if(!cfg)return [];const bindings=fixtures[$('#demo-data').value]?.objectBindings||{};return cfg.keys.filter(key=>!fields.includes(bindings[key]||key));}
-function refreshAuditFields(){const cfg=current(),target=$('#audit-fields-status');if(!cfg){target.textContent='当前报表未配置待审核业务操作';$('#add-sort').disabled=true;return;}const missing=missingObjectFields();target.className=state.loaded&&missing.length?'error':'muted';const binding=fixtures[$('#demo-data').value]?.objectBindings;const mapped=state.loaded&&binding?'（游戏世界ID用作区服ID）':'';target.textContent=!state.loaded?'请先调试报表，校验操作所需字段':missing.length?'当前报表缺少：'+missing.join('、')+'，无法生成该操作的审核记录':cfg.memberLookup?'报表已定位联盟'+mapped+'；成员角色与排序值来自当前报表，按成员逐人生成审核记录':'报表字段校验通过'+mapped;$('#add-sort').disabled=!state.loaded||!sortableFields().length;}
-window.refreshAuditFields=refreshAuditFields;
-function renderAction(){const cfg=current();if(!cfg){$('#sort-row').hidden=true;$('#action-sorts').innerHTML='';$('#action-params').innerHTML='';refreshAuditFields();return;}$('#sort-row').hidden=!cfg.supportsSort;$('#action-sorts').innerHTML='';$('#action-params').innerHTML=cfg.params.length?cfg.params.map(p=>paramRow(...p)).join(''):'<div class="row"><span class="label">处理配置</span><div class="control muted" style="line-height:32px">无需额外处理参数</div></div>';$('#action-params').insertAdjacentHTML('beforeend',paramRow('指定角色ID','text')+paramRow('目标联盟ID','text'));
- $('#sort-row .control .sort-source-note')?.remove();if(cfg.memberLookup)$('#sort-row .control').insertAdjacentHTML('afterbegin','<div class="muted sort-source-note">处理顺序从当前监控报表的成员字段中选择；本地示例数据为虚构。</div>');
- const saved=actionDrafts[$('#operation').value];if(saved){saved.params.forEach(p=>{const e=$$('#action-params [data-param]').find(x=>x.dataset.param===p.name);if(e)e.value=p.value;});saved.sorts.forEach(s=>{if(sortableFields().includes(s.field))addSort(s);});}
- previousOperation=$('#operation').value;linkParams();refreshAuditFields();}
-function linkParams(){const get=n=>$$('[data-param]').find(e=>e.dataset.param===n);const rank=get('目标阶级'),position=get('目标职位');if(rank){const old=position.value;const allowed=rank.value==='R5'?['盟主']:rank.value==='R4'?['战神','外交官','女神','军师','无官职']:['无官职'];position.innerHTML=options(allowed,allowed.includes(old)?old:allowed[0]);}
- const transfer=get('目标联盟选择方式');const manualTransfer=transfer?.value==='手动指定联盟';if(get('目标联盟ID'))get('目标联盟ID').closest('.row').hidden=!manualTransfer;
- for(const n of ['目标联盟排名起始','目标联盟排名结束','目标剩余人数下限'])if(get(n))get(n).closest('.row').hidden=!!manualTransfer;
- const recommend=get('推荐对象');const manualRole=recommend?.value==='手动指定'||get('分配策略')?.value==='人工指定';if(get('指定角色ID'))get('指定角色ID').closest('.row').hidden=!manualRole;
- $$('[data-param]').forEach(e=>{e.setAttribute('aria-label',e.dataset.param);e.required=$('#use-audit').checked&&!e.closest('.row').hidden;});}
-$('#action-params').onchange=linkParams;
-function loadOperations(){const selected=$('#operation').value,names=availableOperations($('#business').value);$('#operation').innerHTML=options(names,names.includes(selected)?selected:names[0]);renderAction();}
-$('#business').onchange=()=>{stash();loadOperations();};$('#operation').onchange=()=>{stash();renderAction();};$('#add-sort').onclick=()=>addSort();
-function actionComplete(kind){if(kind==='alarm'){return $('#editor').innerText.trim().length>0&&state.chosen.length>0&&state.channels.every(c=>c.type==='Webhook'?/^https?:\/\//.test(c.url):c.users);}if(kind==='audit'){return !!current()&&state.loaded&&missingObjectFields().length===0;}return false;}
-function renderActionTabs(){
-  const enabled={alarm:$('#use-alarm').checked,audit:$('#use-audit').checked};
-  if(!enabled[activeAction])activeAction=enabled.alarm?'alarm':'audit';
-  $$('.action-tab').forEach(tab=>{const kind=tab.dataset.actionTab;tab.hidden=kind==='audit'&&$('#use-audit').disabled;tab.classList.toggle('active',kind===activeAction);tab.classList.toggle('disabled',!enabled[kind]);const dot=tab.querySelector('.action-state');dot.classList.toggle('enabled',enabled[kind]);dot.classList.toggle('incomplete',enabled[kind]&&!actionComplete(kind));});
-  alarmPanel.classList.toggle('action-panel-hidden',activeAction!=='alarm'||!enabled.alarm);audit.classList.toggle('action-panel-hidden',activeAction!=='audit'||!enabled.audit);
-  alarmPanel.hidden=activeAction!=='alarm'||!enabled.alarm;
-  audit.hidden=activeAction!=='audit'||!enabled.audit;
-  $$('.action-tab').forEach(tab=>tab.classList.toggle('active',tab.dataset.actionTab===activeAction));
-}
-$$('.action-tab').forEach(tab=>tab.onclick=()=>{if(tab.hidden)return;activeAction=tab.dataset.actionTab;renderActionTabs();});
-function toggleActions(){if(!$('#use-alarm').checked&&!$('#use-audit').checked){$('#use-alarm').checked=true;toast('至少保留一个触发动作');}if(!$('#use-'+activeAction).checked)activeAction=$('#use-alarm').checked?'alarm':'audit';linkParams();refreshAuditFields();renderActionTabs();}
-$('#use-alarm').onchange=toggleActions;$('#use-audit').onchange=toggleActions;
-const reportChange=$('#report').onchange;$('#report').onchange=()=>{reportChange();window.selectReportFixture?.();$('#action-sorts').innerHTML='';Object.values(actionDrafts).forEach(d=>d.sorts=[]);window.syncReportParams?.();syncReportActions();};
-$('#report').addEventListener('input',syncReportActions);
-$('#monitor-form').onsubmit=e=>{e.preventDefault();const alertOn=$('#use-alarm').checked,auditOn=$('#use-audit').checked;if(!alertOn&&!auditOn)return toast('请至少选择一种触发动作');if(!state.loaded)return toast('请先调试报表');if(state.rules.some(r=>!r.field||r.value===''))return toast('请完善规则');if($('[name=timeMode]:checked').value==='specified'&&!state.slots.flat().some(Boolean))return toast('请选择巡检时段');
- if(alertOn){if(!$('#editor').innerText.trim()||$('#editor').innerText.length>2000)return toast('请填写2000字以内的告警内容');if(!state.chosen.length)return toast('请选择报警参数');if(state.channels.some(c=>!(c.type==='Webhook'?/^https?:\/\//.test(c.url):c.users)))return toast('请完善告警方式');}
- const actionParams={};let sorts=[];
- if(auditOn){if(!current()||!current().reports.includes($('#report').value.trim()))return toast('当前报表未配置该待审核业务操作');if(missingObjectFields().length)return toast('报表缺少操作所需字段：'+missingObjectFields().join('、'));const inputs=$$('[data-param]').filter(x=>!x.closest('.row').hidden);for(const x of inputs){if(!x.value.trim()||x.value==='请选择')return toast('请填写'+x.dataset.param);actionParams[x.dataset.param]=x.value;}if(actionParams['目标联盟排名起始']&&+actionParams['目标联盟排名起始']>+actionParams['目标联盟排名结束'])return toast('起始名次不能大于结束名次');sorts=$$('.action-sort').map(x=>({field:x.querySelector('[data-sort-field]').value,direction:x.querySelector('[data-sort-direction]').value}));if(new Set(sorts.map(x=>x.field)).size!==sorts.length)return toast('处理顺序不可重复选择同一字段');if(sorts.some(x=>!sortableFields().includes(x.field)))return toast('处理顺序包含当前报表不可排序的字段');if(current().memberLookup){if(!fields.includes('角色ID')||!samples.some(row=>{const id=row[fields.indexOf('角色ID')];return id!==undefined&&id!==null&&String(id).trim()!=='';}))return toast('联盟踢人需要报表提供有效的成员角色ID');if(!sorts.length)return toast('每个联盟最多处理需配置成员处理顺序');if(sorts.some(x=>!samples.some(row=>row[fields.indexOf(x.field)]!==null&&row[fields.indexOf(x.field)]!==undefined&&row[fields.indexOf(x.field)]!=='')))return toast('成员排序字段缺少样本值');}}
- const data={名称:$('#name').value,报表:$('#report').value,命中规则:state.rules,巡检周期:$('#cycle').value+$('#cycle-unit').value,触发动作:[]};if(alertOn)data.触发动作.push({动作:'发送告警',渠道:state.channels.map(c=>c.type),报警参数:state.chosen});if(auditOn)data.触发动作.push({动作:'创建待审核记录',业务类型:$('#business').value,操作类型:$('#operation').value,处理顺序:sorts,处理参数:actionParams});dialog('监控任务配置预览',JSON.stringify(data,null,2)+'\n\n本地模拟预览，不提交后台，不执行业务操作。');};
+$('#monitor-form').onsubmit=e=>{
+ e.preventDefault();const alertOn=$('#use-alarm').checked,auditOn=$('#use-audit').checked;
+ if(!alertOn&&!auditOn)return toast('请至少启用一种触发动作');
+ if(!state.loaded||confirmedReport!==$('#report').value.trim())return toast('请先成功调试当前报表');
+ if(!$('#name').value.trim())return toast('请填写名称');
+ if(state.rules.some(r=>!r.field||r.value===''))return toast('请完善巡检条件');
+ if(!Number.isInteger(Number($('#cycle').value))||Number($('#cycle').value)<1)return toast('请填写有效巡检周期');
+ if($('[name=timeMode]:checked').value==='specified'&&!state.slots.flat().some(Boolean))return toast('请选择巡检时段');
+ if(alertOn&&(!$('#editor').innerText.trim()||$('#editor').innerText.length>2000||!state.chosen.length||state.channels.some(c=>!(c.type==='Webhook'?/^https?:\/\//.test(c.url):c.users))))return toast('请完善告警内容、展示字段和通道');
+ let values={},sorts=[];
+ if(auditOn){const cfg=current();if(!core.allowed(confirmedReport).includes(cfg))return toast('当前报表未开放该操作');
+ const errors=core.validateFields(cfg,metadata(),rowsFromPreview());if(errors.length)return toast(errors[0]);
+ values=paramValues();const errors2=core.validateParams(cfg,values);if(errors2.length)return toast(errors2[0]);
+ sorts=$$('.action-sort').map(row=>({field:metadata().find(f=>f.name===row.querySelector('[data-sort-field]').value)?.code,direction:row.querySelector('[data-sort-direction]').value}));
+ if(new Set(sorts.map(x=>x.field)).size!==sorts.length)return toast('排序字段不能重复');
+ if(cfg.operation_code==='union_kick'&&!sorts.length)return toast('联盟踢人请配置处理顺序');
+ values=Object.fromEntries(cfg.parameter_schema.filter(f=>!f.visible_when||Object.entries(f.visible_when).every(([key,value])=>values[key]===value)).map(f=>[f.field_code,values[f.field_code]]));
+ }
+ const data={名称:$('#name').value,报表:confirmedReport,命中规则:state.rules,巡检周期:$('#cycle').value+$('#cycle-unit').value,触发动作:[],处理参数:values,处理顺序:sorts};
+ if(alertOn)data.触发动作.push({动作:'发送告警'});if(auditOn)data.触发动作.push({动作:'创建待审核记录',业务类型ID:current().business_code,操作类型ID:current().operation_code,处理参数:values,处理顺序:sorts});
+ dialog('监控任务配置预览',JSON.stringify(data,null,2));
+};
+style.textContent+=' .sort-handle{cursor:grab;touch-action:none}.action-sort{align-items:center;flex-wrap:nowrap;min-height:36px}.sort-priority{width:18px;flex:none;text-align:center;color:#999}.action-sort.dragging{opacity:.5}.action-sort.drop-target{border-top:2px solid #1890ff}.action-sort select{min-width:0;width:160px}.preview{max-height:400px}.preview th{position:sticky;top:0}.preview table{width:max-content;min-width:100%}#audit-fields-status{line-height:28px;overflow-wrap:anywhere}.action-tab input{margin:0}@media(max-width:650px){.action-sort select{width:110px}.action-layout{max-width:100%}}';
 syncReportActions();toggleActions();
 
 // Local-only task list and drilldowns. No backend requests or business execution.
@@ -289,7 +423,7 @@ const recordDialog=document.createElement('dialog');recordDialog.id='record-dial
 const stamp=()=>new Date().toLocaleString('sv-SE').slice(0,16);
 function taskScope(t){const d=t.draft;return {report:d?.inputs.find(x=>x.id==='report')?.value||fixtures[t.fixture]?.id||'',parameters:JSON.stringify(d?.reportParams||[]),rules:JSON.stringify(d?.state?.rules||[]),alarm:t.alarm,audit:t.audit,alarmConfig:JSON.stringify({content:d?.editor||'',columns:d?.state?.chosen||[],channels:d?.state?.channels||[]}),auditConfig:JSON.stringify({business:t.business,operation:t.operation,sorts:d?.sorts||[],process:d?.params||t.params||{}})};}
 function activationConflict(candidate){const a=taskScope(candidate);return tasks.filter(t=>t.enabled&&t.id!==candidate.id).map(t=>({task:t,scope:taskScope(t)})).filter(({scope:b})=>a.report===b.report&&(a.alarm&&b.alarm||a.audit&&b.audit)).map(({task,scope:b})=>{const sameQuery=a.parameters===b.parameters&&a.rules===b.rules;const alarmOverlap=a.alarm&&b.alarm,auditOverlap=a.audit&&b.audit&&candidate.business===task.business&&candidate.operation===task.operation;const exact=sameQuery&&a.alarm===b.alarm&&a.audit===b.audit&&(!a.alarm||a.alarmConfig===b.alarmConfig)&&(!a.audit||a.auditConfig===b.auditConfig);return {task,exact,actions:[alarmOverlap?'发送告警':'',auditOverlap?'创建待审核记录':''].filter(Boolean)};}).filter(x=>x.exact||x.actions.length);}
-function allowActivation(candidate){const operation=catalog[candidate.business]?.[candidate.operation],reportId=taskScope(candidate).report;if(candidate.audit&&(!extensionActions.create_audit.reports.includes(reportId)||!operation?.reports.includes(reportId))){dialog('启用失败','当前报表未配置该待审核业务操作。');return false;}const conflicts=activationConflict(candidate),exact=conflicts.find(x=>x.exact);if(exact){if($('#dialog').open)$('#dialog').close();dialog('启用失败','与已启用任务 '+exact.task.id+'「'+exact.task.name+'」配置完全重复。请调整报表范围、命中规则或业务操作后再启用；停用状态可保存。');return false;}if(!conflicts.length)return true;const names=conflicts.map(x=>x.task.id+'「'+x.task.name+'」：'+x.actions.join('、')).join('；');return confirm('可能与已启用任务 '+names+' 范围重叠。确认仍要启用？（本地演示）');}
+function allowActivation(candidate){const operation=core.op(candidate.operation),reportId=taskScope(candidate).report;if(candidate.audit&&!core.allowed(reportId).includes(operation)){dialog('启用失败','当前报表未配置该待审核业务操作。');return false;}if(candidate.audit&&candidate.draft){const errors=core.validateFields(operation,metadataFor(fixtures[candidate.fixture]),[]);if(errors.length){dialog('启用失败',errors.join('；'));return false;}}const conflicts=activationConflict(candidate),exact=conflicts.find(x=>x.exact);if(exact){if($('#dialog').open)$('#dialog').close();dialog('启用失败','与已启用任务 '+exact.task.id+'「'+exact.task.name+'」配置完全重复。请调整报表范围、命中规则或业务操作后再启用；停用状态可保存。');return false;}if(!conflicts.length)return true;const names=conflicts.map(x=>x.task.id+'「'+x.task.name+'」：'+x.actions.join('、')).join('；');return confirm('可能与已启用任务 '+names+' 范围重叠。确认仍要启用？（本地演示）');}
 function filterTasks(){return tasks.filter(t=>(!filters.name||t.name.includes(filters.name))&&(!filters.creator||t.creator.includes(filters.creator))&&(filters.enabled==='不限'||t.enabled===(filters.enabled==='启用'))&&(filters.level==='不限'||t.level===filters.level)&&(filters.action==='全部'||(filters.action==='发送告警'?t.alarm:t.audit))&&(filters.operation==='全部'||t.operation===filters.operation)).sort((a,b)=>b.updated.localeCompare(a.updated)||b.id-a.id);}
 function applyFilters(){filters={name:$('#filter-name').value.trim(),creator:$('#filter-creator').value.trim(),enabled:$('#filter-enabled').value,level:$('#filter-level').value,action:$('#filter-action').value,operation:$('#filter-operation').value};page=1;renderList();}
 function renderList(){const rows=filterTasks(),pages=Math.max(1,Math.ceil(rows.length/10));page=Math.min(page,pages);$('#task-rows').innerHTML=rows.slice((page-1)*10,page*10).map(t=>{const queries=t.runs.filter(r=>r.query==='成功').length;const alarms=t.runs.filter(r=>['成功','失败'].includes(r.alert));const generated=t.runs.reduce((n,r)=>n+r.generated,0);return '<tr data-task="'+t.id+'"><td><button type="button" role="switch" aria-label="启停 '+esc(t.name)+'" aria-checked="'+t.enabled+'" class="switch" data-do="toggle"></button><div>'+ (t.enabled?'启用':'停用')+'</div></td><td>'+t.id+'</td><td><button type="button" class="link" data-do="detail">'+esc(t.name)+'</button></td><td>'+esc(t.description||'-')+'</td><td>本地示例分类</td><td>'+t.level+'</td><td>'+(t.alarm?'<span class="tag">发送告警</span>':'')+(t.audit?'<span class="tag">创建待审核记录</span>':'')+'</td><td>'+(t.audit?esc(t.business)+'<br>'+esc(t.operation):'-')+'</td><td>'+(t.alarm?'<button type="button" class="link" data-do="alarms">'+alarms.filter(r=>r.alert==='成功').length+'/'+alarms.length+'</button>':'-')+'</td><td><button type="button" class="link" data-do="runs">'+queries+'/'+t.runs.length+'</button></td><td>'+(t.audit?'<button type="button" class="link" data-do="audits">'+generated+'条</button>':'-')+'</td><td>示例运营A<br>'+t.updated+'</td><td>'+t.creator+'<br>'+t.created+'</td><td><button type="button" class="link" data-do="detail">详情</button><button type="button" class="link" data-do="edit">编辑</button><button type="button" class="link" data-do="copy">复制</button><button type="button" class="link" data-do="runs">记录</button></td></tr>';}).join('')||'<tr><td colspan="14" style="text-align:center;padding:60px">暂无监控任务</td></tr>';$('#total-tasks').textContent='共 '+rows.length+' 条，每页10条';$('#page-number').textContent=page+' / '+pages;$('#prev-page').disabled=page===1;$('#next-page').disabled=page===pages;}
@@ -345,7 +479,7 @@ for(const [index,name] of [[7,'告警记录'],[8,'创建待审核记录'],[9,'�
 style.textContent+=' .audit-count-help{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;margin-left:3px;padding:0;border:1px solid #8c8c8c;border-radius:50%;background:#fff;color:#595959;font:11px Arial,sans-serif;cursor:help;vertical-align:middle}.audit-count-tip{position:fixed;z-index:100;width:max-content;max-width:calc(100vw - 16px);padding:8px 10px;background:#262626;color:#fff;font-size:12px;font-weight:400;line-height:1.5;text-align:left;white-space:normal;box-shadow:0 2px 8px #0003}.audit-count-tip[hidden]{display:none}';
 $$('.sort-heading').forEach(b=>b.onclick=()=>{const k=b.dataset.column;if(sortColumn!==k){sortColumn=k;sortDirection=-1;}else if(sortDirection===-1)sortDirection=1;else sortColumn='';renderList();});
 const originalRenderList=renderList;
-renderList=function(){originalRenderList();$$('#task-rows tr[data-task]').forEach(row=>{const t=tasks.find(t=>t.id===+row.dataset.task);row.cells[4].innerHTML='<button type="button" class="link" data-do="category">'+esc(categoryOf(t))+' ✎</button>';row.cells[5].style.color=t.level==='紧急'?'#f5222d':t.level==='重要'?'#fa8c16':'#52c41a';const today='2026-09-26';const runs=t.runs.filter(r=>r.time.startsWith(today));const alarms=runs.filter(r=>['成功','失败'].includes(r.alert));row.cells[8].innerHTML=t.alarm?'<button class="link" type="button" data-do="alarms">今日：'+alarms.filter(r=>r.alert==='成功').length+'/'+alarms.length+'次</button>':'-';row.cells[9].innerHTML='<button class="link" type="button" data-do="runs">今日：'+runs.filter(r=>r.query==='成功').length+'/'+runs.length+'次</button><div>'+esc(t.runs[0]?.time||'-')+'</div>';if(t.audit){const records=t.id===1002?readFlow().audits:null;const total=records?records.length:t.runs.reduce((n,r)=>n+r.generated,0);const pending=records?records.filter(a=>a.status==='待审核').length:total;row.cells[10].innerHTML='<button class="link" type="button" data-do="audits">'+pending+'/'+total+'条</button>';}row.cells[11].innerHTML=esc(t.modifier||t.creator)+'<br>'+esc(t.updated);row.cells[13].innerHTML=['detail','runs','copy','edit'].map((k,i)=>'<button type="button" class="link" data-do="'+k+'">'+['详情','记录','复制','编辑'][i]+'</button>').join('');});};
+renderList=function(){originalRenderList();$$('#task-rows tr[data-task]').forEach(row=>{const t=tasks.find(t=>t.id===+row.dataset.task);row.cells[4].innerHTML='<button type="button" class="link" data-do="category">'+esc(categoryOf(t))+' ✎</button>';row.cells[5].style.color=t.level==='紧急'?'#f5222d':t.level==='重要'?'#fa8c16':'#52c41a';const today='2026-10-14';const runs=t.runs.filter(r=>r.time.startsWith(today));const alarms=runs.filter(r=>['成功','失败'].includes(r.alert));row.cells[8].innerHTML=t.alarm?'<button class="link" type="button" data-do="alarms">今日：'+alarms.filter(r=>r.alert==='成功').length+'/'+alarms.length+'次</button>':'-';row.cells[9].innerHTML='<button class="link" type="button" data-do="runs">今日：'+runs.filter(r=>r.query==='成功').length+'/'+runs.length+'次</button><div>'+esc(t.runs[0]?.time||'-')+'</div>';if(t.audit){const records=t.id===1002?readFlow().audits:null;const total=records?records.length:t.runs.reduce((n,r)=>n+r.generated,0);const pending=records?records.filter(a=>a.status==='待审核').length:total;row.cells[10].innerHTML='<button class="link" type="button" data-do="audits">'+pending+'/'+total+'条</button>';}row.cells[11].innerHTML=esc(t.modifier||t.creator)+'<br>'+esc(t.updated);row.cells[13].innerHTML=['detail','runs','copy','edit'].map((k,i)=>'<button type="button" class="link" data-do="'+k+'">'+['详情','记录','复制','编辑'][i]+'</button>').join('');});};
 function auditRequests(runs){return runs.filter(r=>r.query==='成功').reduce((n,r)=>n+r.generated+r.failed,0);}
 function auditSuccesses(runs){return runs.reduce((n,r)=>n+r.generated,0);}
 function latestAuditRequest(runs){return runs.find(r=>r.query==='成功'&&r.generated+r.failed>0)?.time||'-';}
@@ -355,7 +489,7 @@ renderList=function(){
   renderListWithStats();
   $$('#task-rows tr[data-task]').forEach(row=>{
     const task=tasks.find(item=>item.id===Number(row.dataset.task));
-    const todayRuns=task.runs.filter(run=>run.time.startsWith('2026-09-26'));
+    const todayRuns=task.runs.filter(run=>run.time.startsWith('2026-10-14'));
     const alarmRequests=todayRuns.filter(run=>['成功','失败'].includes(run.alert));
     const lastAlarm=task.runs.find(run=>['成功','失败'].includes(run.alert))?.time||'-';
     const runSummary=row.cells[9].innerHTML;
@@ -393,9 +527,9 @@ $('#task-rows').onclick=e=>{
 };
 recordDialog.classList.add('monitor-drawer');
 const closeX=document.createElement('button');closeX.type='button';closeX.className='drawer-close';closeX.textContent='×';closeX.setAttribute('aria-label','关闭记录');closeX.onclick=()=>recordDialog.close();recordDialog.prepend(closeX);
-let drawerTask, drawerKind='runs', recordPage=1, recordFrom='2026-08-28',recordTo='2026-09-26';
+let drawerTask, drawerKind='runs', recordPage=1, recordFrom='2026-09-15',recordTo='2026-10-14';
 function recordsTable(headers,rows){return '<div class="drawer-table-scroll"><table class="record-table"><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+(rows.length?rows.map(r=>'<tr>'+r.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join(''):'<tr><td colspan="'+headers.length+'">'+empty()+'</td></tr>')+'</tbody></table></div>';}
-function renderRecords(){const t=drawerTask;$('#record-title').textContent=t.name+'记录';const all=t.runs;const today=all.filter(r=>r.time.startsWith('2026-09-26'));const ar=rs=>rs.filter(r=>['成功','失败'].includes(r.alert));const fraction=(rs,key)=>rs.filter(r=>r[key]==='成功').length+'/'+rs.length;
+function renderRecords(){const t=drawerTask;$('#record-title').textContent=t.name+'记录';const all=t.runs;const today=all.filter(r=>r.time.startsWith('2026-10-14'));const ar=rs=>rs.filter(r=>['成功','失败'].includes(r.alert));const fraction=(rs,key)=>rs.filter(r=>r[key]==='成功').length+'/'+rs.length;
 const selected=all.filter(r=>(!recordFrom||r.time.slice(0,10)>=recordFrom)&&(!recordTo||r.time.slice(0,10)<=recordTo));let headers,rows;
 if(drawerKind==='alarms'){headers=['告警日期','告警内容','告警方式','告警结果'];rows=ar(selected).map(r=>[esc(r.time),'<button class="link" data-log="'+r.id+'" data-logtype="alarm">查看</button>','电话（模拟）',esc(r.alert)]);}
 else if(drawerKind==='audits'){headers=['审核记录ID','首次生成批次','对象','操作类型','审核状态','最近命中/失效'];rows=t.id===1002?readFlow().audits.filter(a=>selected.some(run=>run.id===a.sourceNo)).map(a=>[a.id,a.sourceNo,flowObjects[a.object].name,t.operation,a.status,a.invalidAt?'失效：'+a.invalidAt+' '+a.invalidReason:a.lastHitAt>a.firstHitAt?'最近命中：'+a.lastHitAt:'-'].map(esc)):selected.flatMap(r=>Array.from({length:r.generated},(_,i)=>[esc('A-'+r.id+'-'+(i+1)),esc(r.id),'示例对象'+(i+1),esc(t.operation),'待审核','-']));}
@@ -437,7 +571,7 @@ renderRecords=function(){
     $('#record-content .drawer-table-scroll').outerHTML=recordsTable(['审核记录ID','操作对象','操作类型','生成时间','审核状态'],records.slice((recordPage-1)*10,recordPage*10).map(record=>[esc(record.id),esc(record.object),esc(drawerTask.operation),esc(record.time),esc(record.status)]));
   }
   if(!drawerTask.audit)return;
-  const runs=drawerTask.runs,today=runs.filter(run=>run.time.startsWith('2026-09-26'));
+  const runs=drawerTask.runs,today=runs.filter(run=>run.time.startsWith('2026-10-14'));
   const stats=$('#record-content .record-stats');
   if(!stats)return;
   stats.classList.add('with-audit-stats');
@@ -454,48 +588,107 @@ else{drawerKind=kind;renderRecords();}recordDialog.showModal();};
 style.textContent+=' #task-list{display:grid;grid-template-columns:220px minmax(0,1fr);gap:12px;background:#f0f2f5;margin:0;padding:8px;min-height:100vh}.category-pane{background:#fff;padding:0 12px;min-width:0}.category-pane>input{width:100%;margin-bottom:12px}.category-pane details{padding-left:12px}.category-pane summary{cursor:pointer;margin:8px 0}.category-leaf{display:block;background:transparent;border:0;text-align:left;padding:5px 10px;cursor:pointer;font:inherit;max-width:100%;overflow-wrap:anywhere}.category-pane details .category-leaf{margin-left:18px}.category-leaf.selected{background:#bae7ff}.monitor-content{min-width:0}.list-filters{background:#fff;padding:12px;gap:8px;margin-bottom:12px}.list-filters label{gap:0}.list-filters label select{min-width:90px}.list-filters label:nth-child(2),.list-filters label:nth-child(3){gap:8px}.list-tools{padding:12px;background:white}.list-scroll{margin:0;background:#fff}.list-pager{background:#fff}.task-table td,.task-table th{border:1px solid #f0f0f0;font-size:13px;padding:10px 8px}.task-table th:nth-child(9),.task-table th:nth-child(10){width:180px}.task-table th:last-child{width:190px}.monitor-drawer#record-dialog{position:fixed;inset:0 0 0 auto;margin:0;height:100dvh;max-height:100dvh;width:min(800px,96vw);max-width:none;border:0;border-radius:0;padding:0;background:#f3f5fc}.monitor-drawer #record-title{background:white;margin:0;padding:18px 50px 18px 24px;font-size:16px;font-weight:400}.drawer-close{position:absolute;right:16px;top:12px;background:none;border:0;color:#999;font-size:24px;cursor:pointer}.monitor-drawer .record-scroll{max-height:calc(100dvh - 120px);overflow:auto;padding:12px}.record-tabs{display:flex;justify-content:center;background:white;border:1px solid #eee;padding:0 12px}.record-tab{background:none;border:0;padding:14px 16px;cursor:pointer;border-bottom:2px solid transparent}.record-tab.active{color:#1890ff;border-bottom-color:#1890ff}.record-stats{display:grid;grid-template-columns:repeat(4,1fr);background:white;padding:12px 4px;margin:10px 0;text-align:center}.record-stats strong{display:block;font-size:26px;color:#262626}.record-body,.detail-band{background:white;padding:12px;margin-bottom:10px}.record-filters{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:20px}.record-filters input{width:140px}.record-filters .muted{font-size:12px;margin-left:auto}.drawer-table-scroll{overflow:auto}.record-table th{background:#fafafa}.record-table td,.record-table th{border:1px solid #eee;font-size:13px}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.detail-band p{margin:16px 0}.detail-band h3{font-size:16px}.params-code{background:#202020;color:#e6f7ff;min-height:160px;padding:16px;overflow:auto}.alarm-preview{padding:12px;border:1px solid #eee;color:#1890ff}.detail-band pre{white-space:pre-wrap;overflow-wrap:anywhere}#dialog{z-index:50}@media(max-width:650px){#task-list{grid-template-columns:160px minmax(0,1fr)}.record-stats{grid-template-columns:repeat(2,1fr);gap:12px}.detail-grid{grid-template-columns:1fr}}';
 renderTree();renderList();
 
-// Session-only walkthrough state shared by the monitoring and audit prototypes.
-let walkthrough=readFlow();writeFlow(walkthrough);
-const walkthroughTask=tasks.find(t=>t.id===1002);
-function syncWalkthrough(){walkthrough=readFlow();walkthroughTask.runs=clone(walkthrough.runs);renderTree();renderList();if(recordDialog.open&&drawerTask?.id===1002)renderRecords();}
-function nextWalkthroughRun(kind){
-  if(!walkthroughTask.enabled)return toast('任务已停用，请先启用后巡检');
-  const data=readFlow(),number=++data.seq,id='M1002-'+String(number).padStart(2,'0'),time='2026-09-26 '+String(5+number-1).padStart(2,'0')+':00';
-  const selected=kind==='both'?['A','B']:kind==='b'?['B']:[];
-  const run={id,time,query:kind==='failed'?'失败':'成功',hits:kind==='failed'?null:selected.length,alert:'未配置',generated:0,failed:0,selected:[],decision:'',changes:[]};
-  if(kind==='failed'){run.decision='查询失败；已有待审保持不变';}
-  else{
-    run.selected=selected.map(x=>flowObjects[x].name);
-    for(const record of data.audits.filter(x=>x.status==='待审核'&&!selected.includes(x.object))){record.status='已失效';record.invalidAt=time;record.invalidRunId=id;record.invalidReason='本轮不再符合规则';run.changes.push({object:flowObjects[record.object].name,result:'不再符合，已失效',auditId:record.id});}
-    for(const object of selected){
-      const name=flowObjects[object].name,existing=data.audits.find(x=>x.object===object&&x.status==='待审核');
-      if(existing){existing.lastHitAt=time;existing.linkedRuns.push(id);run.changes.push({object:name,result:'重复命中，未新建',auditId:existing.id});}
-      else{const auditId='A-'+id+'-'+(run.generated+1);data.audits.unshift({id:auditId,status:'待审核',object,sourceNo:id,generatedAt:time,firstHitAt:time,lastHitAt:time,linkedRuns:[id],auditor:'-',auditAt:'-',remark:'-'});run.generated++;run.changes.push({object:name,result:'新建待审核',auditId});}
-    }
-    run.decision=run.changes.length?run.changes.map(x=>x.object+'：'+x.result).join('；'):'本轮无命中或状态变化';
-  }
-  data.runs.unshift(run);writeFlow(data);syncWalkthrough();showRecord(walkthroughTask,'runs');toast('已模拟 '+time+' 巡检（仅本地）');
+function currentTaskConfig(task){
+ const draft=task.draft,op=core.op(task.operation),fixture=fixtures[task.fixture],meta=metadataFor(fixture);
+ return {id:task.id,name:task.name,enabled:task.enabled,alarm:task.alarm,audit:task.audit,report_id:fixture.id,operation:op?.operation_code||task.operation,rules:core.clone(draft?.state.rules||task.rules||[]),sorts:(draft?.sorts||task.sorts||[]).map(s=>({field:meta.find(f=>f.name===s.field||f.code===s.field)?.code||s.field,direction:s.direction})),parameters:draft?Object.fromEntries(draft.params.map(p=>[op?.parameter_schema.find(f=>f.field_name===p.name)?.field_code||p.name,p.value])):task.parameters||{},reportParams:draft?.reportParams||[],time_zone:'Asia/Shanghai'};
 }
-const walkthroughBar=document.createElement('div');walkthroughBar.className='walkthrough-bar';
-walkthroughBar.innerHTML='<span>本地模拟巡检</span><button type="button" class="btn" data-sim="both">A+B命中</button><button type="button" class="btn" data-sim="b">仅B命中</button><button type="button" class="btn" data-sim="empty">零命中</button><button type="button" class="btn" data-sim="failed">查询失败</button><button type="button" class="btn" data-sim="reset">重置演示</button><span class="muted">任务1002 · 联盟解散</span>';
-listContent.querySelector('.list-tools').after(walkthroughBar);
-walkthroughBar.onclick=e=>{const button=e.target.closest('[data-sim]');if(!button)return;if(button.dataset.sim==='reset'){if(!confirm('将任务1002的本地巡检与审核记录恢复到05:00？'))return;writeFlow(initialFlow());syncWalkthrough();if(recordDialog.open&&drawerTask?.id===1002)showRecord(walkthroughTask,'runs');toast('演示已重置到05:00');return;}nextWalkthroughRun(button.dataset.sim);};
-style.textContent+=' .walkthrough-bar{display:flex;align-items:center;flex-wrap:wrap;gap:8px;background:#fff;padding:8px 12px;margin-bottom:10px;border-left:3px solid #1890ff}.walkthrough-bar .muted{margin-left:auto;font-size:12px}@media(max-width:650px){.walkthrough-bar .muted{margin-left:0}}';
-window.addEventListener('pageshow',syncWalkthrough);window.addEventListener('focus',syncWalkthrough);
-syncWalkthrough();
+function syncSharedTasks(){const data=core.read();data.tasks=tasks.map(currentTaskConfig);core.write(data);}
+const originalShowRecord=showRecord;
+showRecord=function(task,kind){drawerTask=task;if(kind==='detail'){originalShowRecord(task,kind);$$('#record-content .detail-band').find(el=>el.textContent.includes('当前待处理'))?.remove();return;}drawerKind=kind;recordPage=1;renderRecords();recordDialog.showModal();};
+// Form snapshots restore only after the asynchronous local debug has confirmed metadata.
+const originalOpenForm=openForm;
+openForm=function(task,copy=false){
+ originalOpenForm(task,copy);
+ if(task){$('#demo-data').value=task.fixture;$('#report').value=fixtures[task.fixture].id;fields=[...fixtures[task.fixture].fields];samples=core.clone(fixtures[task.fixture].samples);state.metadata=metadataFor(fixtures[task.fixture]);$('#debug').click();}
+ setTimeout(()=>{
+  if(!task)return;
+  if(!state.loaded)return;
+  const draft=task.draft,operation=core.op(task.operation);
+  $('#use-alarm').checked=task.alarm;$('#use-audit').checked=task.audit&&core.allowed(confirmedReport).includes(operation);
+  if(operation){$('#business').value=operation.business_name;loadOperations();$('#operation').value=operation.operation_name;renderAction();}
+  const config=currentTaskConfig(task);
+  if(draft){state.rules=clone(draft.state.rules);state.chosen=clone(draft.state.chosen);state.channels=clone(draft.state.channels);$('#editor').innerHTML=draft.editor;renderChannels();}
+  else{state.rules=(task.rules||[]).map(r=>({...r,field:metadata().find(f=>f.code===r.field)?.name||r.field}));if(!state.rules.length)state.rules=[{field:fields[0],op:'等于',value:'1'}];}
+  $('#action-sorts').innerHTML='';config.sorts.forEach(s=>addSort({field:metadata().find(f=>f.code===s.field)?.name||s.field,direction:s.direction}));
+  const values=draft?config.parameters:task.parameters||{};for(const [code,value] of Object.entries(values)){const el=$('[data-code="'+code+'"]');if(el)el.value=value;}linkParams();
+  if(values.target_position){const el=$('[data-code="target_position"]');if(el)el.value=values.target_position;}
+  renderRules();renderTransfer();toggleActions();
+ },200);
+};
+function localAuditLink(id){return id?'<button class="link" data-audit-id="'+esc(id)+'">'+esc(id)+'</button>':'-';}
+function actionSummary(run){if(run.actionError)return run.actionError;const count=value=>(run.changes||[]).filter(x=>x.result===value).length;return '新建 '+run.generated+' · 沿用 '+count('沿用')+' · 冲突 '+count('跨任务冲突')+' · 失效 '+count('已失效')+' · 失败 '+(run.failed+count('处理失败'));}
+function renderRecordsV3(){
+ const t=drawerTask;if(!t)return;$('#record-title').textContent=t.name+'记录';
+ const all=t.runs,within=r=>(!recordFrom||r.time.slice(0,10)>=recordFrom)&&(!recordTo||r.time.slice(0,10)<=recordTo),selected=all.filter(within),today=all.filter(r=>r.time.startsWith('2026-10-14')),month=all.filter(r=>r.time.slice(0,10)>='2026-09-15'&&r.time.slice(0,10)<='2026-10-14');
+ const ar=rs=>rs.filter(r=>['成功','失败'].includes(r.alert)),fraction=(rs,key)=>rs.filter(r=>r[key]==='成功').length+'/'+rs.length;
+ const stats=[['今日告警',fraction(ar(today),'alert')],['近30天告警',fraction(ar(month),'alert')],['今日巡检',fraction(today,'query')],['近30天巡检',fraction(month,'query')]];
+ if(t.audit)stats.push(['今日创建待审核记录',auditSuccesses(today)+'/'+auditRequests(today)],['近30天创建待审核记录',auditSuccesses(month)+'/'+auditRequests(month)]);
+ let headers,rows;
+ if(drawerKind==='alarms'){headers=['告警日期','告警内容','告警方式','告警结果'];rows=selected.filter(r=>['成功','失败'].includes(r.alert)||(t.alarm&&r.ruleError)).map(r=>[esc(r.time),'<button class="link" data-notice="'+esc(r.id)+'">查看</button>',r.ruleError?'-':'电话（模拟）',esc(r.ruleError?'规则判断失败':r.alert)]);}
+ else if(drawerKind==='audits'){headers=['处理时间','记录类型','操作类型','处理结果','详情'];rows=selected.filter(r=>r.recordType||r.actionError).map(r=>[esc(r.time),esc(r.recordType||'命中处理'),esc(r.operation||t.operation),esc(actionSummary(r)),'<button class="link" data-action-log="'+esc(r.id)+'">查看</button>']);}
+ else{headers=['巡检时间','巡检请求','巡检返回','巡检结果'];rows=selected.map(r=>[esc(r.time),'<button class="link" data-call="'+esc(r.id)+'" data-kind="request">查看</button>','<button class="link" data-call="'+esc(r.id)+'" data-kind="response">查看</button>',esc(r.query)]);}
+ const pages=Math.max(1,Math.ceil(rows.length/10));recordPage=Math.max(1,Math.min(recordPage,pages));
+ $('#record-content').innerHTML='<div class="record-tabs">'+[['alarms','告警记录'],['runs','巡检记录'],...(t.audit?[['audits','创建待审核记录']]:[])].map(([key,label])=>'<button class="record-tab '+(drawerKind===key?'active':'')+'" data-tab="'+key+'">'+label+'</button>').join('')+'</div><div class="record-stats '+(t.audit?'with-audit-stats':'')+'">'+stats.map(([label,value])=>'<div>'+label+'<strong>'+value+'</strong></div>').join('')+'</div><section class="record-body"><div class="record-filters">查询日期：<input id="record-from" type="date" value="'+recordFrom+'"> — <input id="record-to" type="date" value="'+recordTo+'"></div>'+recordsTable(headers,rows.slice((recordPage-1)*10,recordPage*10))+'<div class="list-pager">共'+rows.length+'条 <button class="btn" id="record-prev" '+(recordPage===1?'disabled':'')+'>‹</button>'+recordPage+' / '+pages+'<button class="btn" id="record-next" '+(recordPage===pages?'disabled':'')+'>›</button></div></section>';
+ $$('[data-tab]').forEach(b=>b.onclick=()=>{drawerKind=b.dataset.tab;recordPage=1;renderRecords();});
+ function changeDates(){const from=$('#record-from').value,to=$('#record-to').value;if(from&&to&&from>to){toast('开始日期不得晚于结束日期');$('#record-from').value=recordFrom;$('#record-to').value=recordTo;return;}recordFrom=from;recordTo=to;recordPage=1;renderRecords();}
+ $('#record-from').onchange=changeDates;$('#record-to').onchange=changeDates;$('#record-prev').onclick=()=>{recordPage--;renderRecords();};$('#record-next').onclick=()=>{recordPage++;renderRecords();};
+ $$('[data-call]').forEach(b=>b.onclick=()=>{const r=all.find(x=>x.id===b.dataset.call);dialog(b.dataset.kind==='request'?'巡检请求':'巡检返回',JSON.stringify(r[b.dataset.kind]||{},null,2));});
+ $$('[data-notice]').forEach(b=>b.onclick=()=>{const r=all.find(x=>x.id===b.dataset.notice);dialog('告警内容',JSON.stringify({内容:t.name,渠道:r.ruleError?'-':'电话',接收人:r.ruleError?'-':'示例运营A',结果:r.ruleError?'规则判断失败，未发起通知':r.alert,失败原因:r.ruleError|| (r.alert==='失败'?'通知渠道超时':undefined)},null,2));});
+ $$('[data-action-log]').forEach(b=>b.onclick=()=>openActionDetail(all.find(x=>x.id===b.dataset.actionLog)));
+}
+const actionDetail=document.createElement('dialog');actionDetail.id='action-detail';actionDetail.className='action-result-dialog';document.body.append(actionDetail);
+renderRecords=renderRecordsV3;
+function openActionDetail(run){
+ const data=core.read(),changes=run.changes||[],ids=[...new Set(changes.map(x=>x.auditId).filter(Boolean))];
+ actionDetail.innerHTML='<div class="result-head"><h3>创建待审核记录详情</h3><button class="link" id="close-action-detail" aria-label="关闭">×</button></div><p>处理时间：'+esc(run.time)+'　操作类型：'+esc(run.operation||drawerTask.operation)+'</p><p>规则命中：'+esc(run.hits??'-')+(drawerTask.operation==='联盟解散'?' 个联盟':' 名成员')+'　排序入选：'+esc(run.selectedCount??'-')+'</p>'+(run.actionError?'<p class="error">'+esc(run.actionError)+'</p>':'')+'<h4>逐对象处理结果</h4>'+recordsTable(['操作对象','处理结果','原因','关联审核ID'],changes.map(x=>[esc(x.object),esc(x.result),esc(x.reason||'-'),localAuditLink(x.auditId)]))+'<h4>关联审核记录</h4>'+recordsTable(['审核记录ID','操作对象','操作类型','生成时间','审核状态'],ids.map(id=>{const a=data.audits.find(x=>x.id===id);return a?[localAuditLink(a.id),esc(a.objectName),esc(a.operationName),esc(a.generatedAt),esc(a.status)]:[esc(id),'-','-','-','记录不可用'];}));
+ $('#close-action-detail').onclick=()=>actionDetail.close();actionDetail.querySelectorAll('[data-audit-id]').forEach(b=>b.onclick=()=>jumpToAudit(b.dataset.auditId,run));actionDetail.showModal();
+}
+style.textContent+=' .action-result-dialog{width:min(960px,96vw);max-width:960px;max-height:90dvh;overflow:auto}.result-head{display:flex;justify-content:space-between;align-items:center}.result-head h3{font-size:16px;margin:0}.action-result-dialog h4{font-size:14px;margin:20px 0 10px}.action-result-dialog .record-table{min-width:650px}.record-stats>div{overflow-wrap:anywhere}.record-stats strong{font-size:22px}@media(max-width:650px){.record-tab{padding:12px 8px;font-size:12px}}';
 
-// Local cross-page links carry only an explicit source snapshot, never an arbitrary return URL.
-const originalRecords=renderRecords;
-renderRecords=function(){originalRecords();if(drawerKind!=='audits')return;const t=drawerTask;const withinRange=r=>(!recordFrom||r.time.slice(0,10)>=recordFrom)&&(!recordTo||r.time.slice(0,10)<=recordTo);const links=t.id===1002?readFlow().audits.map(a=>({r:t.runs.find(x=>x.id===a.sourceNo),i:0,objectId:flowObjects[a.object].name,auditId:a.id})).filter(item=>item.r&&withinRange(item.r)):t.runs.filter(withinRange).flatMap(r=>Array.from({length:r.generated},(_,i)=>({r,i,objectId:String(30001+i),auditId:'A-'+r.id+'-'+(i+1)})));
- $$('#record-content tbody tr').forEach((row,n)=>{const item=links[(recordPage-1)*10+n];if(!item)return;const {r,objectId,auditId:id}=item;row.cells[0].innerHTML='<button type="button" class="link">'+esc(id)+'</button>';row.cells[0].querySelector('button').onclick=()=>{
- const source={id,taskId:t.id,runId:r.id,name:t.name,time:r.time,operation:t.operation,report:fixtures[t.fixture].id,parameters:t.draft?.inputs.find(x=>x.id==='bulk')?.value||'{}',conditions:t.draft?.state.rules||[],process:t.draft?.summary?.处理参数||t.params,sorts:t.draft?.sorts||[],objectId,unionId:t.operation==='联盟踢人'?String(20001+Math.floor(i/2)):undefined,scenario:t.id===1002?'walkthrough':undefined};
- try{sessionStorage.setItem('monitor-return',JSON.stringify({filters,categorySelection,page,recordPage,recordFrom,recordTo,taskId:t.id,tasks}));}catch{}
- location.href='../union-query-extract/union-audit-static.html#audit-source='+encodeURIComponent(JSON.stringify(source));
- };});};
-function returnToRun(){const hash=location.hash;if(!hash.startsWith('#source='))return;let source;try{source=JSON.parse(decodeURIComponent(hash.slice(8)));}catch{return toast('来源参数无效');}
- try{const saved=JSON.parse(sessionStorage.getItem('monitor-return')||'null');if(saved){filters=saved.filters;categorySelection=saved.categorySelection;page=saved.page;recordPage=saved.recordPage;recordFrom=saved.recordFrom;recordTo=saved.recordTo;for(const [key,id] of Object.entries({name:'filter-name',creator:'filter-creator',enabled:'filter-enabled',level:'filter-level',action:'filter-action',operation:'filter-operation'}))$('#'+id).value=filters[key];}}catch{}
- syncWalkthrough();listing.hidden=false;formMain.hidden=true;back.hidden=true;renderTree();renderList();const t=tasks.find(x=>x.id===Number(source.taskId));const r=t?.runs.find(x=>x.id===source.runId);if(!r){dialog('来源不可用','未找到对应的本地监控任务或巡检批次。历史快照仍可在审核详情查看。');return;}
- recordFrom=r.time.slice(0,10);recordTo=recordFrom;showRecord(t,'runs');$('#record-title').textContent=t.name+'记录 · '+r.id;
+// Simulate report calls and action processing against the shared local registry.
+tasks.forEach(t=>{t.runs=[];if(t.id===1001){t.rules=[{field:'member_offline_hours',op:'大于',value:'10'}];t.sorts=[{field:'member_offline_hours',direction:'从大到小'},{field:'member_power',direction:'从小到大'}];t.parameters={kick_limit:2,remain_member_limit:85};}if(t.id===1002)t.rules=[{field:'union_active_count',op:'小于等于',value:'5'}];});
+const unionDemoRows=[{server_id:'10001',union_id:'200101',union_name:'A联盟',union_rank:80,union_active_count:3},{server_id:'10001',union_id:'200102',union_name:'B联盟',union_rank:95,union_active_count:5}];
+let shared=core.read();
+if(!shared.runs[1002]){
+ core.run(shared,currentTaskConfig(tasks.find(t=>t.id===1002)),unionDemoRows.slice(0,1),metadataFor(fixtures['联盟']),{time:'2026-10-14 05:00:00'});
+ core.run(shared,currentTaskConfig(tasks.find(t=>t.id===1001)),core.memberRows,core.definitions,{time:'2026-10-14 05:00:00',createFailed:true});core.write(shared);
+}
+function syncWalkthrough(){const data=core.read();tasks.forEach(t=>t.runs=core.clone(data.runs[t.id]||[]));renderTree();renderList();if(recordDialog.open&&drawerTask)renderRecords();}
+function nextWalkthroughRun(mode){
+ const t=tasks.find(x=>x.id===Number($('#simulate-task').value)),config=currentTaskConfig(t);if(!t.enabled)return toast('任务已停用，不发起巡检');
+ if(!['union_dissolve','union_kick'].includes(config.operation)&&t.audit)return toast('该操作业务算法待确认，本地不模拟执行');
+ const fixture=fixtures[t.fixture],meta=metadataFor(fixture);
+ let rows=fixture.samples.map(row=>Object.fromEntries(meta.map((f,i)=>[f.code,row[i]])));
+ if(config.operation==='union_dissolve')rows=core.clone(unionDemoRows);
+ if(mode==='b')rows=config.operation==='union_dissolve'?rows.slice(1):rows.map((row,i)=>({...row,member_offline_hours:40+i}));
+ if(mode==='empty')rows=[];
+ if(mode==='invalid'&&rows.length){if(config.operation==='union_kick')rows[0].role_id=' ';else rows[0].union_id=' ';}
+ const data=core.read();
+ if(mode==='conflict'){const other={...config,id:9001,name:'冲突示例任务',alarm:false};core.run(data,other,rows,meta,{time:'2026-10-14 05:30:00'});}
+ try{const result=core.run(data,config,rows,meta,{queryFailed:mode==='failed',alertFailed:mode==='alert-failed',createFailed:mode==='create-failed'});core.write(data);syncWalkthrough();toast(result.query==='失败'?'报表查询失败，旧待审保留':result.actionError||'巡检完成：'+(result.hits??'-')+'个命中，'+result.generated+'条新建');}catch(error){toast(error.message);}
+}
+const walkthroughBar=document.createElement('div');walkthroughBar.className='demo-controls';
+walkthroughBar.innerHTML='<span>本地巡检</span><select id="simulate-task" aria-label="模拟任务"></select>'+[['both','正常命中'],['b','下一轮对象变化'],['empty','零命中'],['failed','查询失败'],['invalid','对象数据异常'],['conflict','跨任务已有待审'],['create-failed','部分创建失败'],['alert-failed','告警失败']].map(([value,name])=>'<button class="btn" type="button" data-sim="'+value+'">'+name+'</button>').join('')+'<button class="btn" id="reset-flow">重置演示</button>';
+$('.list-tools').after(walkthroughBar);
+function refreshSimulationOptions(){const selected=$('#simulate-task').value;$('#simulate-task').innerHTML=tasks.filter(t=>t.audit||t.alarm).map(t=>'<option value="'+t.id+'">'+t.id+' '+esc(t.name)+'</option>').join('');$('#simulate-task').value=tasks.some(t=>String(t.id)===selected)?selected:'1002';}
+walkthroughBar.onclick=e=>{const b=e.target.closest('[data-sim]');if(b)nextWalkthroughRun(b.dataset.sim);};
+$('#reset-flow').onclick=()=>{if(!confirm('清空本地模拟巡检和审核记录？'))return;core.write(core.seed());tasks.forEach(t=>t.runs=[]);syncWalkthrough();syncSharedTasks();};
+const listBeforeSim=renderList;renderList=function(){listBeforeSim();refreshSimulationOptions();syncSharedTasks();};
+window.addEventListener('storage',e=>{if(e.key===core.storageKey){const data=core.read();tasks.forEach(t=>t.runs=core.clone(data.runs[t.id]||[]));if(recordDialog.open&&drawerTask)renderRecords();}});
+syncWalkthrough();syncSharedTasks();
+
+// Cross-page navigation uses only real local IDs.
+function jumpToAudit(id,run){
+ if(!core.read().audits.some(a=>a.id===id))return toast('关联审核记录不存在');
+ dialog('审核页面尚未同步','本地审核记录 '+id+' 已存在。审核页面本次未完成同步，暂不跳转，避免显示另一份记录。');
+}
+function returnToRun(){
+ if(!location.hash.startsWith('#source='))return;
+ let source,saved;try{source=JSON.parse(decodeURIComponent(location.hash.slice(8)));saved=JSON.parse(sessionStorage.getItem('monitor-return-v3')||'null');}catch{return toast('来源参数无效');}
+ if(saved){filters=saved.filters;categorySelection=saved.categorySelection;page=saved.page;recordFrom=saved.recordFrom;recordTo=saved.recordTo;for(const stored of saved.tasks||[]){const existing=tasks.find(t=>t.id===stored.id);if(existing)Object.assign(existing,stored);else tasks.push(stored);}}
+ const t=tasks.find(t=>t.id===Number(source.taskId));if(!t)return dialog('来源不可用','未找到来源任务，审核快照仍保留。');
+ syncWalkthrough();listing.hidden=false;formMain.hidden=true;back.hidden=true;renderTree();renderList();showRecord(t,saved?.kind||'audits');recordPage=saved?.recordPage||1;renderRecords();
+ if(saved){document.querySelector('.list-scroll').scrollLeft=saved.scrollLeft||0;for(const [key,id] of Object.entries({name:'filter-name',creator:'filter-creator',enabled:'filter-enabled',level:'filter-level',action:'filter-action',operation:'filter-operation'}))if(filters[key]!==undefined)$('#'+id).value=filters[key];}
 }
 window.addEventListener('hashchange',returnToRun);returnToRun();
 
