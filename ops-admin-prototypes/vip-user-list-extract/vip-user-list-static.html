@@ -147,6 +147,7 @@ dialog{padding:0;border:0;border-radius:3px;width:760px;max-width:calc(100vw - 3
 .warning-72{color:#cf1322}
 .collection-pending{color:#737373}
 .collection-included{color:#237804}
+.collection-deleted{color:#cf1322}
 .field-help{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;width:16px;height:16px;margin-left:5px;padding:0;border:1px solid #8c8c8c;border-radius:50%;background:transparent;color:#737373;font-size:11px;line-height:1;cursor:help;font-weight:500}
 .field-help:hover,.field-help:focus-visible,.field-help[aria-expanded=true]{color:#1677ff;border-color:#1677ff;background:#e6f4ff}
 .field-help-panel{position:fixed;z-index:3000;width:360px;max-width:calc(100vw - 24px);max-height:calc(100vh - 24px);overflow:auto;padding:16px 18px;background:#fff;border:1px solid #e5e7eb;border-radius:6px;box-shadow:0 4px 20px #0002;text-align:left;color:#434343;font-size:13px;line-height:1.7;overflow-wrap:anywhere}
@@ -213,6 +214,7 @@ const filter = $('.filterbox-wrap');
 const storageKey = 'q1-vip-replay-channel-permissions-v1';
 // Business definitions supplied by the user; displayed only in column headers.
 const fieldHelp = {
+  vip_segment:{title:'VIP分层',items:[['字段含义','根据用户充值金额，展示其在「VIP配置（通用）」中对应的分层名称，如 VIP_收录、VIP_1。仅用于报表分层，不影响游戏内 VIP 等级或权益。'],['计算口径','按当前游戏版本的配置币种，使用用户对应的人民币或美元充值金额匹配区间。低于最低充值门槛时，显示“未达标”。'],['更新时间','每小时第10分钟开始计算，任务完成后更新所有历史充值用户的分层。配置调整后，历史报表中的分层结果也会变化。'],['查询方式','选择分层名称可查询对应用户；选择“未达标”可查询未达到最低充值门槛的用户；选择“全部”不限分层。']]},
   lastRechargeTime:{title:'最后充值时间',items:[['字段含义','角色最近一次充值的时间。未充值或时间为空时显示“—”。']]},
   rechargeWarning:{title:'未充值预警',items:[['判断依据','未充值时长 = 当前时间 − 最后充值时间。'],['无预警','未充值时长 ≤ 48小时；从未充值或最后充值时间为空时也显示无预警。'],['48小时未充值','48小时 < 未充值时长 ≤ 72小时。'],['72小时未充值','未充值时长 > 72小时。']]},
   weeklyrecharge:{title:'近一周充值金额',items:[
@@ -268,9 +270,11 @@ const fieldHelp = {
     ['更新方式','「封号」「解封」在「聊天监控」后台操作；操作时调用大数据接口，更新大数据VIP表的账号状态。']
   ]},
   isaddweixin:{title:'收录状态',items:[
-    ['字段含义','记录VIP是否已添加客服，对应VIP表的 isAddweixin 字段。'],
-    ['更新方式','依赖客服手动变更。']
+    ['字段含义','未收录：尚未添加客服；已收录：已添加客服；已删除：玩家曾添加客服，后来删除了客服联系方式，不代表删除后台记录。'],
+    ['更新方式','由有权限的客服编辑或导入更新。'],
+    ['日期与天数','已收录和已删除均按当前日期减收录日期计算，天数每天增长。标记已删除或恢复已收录时保留原收录日期，包含中间删除期间。']
   ]},
+  collectionDays:{title:'收录天数',items:[['已收录','当前日期 − 收录日期。'],['已删除','当前日期 − 收录日期，天数每天增长。'],['恢复已收录','保留原收录日期，仍计算至当前日期，包含中间删除期间。']]},
   activestate:{title:'激活状态',items:[
     ['字段含义','表示VIP是否已激活客服提供的激活码。'],
     ['适用项目','仅远征、龙武适用，其他游戏为空。']
@@ -281,6 +285,8 @@ const fieldHelp = {
   ]}
 };
 const columnHelpKeys={1:'worldName',9:'per_pay_platform_amount',10:'vip_level',11:'userfreeze',12:'vip1_date',13:'server_vip1_date',14:'server_vip_date',15:'weeklyrecharge',16:'plat_form_weeklyrecharge',17:'per_plat_form_weeklyrecharge',19:'warning',20:'kf_name',22:'isaddweixin',23:'activestate',25:'collectactivedate'};
+columnHelpKeys[45]='vip_segment';
+columnHelpKeys[24]='collectionDays';
 columnHelpKeys[42]='rechargeWarning';columnHelpKeys[43]='lastRechargeTime';columnHelpKeys[44]='responsible_staff';
 function helpButton(key){return `<button type="button" class="field-help" data-help="${key}" aria-label="${esc(fieldHelp[key].title)}说明" aria-expanded="false"><span aria-hidden="true">?</span></button>`;}
 function wireFieldHelp(){
@@ -327,7 +333,7 @@ const options = {
   country: ['演示地区（示例）'],
   warning: ['无预警', '48小时未登录', '72小时未登录'],
   cal_deductionamount: ['是', '否'],
-  isaddweixin: ['未收录', '已收录']
+  isaddweixin: ['未收录', '已收录', '已删除']
 };
 let messageTimer, editingId, filtered = [], page = 1, pageSize = 10;
 let saved;
@@ -335,6 +341,8 @@ try { saved = JSON.parse(localStorage.getItem(storageKey) || 'null'); } catch {}
 let rows = Array.isArray(saved) ? saved : [];
 let demo = true;
 if(!rows.length) rows = makeRows();
+// Keep the annotated example identity consistent for previously saved demo rows.
+rows.forEach(r=>{if(r.id==='DEMO-0001'&&r.values[4]==='DEMO-ACTOR-001')r.values[4]='12454';});
 let reportNow=Date.now();
 function rechargeWarning(lastTime,now=reportNow){
   if(!lastTime)return '无预警';
@@ -353,12 +361,17 @@ function prepareUsageGuide(){
   const target=new URL(SOURCE_META.url);
   target.pathname='/game/drain/vipSectionSet';
   helper.classList.add('usage-helper');
-  helper.innerHTML=`<div class="usage-helper-row"><span>${esc(message)}</span><button type="button" class="usage-toggle" id="usage-toggle" aria-expanded="false" aria-controls="usage-guide">ⓘ 使用前确认 <span aria-hidden="true">⌄</span></button></div><div id="usage-guide" hidden><ol><li><strong>VIP等级规则：</strong>先与项目对齐VIP档位及充值区间，需要调整时前往【VIP配置（通用）→ <a data-config-link href="${esc(target.href)}" target="_blank" rel="noopener noreferrer">VIP等级配置</a>】。</li><li><strong>需记录的信息：</strong>先确认需要维护哪些信息，如联系方式、生日、回访记录等，联系平台产品配置。</li></ol></div>`;
+  helper.innerHTML=`<div class="usage-helper-row"><span>${esc(message)}</span><button type="button" class="usage-toggle" id="usage-toggle" aria-expanded="false" aria-controls="usage-guide">ⓘ 使用前确认 <span aria-hidden="true">⌄</span></button></div><div id="usage-guide" hidden><ol><li><strong>VIP分层规则：</strong>先与项目对齐VIP档位及充值区间，需要调整时前往【VIP配置（通用）→ <a data-config-link href="${esc(target.href)}" target="_blank" rel="noopener noreferrer">VIP等级配置</a>】。</li><li><strong>需记录的信息：</strong>先确认需要维护哪些信息，如联系方式、生日、回访记录等，联系平台产品配置。</li></ol></div>`;
   $('#usage-toggle').onclick=()=>{const expanded=$('#usage-guide').hidden;$('#usage-guide').hidden=!expanded;$('#usage-toggle').setAttribute('aria-expanded',String(expanded));$('#usage-toggle span').textContent=expanded?'⌃':'⌄';};
 }
 function toast(text) { $('#toast').textContent = text; $('#toast').style.display = 'block'; clearTimeout(messageTimer); messageTimer = setTimeout(() => $('#toast').style.display = 'none', 3200); }
 function stopSpinners() { $$('.ant-spin').forEach(e => e.remove()); $$('.ant-spin-blur,.ant-spin-spinning').forEach(e => e.classList.remove('ant-spin-blur','ant-spin-spinning')); }
 function prepareFilters() {
+  const legacyItem=$('#vip_level').closest('.ant-form-item');
+  const segmentItem=legacyItem.cloneNode(true);
+  const segmentLabel=$('label',segmentItem);segmentLabel.textContent='VIP分层';segmentLabel.title='VIP分层';segmentLabel.htmlFor='vip_segment';
+  $('.ant-form-item-control-input-content',segmentItem).innerHTML='<select id="vip_segment" class="native-select" title="按分层名称查询，选择全部不限分层"><option value="">全部</option>'+['未达标','VIP_收录',...Array.from({length:9},(_,i)=>'VIP_'+(i+1))].map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')+'</select>';
+  legacyItem.after(segmentItem);
   $$('.ant-select', filter).forEach(box => {
     const input = $('input', box), id = input.id;
     const select = document.createElement('select');
@@ -399,7 +412,7 @@ function prepareFilters() {
   rechargeSelect.innerHTML='<option value="">请选择</option>'+['无预警','48小时未充值','72小时未充值'].map(v=>`<option>${v}</option>`).join('');
   rechargeSelect.onchange=()=>rechargeSelect.classList.toggle('placeholder',!rechargeSelect.value);
   filter.insertBefore(rechargeItem,wrapper);
-  const filterOrder = ['time','pidName','worldName','actorSearch','userId','country','warning','rechargeWarning','vip_level','totalAmount_min','weeklyRecharge','thirdMin','ratioMin','cal_deductionamount','isaddweixin','kf_name','vip1_date','server_vip1_date','server_vip_date','extendInfo'];
+  const filterOrder = ['time','pidName','worldName','actorSearch','userId','country','warning','rechargeWarning','vip_level','vip_segment','totalAmount_min','weeklyRecharge','thirdMin','ratioMin','cal_deductionamount','isaddweixin','kf_name','vip1_date','server_vip1_date','server_vip_date','extendInfo'];
   filterOrder.forEach(id => {
     const field = $('#'+id,filter)?.closest('.ant-form-item');
     if(field) filter.insertBefore(field,wrapper);
@@ -432,10 +445,10 @@ const extensionFields=[
   {key:'remark',name:'备注',type:'textarea'}
 ];
 const columns=[
-  ...defaultColumnOrder.flatMap(index=>[({...sourceColumns[index],group:'default'}),...(index===18?[{name:'未充值预警',index:42,width:160,group:'default'},{name:'最后充值时间',index:43,width:180,group:'default'}]:[])]),
+  ...defaultColumnOrder.flatMap(index=>[({...sourceColumns[index],group:'default'}),...(index===10?[{name:'VIP分层',index:45,width:150,group:'default'}]:[]),...(index===18?[{name:'未充值预警',index:42,width:160,group:'default'},{name:'最后充值时间',index:43,width:180,group:'default'}]:[])]),
   {name:'负责客服',index:44,width:180,group:'default',responsible:true},
   ...extensionFields.map((field,i)=>({...field,index:29+i,width:field.key==='remark'?240:160,group:'extension'})),
-  {...sourceColumns[29],index:41,group:'operation'}
+  {...sourceColumns[29],index:41,width:180,group:'operation'}
 ];
 const emptyHtml=body.innerHTML;
 function columnAttributes(c){
@@ -451,9 +464,24 @@ function normalizeTables(){
   $$('.ant-table-measure-row',table).forEach(e=>e.remove());
 }
 function makeRows(){return Array.from({length:2},(_,i)=>({id:'DEMO-'+String(i+1).padStart(4,'0'),values:[
-  i===0?'2132001:演示渠道A':'2132002:演示渠道B', i%2?'演示二区（示例）':'演示一区（示例）',String(1001+i%2),'DEMO-USER-'+String(i+1).padStart(3,'0'),'DEMO-ACTOR-'+String(i+1).padStart(3,'0'),'演示角色'+String(i+1).padStart(2,'0'),'演示地区（示例）',String(5000+i*1000),String(500+i*100), '10%',String(5+i%6),'正常','2026-08-15','2026-08-16','2026-09-01',String(300+i*100),String(30+i*10),'10%','2026-09-0'+(9-i%4)+' 12:30:00',options.warning[i%3],'演示客服'+(1+i%3),'演示数据中心',i%2?'已收录':'未收录',i%2?'已激活':'未激活',i%2?'10':'0',i%2?'2026-08-30':'',i%2?'2026-08-30':'','本地演示','2026-09-09 12:00:00'
+  i===0?'2132001:演示渠道A':'2132002:演示渠道B', i%2?'演示二区（示例）':'演示一区（示例）',String(1001+i%2),'DEMO-USER-'+String(i+1).padStart(3,'0'),(i===0?'12454':'DEMO-ACTOR-'+String(i+1).padStart(3,'0')),'演示角色'+String(i+1).padStart(2,'0'),'演示地区（示例）',String(i===0?4273.54:2811.87),String(500+i*100), '10%',String(5+i%6),'正常','2026-08-15','2026-08-16','2026-09-01',String(300+i*100),String(30+i*10),'10%','2026-09-0'+(9-i%4)+' 12:30:00',options.warning[i%3],'演示客服'+(1+i%3),'演示数据中心',i%2?'已收录':'未收录',i%2?'已激活':'未激活',i%2?'10':'0',i%2?'2026-08-30':'',i%2?'2026-08-30':'','本地演示','2026-09-09 12:00:00'
 ],extension:{manual_consulter:'演示运营客服'+(1+i%3),contact:'演示联系渠道',contact_fb:'Demo FB '+(i+1),contact_dc:'Demo DC '+(i+1),email:'vip'+(i+1)+'@example.invalid',birthday:'1995-09-'+String(10+i).padStart(2,'0'),return_times:String(i%5),prize_to:i%2?'晋级礼包1（1000）':'收录礼包（500）',title_to:'演示定制称号',title_remain:'2次',prize_date:'2026-09-01',remark:'虚构记录，仅用于本地演示'},extendInfo:'仅用于交互演示的虚构记录',voucher:100+i*20,responsibleStaff:i===0?'林夏、陈晨':i===1?'苏悦':'演示客服'+(1+i%3),canViewCustom:i!==1}));}
 function val(id){return $('#'+id)?.value.trim()||'';}
+function collectionToday(){return new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
+function collectionDays(row){
+  if(!['已收录','已删除'].includes(row.values[22]))return row.values[24]??'0';
+  const start=row.values[26],end=collectionToday();
+  if(!start||!end)return '—';
+  const days=(Date.parse(end)-Date.parse(start))/86400000;
+  return Number.isFinite(days)&&days>=0?String(Math.floor(days)):'—';
+}
+function updateCollection(row,status,date){
+  const old=row.values[22],keepDate=old==='已删除'||status==='已删除';
+  // Status changes preserve the original collection date; days always use today.
+  row.values[22]=status;
+  if(!keepDate)row.values[26]=date;
+  row.values[24]=collectionDays(row);
+}
 function matchRange(value,min,max){return (!min||value>=Number(min))&&(!max||value<=Number(max));}
 function query(){
   reportNow=Date.now();
@@ -464,6 +492,7 @@ function query(){
   const levels=val('vip_level').split(/[,，]/).map(x=>x.trim()).filter(Boolean);
   filtered=(demo?rows:[]).filter(r=>{
     const v=r.values;
+    if(val('vip_segment')&&segmentValue(r)!==val('vip_segment'))return false;
     if(val('rechargeWarning')&&rechargeWarning(r.lastRechargeTime)!==val('rechargeWarning'))return false;
     if(!pairs.every(([id,n])=>!val(id)||String(v[n]).toLowerCase().includes(val(id).toLowerCase())))return false;
     const total=Number(v[7])-(val('cal_deductionamount')==='是'?r.voucher||0:0);
@@ -472,7 +501,11 @@ function query(){
   page=Math.max(1,Math.min(page,Math.ceil(filtered.length/pageSize)||1));render();
 }
 const hiddenColumns=new Set();
+// Independent example result, never derived from the legacy numeric VIP field.
+function segmentValue(row){return row.vipSegment??(row.id==='DEMO-0001'?'VIP_收录':row.id==='DEMO-0002'?'未达标':'—');}
 function columnValue(row,c){
+  if(c.index===24)return collectionDays(row);
+  if(c.index===45)return segmentValue(row);
   if(c.index===44)return row.responsibleStaff||'—';
   if(c.index===42)return rechargeWarning(row.lastRechargeTime);
   if(c.index===43)return row.lastRechargeTime?new Date(row.lastRechargeTime).toLocaleString('sv-SE',{timeZone:'Asia/Shanghai'}):'';
@@ -486,11 +519,11 @@ function columnValue(row,c){
   return c.index===7&&val('cal_deductionamount')==='是'?Number(value)-(row.voucher||0):value;
 }
 function renderCell(row,c){
-  if(c.group==='operation'){const allowed=row.canViewCustom!==false;return `<td ${columnAttributes(c)}><button class="link-btn ${allowed?'':'edit-disabled'}" data-edit="${esc(row.id)}" ${allowed?'':'disabled aria-disabled=\"true\" title=\"无该渠道编辑权限\"'}>编辑</button></td>`;}
+  if(c.group==='operation'){const allowed=row.canViewCustom!==false;return `<td ${columnAttributes(c)}><button class="link-btn" data-edit="${esc(row.id)}" ${allowed?'':'disabled'}>编辑</button><button class="link-btn" style="margin-left:12px" data-service="${esc(row.id)}" ${allowed?'':'disabled title="无该渠道记录权限"'}>维护记录</button></td>`;}
   const restricted=c.group==='extension'&&row.canViewCustom===false;
   const value=restricted?'无查看权限':columnValue(row,c);
   const warningClass=['48小时未登录','48小时未充值'].includes(value)?'warning-48':['72小时未登录','72小时未充值'].includes(value)?'warning-72':'';
-  const collectionClass=value==='已收录'?'collection-included':value==='未收录'?'collection-pending':'';
+  const collectionClass=value==='已收录'?'collection-included':value==='未收录'?'collection-pending':value==='已删除'?'collection-deleted':'';
   const statusClass=[19,42].includes(c.index)?warningClass:c.index===22?collectionClass:'';
   const content=restricted?`<span class="extension-permission-denied">无查看权限</span>`:c.index===10?`<span class="badge">VIP ${esc(value)}</span>`:statusClass?`<span class="${statusClass}">${esc(value)}</span>`:esc(value)||'—';
   return `<td ${columnAttributes(c)}>${content}</td>`;
@@ -525,7 +558,9 @@ function openEditor(id){
   $('#editor-title').textContent=`编辑【角色ID】${row.values[4]} 的拓展信息`;
   $('#edit-fields').innerHTML=`<div class="edit-metadata"><span>最后记录人：</span><span>${esc(row.values[27])||'—'}</span></div><div class="edit-metadata"><span>最后记录时间：</span><span>${esc(row.values[28])||'—'}</span></div>`+
     editExtensionOrder.map(key=>{const field=extensionFields.find(f=>f.key===key);return `<label class="edit-field"><span>${esc(field.name)}：</span>${editExtensionControl(field,row.extension?.[key]??'')}</label>`;}).join('')+
-    `<label class="edit-field"><span>收录状态：</span><select name="c22"><option value="" ${!row.values[22]?'selected':''}>请选择</option><option value="未收录" ${row.values[22]==='未收录'?'selected':''}>否</option><option value="已收录" ${row.values[22]==='已收录'?'selected':''}>是</option></select></label><label class="edit-field"><span>收录日期：</span><input name="c26" type="date" value="${esc(row.values[26])}"></label>`;
+    `<label class="edit-field"><span>收录状态：</span><select name="c22"><option value="" ${!row.values[22]?'selected':''}>请选择</option>${options.isaddweixin.map(v=>`<option ${row.values[22]===v?'selected':''}>${v}</option>`).join('')}</select></label><label class="edit-field"><span>收录日期：</span><input name="c26" type="date" value="${esc(row.values[26])}"></label><p style="color:#8c8c8c;font-size:12px;margin-left:148px">已删除表示玩家删除客服联系方式。已收录和已删除均按当前日期减原收录日期计算，天数每天增长；状态切换不重置原收录日期。</p>`;
+  const syncCollectionDate=()=>{const locked=row.values[22]==='已删除'||$('[name=c22]',$('#edit-form')).value==='已删除';const input=$('[name=c26]',$('#edit-form'));input.readOnly=locked;if(locked)input.value=row.values[26]||'';};
+  $('[name=c22]',$('#edit-form')).onchange=syncCollectionDate;syncCollectionDate();
   location.hash='edit/'+id;$('#editor').showModal();$('.dialog-scroll',$('#editor')).scrollTop=0;
 }
 function closeEditor(){ $('#editor').close();location.hash='list'; }
@@ -566,7 +601,7 @@ function wireActiveControls(){
     const collection=String(form.get('c22')||'');
     if(collection&&!options.isaddweixin.includes(collection)){toast('请选择有效的收录状态');return;}
     // Explicit write allowlist: extended fields, inclusion state/date, automatic audit metadata.
-    row.values[22]=collection;row.values[26]=String(form.get('c26')||'');
+    updateCollection(row,collection,String(form.get('c26')||''));
     row.extension={...row.extension,...Object.fromEntries(editExtensionOrder.map(key=>[key,String(form.get('ext_'+key)||'').trim()]))};
     row.values[27]='本地演示';row.values[28]=new Date().toLocaleString('sv-SE');
     const ok=persist();closeEditor();query();toast(ok?'保存成功，已保存在本机':'已更新本次演示；浏览器禁止本地存储');
@@ -579,11 +614,12 @@ stopSpinners();prepareFilters();normalizeTables();wireActiveControls();wireField
 
 'use strict';
 const VipImport = (() => {
-  const fixed=[{key:'actor',name:'角色ID',identity:true},{key:'collection',name:'收录状态',options:['已收录','未收录']},{key:'date',name:'收录日期',type:'date'}];
+  const fixed=[{key:'actor',name:'角色ID',identity:true},{key:'collection',name:'收录状态',options:['已收录','未收录','已删除']},{key:'date',name:'收录日期',type:'date'}];
   const clean=v=>String(v??'').trim();
   const headerAliases=new Map([
     ['* 角色ID','角色ID'],
     ['收录状态\n0：未收录\n1：已收录','收录状态'],
+    ['收录状态\n0：未收录\n1：已收录\n已删除：玩家删除客服联系方式','收录状态'],
     ['收录日期（YYYY-MM-DD）','收录日期']
   ]);
   const headerName=v=>{const name=clean(v).replace(/\r\n?/g,'\n');return headerAliases.get(name)||name;};
@@ -631,6 +667,7 @@ const VipImport = (() => {
         if(target){const old=readValue(target,f);if(old!==value)changes.push({key:f.key,name:f.name,old,value});}
       });
       fields.filter(f=>f.required).forEach(f=>{const i=header.indexOf(f.name);if(!clean(i>=0?v[i]:'')&&(!target||!readValue(target,f)))error([f.key],`${f.name}：必填，导入后不能为空。`);});
+      if(target&&(target.values[22]==='已删除'||changes.some(c=>c.key==='collection'&&c.value==='已删除'))&&changes.some(c=>c.key==='date'))error(['date'],'变更或恢复已删除状态时须保留原收录日期，请留空或填写原日期。');
       return {line,actor,id:target?.id,name:target?.values[5]||'—',errors,fieldErrors,values,changes,snapshot:target?JSON.stringify(target):null,status:errors.length?'error':changes.length?'ready':'same'};
     });
     return {issues:[],entries,columns:mapped.filter(Boolean)};
@@ -639,7 +676,8 @@ const VipImport = (() => {
     const found=records.filter(r=>identity(r.values[4])===identity(entry.actor));
     if(found.length!==1||found[0].id!==entry.id)return {ok:false,reason:'角色匹配结果已变化，请重新校验。'};
     const row=found[0];if(JSON.stringify(row)!==entry.snapshot)return {ok:false,reason:'该角色信息已被更新，请重新预览后导入。'};
-    entry.changes.forEach(c=>{if(c.key==='collection')row.values[22]=c.value;else if(c.key==='date')row.values[26]=c.value;else{row.extension??={};row.extension[c.key]=c.value;}});
+    updateCollection(row,entry.changes.find(c=>c.key==='collection')?.value??row.values[22],entry.changes.find(c=>c.key==='date')?.value??row.values[26]);
+    entry.changes.forEach(c=>{if(!['collection','date'].includes(c.key)){row.extension??={};row.extension[c.key]=c.value;}});
     row.values[27]='本地演示';row.values[28]=new Date().toLocaleString('sv-SE');return {ok:true};
   }
   return {fixed,validate,apply,validDate};
@@ -749,7 +787,7 @@ const ImportXlsx=(()=>{
     const c=counts();const problems=state.issues.length?`<div class="import-alert error" role="alert"><strong>本次未导入任何数据</strong><ul>${state.issues.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>`:'';
     let content='';
     if(state.step===0){
-      content=`<section class="batch-step"><h3>第一步：准备文件</h3><ol class="batch-rules"><li>导入规则：仅更新收录状态、收录日期及自定义字段；非空覆盖，空白保留。线上缺少字段时整批不导入，请联系平台负责人补齐。</li><li>填写规范：角色ID在当前游戏版本内唯一，用于匹配线上角色；粘贴数据时请选择“仅粘贴值”，保留模板格式。</li><li>文件要求：仅支持 .xlsx 格式，最大5MB、1000行；建议每次下载最新模板。</li></ol><button type="button" class="batch-template-link" data-import-action="template"><span aria-hidden="true">⇩</span> 下载导入模板</button></section><section class="batch-step"><h3>第二步：填写模板并上传</h3><label class="batch-file-button ant-btn"><span aria-hidden="true">↥</span> 添加文件<input type="file" id="import-file" accept=".xlsx" aria-label="添加文件" ${state.busy?'disabled':''}></label>${state.name?`<div class="batch-file-name"><span>▤ ${esc(state.name)}</span><button type="button" class="link-btn" data-import-action="remove-file" aria-label="移除文件" ${state.busy?'disabled':''}>×</button></div>`:''}${problems}<details class="import-demo" open><summary>假数据上传演示</summary><p>使用虚构数据体验上传和校验，仅更新本机演示数据。</p><div>${button('正常数据','sample-ok',false,state.busy)}${button('数据错误','sample-errors',false,state.busy)}${button('缺少字段','sample-missing',false,state.busy)}</div></details><div class="batch-next">${button(state.busy?'正在读取…':'下一步','validate',true,!state.matrix||state.busy)}</div></section>`;
+      content=`<section class="batch-step"><h3>第一步：准备文件</h3><ol class="batch-rules"><li>导入规则：仅更新收录状态、收录日期及自定义字段；非空覆盖，空白保留。收录状态支持未收录、已收录、已删除；已删除请直接填写中文。标记或恢复已删除时保留原收录日期；已删除的收录天数仍按当前日期减原收录日期计算。线上缺少字段时整批不导入，请联系平台负责人补齐。</li><li>填写规范：角色ID在当前游戏版本内唯一，用于匹配线上角色；粘贴数据时请选择“仅粘贴值”，保留模板格式。</li><li>文件要求：仅支持 .xlsx 格式，最大5MB、1000行；建议每次下载最新模板。</li></ol><button type="button" class="batch-template-link" data-import-action="template"><span aria-hidden="true">⇩</span> 下载导入模板</button></section><section class="batch-step"><h3>第二步：填写模板并上传</h3><label class="batch-file-button ant-btn"><span aria-hidden="true">↥</span> 添加文件<input type="file" id="import-file" accept=".xlsx" aria-label="添加文件" ${state.busy?'disabled':''}></label>${state.name?`<div class="batch-file-name"><span>▤ ${esc(state.name)}</span><button type="button" class="link-btn" data-import-action="remove-file" aria-label="移除文件" ${state.busy?'disabled':''}>×</button></div>`:''}${problems}<details class="import-demo" open><summary>假数据上传演示</summary><p>使用虚构数据体验上传和校验，仅更新本机演示数据。</p><div>${button('正常数据','sample-ok',false,state.busy)}${button('数据错误','sample-errors',false,state.busy)}${button('缺少字段','sample-missing',false,state.busy)}</div></details><div class="batch-next">${button(state.busy?'正在读取…':'下一步','validate',true,!state.matrix||state.busy)}</div></section>`;
     }else{
       const done=state.result;
       const canImport=c.ready+c.same>0&&!c.error;
@@ -768,9 +806,11 @@ const ImportXlsx=(()=>{
     catch(e){if(ticket===readTicket)state.issues=[e.message||'文件读取失败，请使用模板重新上传。'];}
     finally{if(ticket===readTicket){state.busy=false;draw();}}
   }
-  function downloadTemplate(){
+  async function downloadTemplate(){
     const bytes=Uint8Array.from(atob(VIP_IMPORT_TEMPLATE_BASE64),c=>c.charCodeAt(0));
-    const blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const zip=await JSZip.loadAsync(bytes);
+    for(const name of Object.keys(zip.files).filter(n=>/^xl\/(sharedStrings|worksheets\/sheet\d+)\.xml$/.test(n))){const xml=await zip.file(name).async('string');zip.file(name,xml.replace(/1：已收录/g,'1：已收录\n已删除：玩家删除客服联系方式'));}
+    const blob=new Blob([await zip.generateAsync({type:'uint8array'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
     const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`VIP导入模板-${context.version}.xlsx`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
   }
   async function download(matrix,name){
@@ -780,7 +820,7 @@ const ImportXlsx=(()=>{
     if(state.busy)return;
     const people=rows.filter(r=>String(r.id).startsWith('DEMO-')).slice(0,3);
     if(!people.length){toast('暂无演示角色，请先在列表生成演示数据。');return;}
-    const header=['* 角色ID','收录状态\n0：未收录\n1：已收录','收录日期（YYYY-MM-DD）',...schema.map(f=>f.name)];
+    const header=['* 角色ID','收录状态\n0：未收录\n1：已收录\n已删除：玩家删除客服联系方式','收录日期（YYYY-MM-DD）',...schema.map(f=>f.name)];
     const data=people.map(r=>[r.values[4],r.values[22]==='已收录'?0:1,'2026-09-15',...schema.map(f=>f.key==='remark'?'线下迁移演示':'')]);
     if(kind==='missing'){header.push('未配置的个性化字段');data.forEach(r=>r.push('示例值'));}
     if(kind==='errors'){if(data[1])data[1][0]='不存在的角色ID';if(data[2])data[2][2]='2026-02-30';}
@@ -826,4 +866,172 @@ const ImportXlsx=(()=>{
   entry.onclick=open;
   window.addEventListener('hashchange',()=>{if(!dialog.hidden&&location.hash!=='#import'){if(state.busy)location.hash='import';else close();}else if(dialog.hidden&&location.hash==='#import')open();});
 })();
-</script></body></html>
+</script>
+<style>#service-dialog{width:1050px}#service-dialog .sr-body{padding:20px 24px;max-height:72vh;overflow:auto}.sr-player{display:flex;gap:24px;background:#fafafa;padding:12px 16px;border:1px solid #eee;flex-wrap:wrap}.sr-tabs{display:flex;gap:28px;border-bottom:1px solid #eee;margin:18px 0}.sr-tab{border:0;background:none;padding:10px 0;cursor:pointer}.sr-tab.active{color:#1890ff;border-bottom:2px solid #1890ff}.sr-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:16px 0}.sr-caption{color:#8c8c8c;font-size:12px}.sr-table-wrap{overflow:auto}.sr-table{width:100%;min-width:760px;border-collapse:collapse}.sr-table th,.sr-table td{padding:13px 12px;border:1px solid #eee;text-align:left;font-weight:400;white-space:normal;word-break:break-word;vertical-align:top}.sr-table th{background:#fafafa}.sr-table td{max-width:230px}.sr-empty{text-align:center!important;color:#999;padding:40px!important}.sr-foot{border-top:1px solid #eee;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}.sr-form{display:grid;grid-template-columns:1fr 1fr;gap:18px 24px;margin-top:20px}.sr-form label{display:flex;flex-direction:column;gap:6px}.sr-form label.wide{grid-column:1/-1}.sr-form input,.sr-form textarea,.sr-form select{border:1px solid #d9d9d9;padding:6px 10px;border-radius:2px;width:100%;background:#fff}.sr-form input[readonly]{background:#f5f5f5;color:#595959}.sr-form textarea{min-height:86px}.sr-required{color:#ff4d4f}.sr-error{color:#f5222d;margin-top:14px;min-height:22px}.sr-form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.sr-audit{font-size:12px;color:#8c8c8c;margin-top:12px}.sr-link{border:0;background:none;color:#1890ff;padding:0;cursor:pointer}#service-dialog .sr-close{font-size:24px;border:0;background:none;color:#999;cursor:pointer}@media(max-width:650px){.sr-form{grid-template-columns:1fr}.sr-form label.wide{grid-column:auto}.sr-player{gap:8px}.sr-toolbar{align-items:flex-start;flex-direction:column}}
+
+/* Record drawers follow the existing right-hand player editor. */
+#service-dialog{inset:0 0 0 auto;margin:0;width:1050px;max-width:100vw;height:100dvh;max-height:100dvh;border-radius:0;overflow:hidden}
+#service-dialog[open]{display:flex;flex-direction:column}
+#service-dialog .dialog-head{flex:none;min-height:48px;padding:12px 20px;font-size:14px}
+#service-dialog .sr-body{flex:1;min-height:0;max-height:none;overflow-y:auto;padding:20px 24px 32px}
+#service-dialog .sr-foot{flex:none;padding:12px 20px}
+@media(max-width:480px){#service-dialog .sr-body{padding:20px 12px}}
+
+#service-page{padding:16px;background:#f0f2f5;min-height:100vh}#service-page[hidden]{display:none}.sr-page-head{display:flex;gap:24px;align-items:center;background:white;padding:18px 20px}.sr-page-head strong{font-size:18px}.sr-card{background:white;padding:20px;margin-top:16px}.sr-query{display:flex;flex-wrap:wrap;gap:16px;align-items:center}.sr-query select,.sr-query input{border:1px solid #d9d9d9;height:32px;padding:3px 8px}.sr-query select{min-width:140px}.sr-section-title{margin:24px 0 0;padding-bottom:10px;border-bottom:1px solid #eee}.sr-detail{display:grid;grid-template-columns:150px 1fr;gap:16px;margin:24px 0}.sr-detail dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}.sr-reason{display:block;margin-top:20px}.sr-reason textarea{display:block;width:100%;border:1px solid #ddd;min-height:64px}.sr-history{padding:12px;background:#fafafa;margin:10px 0}.sr-config-entry{font-size:12px;color:#8c8c8c;margin-top:24px}.sr-link:disabled{color:#bfbfbf;cursor:not-allowed}.sr-table td{white-space:pre-wrap}</style><script>
+(()=>{
+const version='2132-LOCAL-DEV',key='q1-service-events-v2',ck='q1-service-config-v2',e=esc;
+const field=(t,n,s,k,label,type,required=0,options='')=>({serviceTypeKey:t,serviceTypeName:n,serviceTypeSort:s,byteKey:k,byteName:label,byteType:type,byteContent:options,byteRequired:required,fieldSort:0});
+let config=[field('privilege','特权发放',1,'type','具体操作','select',1,'神器重置\n道具回收补发\n其他'),field('privilege','特权发放',1,'detail','备注','textarea',0),field('gift','礼包发放',2,'tier','晋级档位','text',1),field('gift','礼包发放',2,'giftName','礼包名称','text',1),field('gift','礼包发放',2,'delivery','发放类型','select',1,'正常发放\n补发'),field('gift','礼包发放',2,'remark','备注','textarea')].map((x,i)=>({...x,fieldSort:i+1}));
+let events=[],player,selected='',from='',to='',dirty=false;
+let configLoadError=false,previewMode='normal';
+function loadConfiguration(){try{const c=JSON.parse(localStorage.getItem(ck)||'{}');if(Object.hasOwn(c,version)){if(!Array.isArray(c[version]))throw Error('Invalid config');config=c[version];}configLoadError=false;}catch{configLoadError=true;}}
+loadConfiguration();
+try{events=JSON.parse(localStorage.getItem(key)||'[]')}catch{}
+const effectiveConfig=()=>['unconfigured','retired'].includes(previewMode)?[]:config;
+
+// Rename the former default in locally saved configuration, retaining stable keys.
+config=config.map(c=>c.serviceTypeKey==='privilege'&&c.serviceTypeName==='特权操作'?{...c,serviceTypeName:'特权发放'}:c);
+function mergePrivilegeValues(values){
+ const result={...values};
+ if(result.remark!==undefined&&String(result.remark).trim())result.detail=[result.detail,String(result.remark)].filter(v=>v!==undefined&&String(v).trim()).join('\n');
+ delete result.remark;return result;
+}
+function mergePrivilegeSchema(schema){return schema.filter(c=>c.byteKey!=='remark').map(c=>c.byteKey==='type'?{...c,byteName:'具体操作',fieldSort:1}:c.byteKey==='detail'?{...c,byteName:'备注',byteRequired:0,fieldSort:2}:c);}
+config=[...config.filter(c=>c.serviceTypeKey!=='privilege'),...mergePrivilegeSchema(config.filter(c=>c.serviceTypeKey==='privilege'))];
+function rewardSchema(schema){
+ const meta=schema.find(c=>c.serviceTypeKey==='gift');if(!meta)return schema;
+ const make=(k,n,t,req,sort)=>({...meta,byteKey:k,byteName:n,byteType:t,byteRequired:req,byteContent:'',fieldSort:sort});
+ const result=schema.filter(c=>!['content','choice','note','titleNote'].includes(c.byteKey)).map(c=>c.byteKey==='tier'?{...c,byteName:'晋级档位',fieldSort:1}:c.byteKey==='giftName'?{...c,byteName:'礼包名称',fieldSort:2}:c.byteKey==='delivery'?{...c,fieldSort:3}:c.byteKey==='remark'?{...c,byteName:'备注',byteRequired:0,fieldSort:4}:c);
+ if(!result.some(c=>c.byteKey==='giftName'))result.push(make('giftName','礼包名称','text',1,2));
+ if(!result.some(c=>c.byteKey==='remark'))result.push(make('remark','备注','textarea',0,4));
+ return result.sort((a,b)=>a.fieldSort-b.fieldSort);
+}
+function rewardValues(values){
+ const result={...values},notes=[result.remark];
+ for(const [k,label]of [['content','原发放内容'],['choice','原自选内容'],['note','原称号备注'],['titleNote','原称号备注']]){if(result[k]!==undefined&&String(result[k]).trim())notes.push(label+'：'+result[k]);delete result[k];}
+ result.remark=notes.filter(v=>v!==undefined&&String(v).trim()).join('\n');
+ // The old combined tier/name cannot be reliably split: retain its original value.
+ return result;
+}
+if(config.some(c=>c.serviceTypeKey==='gift'))config=[...config.filter(c=>c.serviceTypeKey!=='gift'),...rewardSchema(config.filter(c=>c.serviceTypeKey==='gift'))];
+const fields=t=>effectiveConfig().filter(c=>c.serviceTypeKey===t).sort((a,b)=>a.fieldSort-b.fieldSort);
+const types=()=>[...new Map(effectiveConfig().map(c=>[c.serviceTypeKey,{key:c.serviceTypeKey,name:c.serviceTypeName,sort:c.serviceTypeSort}])).values()].sort((a,b)=>a.sort-b.sort);
+const stamp=()=>new Date().toLocaleString('sv-SE',{timeZone:'Asia/Shanghai'});
+if(!localStorage.getItem(key)){const base={version,playerId:'DEMO-0001',operator:'示例客服',createdBy:'示例客服',createdAt:'2026-10-19 10:00',updatedBy:'示例客服',updatedAt:'2026-10-19 10:00',history:[]};events=[{...base,id:'S-001',type:'privilege',typeName:'特权发放',date:'2026-09-16T14:00',values:{type:'神器重置',detail:'回收原道具，补发对应道具（示例）',remark:'神器重置3个月'},schema:fields('privilege')},...[false,true].map((supp,i)=>({...base,id:'S-00'+(i+2),type:'gift',typeName:'礼包发放',date:supp?'2026-10-10T15:00':'2026-09-29T10:00',values:{tier:'晋级3',giftName:'晋级3奖励礼包',delivery:supp?'补发':'正常发放',content:supp?'补发遗漏道具（示例）':'礼包道具（示例）'},schema:fields('gift')}))]}
+// Upgrade earlier local examples and saved records without losing remarks or audit values.
+events=events.map(r=>r.version===version&&r.type==='privilege'?{...r,values:mergePrivilegeValues(r.values),schema:mergePrivilegeSchema(r.schema),history:(r.history||[]).map(h=>({...h,before:{...h.before,values:mergePrivilegeValues(h.before.values)},after:{...h.after,values:mergePrivilegeValues(h.after.values)}}))}:r);
+events=events.map(r=>r.version===version&&r.type==='gift'?{...r,values:rewardValues(r.values),schema:rewardSchema(r.schema),history:(r.history||[]).map(h=>({...h,before:{...h.before,values:rewardValues(h.before.values)},after:{...h.after,values:rewardValues(h.after.values)}}))}:r);
+const screen=document.createElement('section');screen.id='service-page';screen.hidden=true;document.body.append(screen);
+const drawer=document.createElement('dialog');drawer.id='service-dialog';drawer.setAttribute('aria-labelledby','sr-title');document.body.append(drawer);
+const list=document.querySelector('[data-view="list"]'),q=s=>drawer.querySelector(s);
+const own=()=>['unconfigured','empty'].includes(previewMode)?[]:events.filter(r=>r.version===version&&r.playerId===player.id);
+const fmt=v=>e(Array.isArray(v)?v.join('、'):v)||'—';
+function close(){if(dirty&&!confirm('尚未保存，确定放弃修改？'))return false;dirty=false;drawer.close();return true}
+function open(id){player=rows.find(r=>r.id===id);if(!player||player.canViewCustom===false)return;selected='';from='';to='';columnSearch={};recordPage=1;list.hidden=true;screen.hidden=false;location.hash='services/'+id;draw();window.scrollTo(0,0)}
+function shell(title,html){drawer.innerHTML=`<div class="dialog-head"><span id="sr-title">${title}</span><button class="sr-close" aria-label="关闭记录窗口">×</button></div><div class="sr-body">${html}</div>`;q('.sr-close').onclick=close;if(!drawer.open)drawer.showModal()}
+function summary(r){return r.schema.filter(c=>r.values[c.byteKey]).map(c=>c.byteName+'：'+(Array.isArray(r.values[c.byteKey])?r.values[c.byteKey].join('、'):r.values[c.byteKey])).join('；')}
+function maintenanceDisplay(configuration,records,selected,failed=false){
+ if(failed)return {tabs:[],selected:'',fields:[],retired:false};
+ const groups=new Map();
+ [...configuration].sort((a,b)=>a.serviceTypeSort-b.serviceTypeSort).forEach(c=>{if(!groups.has(c.serviceTypeKey))groups.set(c.serviceTypeKey,{key:c.serviceTypeKey,name:c.serviceTypeName,retired:false})});
+ [...records].sort((a,b)=>b.date.localeCompare(a.date)).forEach(r=>{if(!groups.has(r.type))groups.set(r.type,{key:r.type,name:r.typeName,retired:true})});
+ if(!groups.has(selected))selected=groups.keys().next().value||'';
+ const retired=groups.get(selected)?.retired||false,columns=new Map();
+ const definitions=retired?records.filter(r=>r.type===selected).flatMap(r=>r.schema||[]):configuration.filter(c=>c.serviceTypeKey===selected);
+ definitions.sort((a,b)=>a.fieldSort-b.fieldSort).forEach(c=>{if(!columns.has(c.byteKey))columns.set(c.byteKey,c)});
+ return {tabs:[...groups.values()],selected,retired,fields:[...columns.values()]};
+}
+let recordPage=1;
+let columnSearch={};
+function draw(){
+ document.getElementById('sr-time-popover')?.remove();
+ document.getElementById('sr-column-popover')?.remove();
+ const failed=configLoadError||previewMode==='error';
+ const model=maintenanceDisplay(effectiveConfig(),own(),selected,failed);selected=model.selected;
+ const opts=new Map(model.tabs.map(t=>[t.key,t.name+(t.retired?'（已停用）':'')]));
+ const retired=model.retired;
+ const result=own().filter(r=>(selected&&r.type===selected)&&(!from||r.date.slice(0,10)>=from)&&(!to||r.date.slice(0,10)<=to)&&matchesColumnSearch(r,columnSearch)).sort((a,b)=>b.date.localeCompare(a.date));
+ const cols=new Map(model.fields.map(c=>[c.byteKey,c]));
+ const pages=Math.ceil(result.length/10)||1;recordPage=Math.min(recordPage,pages);
+ const colHeaders=[...cols.values()].map(c=>c.byteName);
+ const newAllowed=!failed&&!retired&&!!selected;
+ const total=columnValue(player,{index:7}),amount=Number(total),currencyCode=new URL(SOURCE_META.url).searchParams.get('currency'),unit=currencyCode==='RMB'||currencyCode==='CNY'?'人民币':currencyCode==='USD'?'美元':currencyCode||'币种未指定';
+ screen.innerHTML=`<div class="sr-overview"><div class="sr-overview-title"><strong>${e(player.values[5])} · <span class="${player.values[22]==='已删除'?'collection-deleted':player.values[22]==='已收录'?'collection-included':'collection-pending'}">${e(player.values[22]||'未收录')}</span></strong><button class="sr-link" id="sr-return">返回用户列表</button></div><div class="sr-meta"><span>角色ID：<b>${e(player.values[4])}</b></span><span>区服：<b>${e(columnValue(player,{index:1}))}</b></span><span>渠道：<b>${e(player.values[0])}</b></span><span>VIP分层：<b>${e(segmentValue(player))}</b></span><span>充值总金额：<b>${Number.isFinite(amount)?amount.toLocaleString('zh-CN',{maximumFractionDigits:2}):e(total)}</b></span></div></div>
+ <div class="sr-card sr-record-card"><h3 class="sr-block-title">维护记录</h3><div class="sr-type-tabs" role="tablist" aria-label="维护类型">${[...opts].map(([k,n])=>`<button role="tab" aria-selected="${selected===k}" data-type="${e(k)}" class="${selected===k?'active':''}">${e(n)}</button>`).join('')}</div>
+ <div class="sr-query sr-inline-tools"><button class="ant-btn ant-btn-primary" id="sr-new" ${newAllowed?'':'disabled'}>新增记录</button>${from||to?`<span class="sr-caption">操作时间：${from||'不限'} ～ ${to||'不限'}</span><button class="sr-link" id="sr-clear-time">清除</button>`:''}<button type="button" id="sr-download" class="sr-download" aria-label="下载维护记录" title="下载当前类型及筛选条件下的全部记录（CSV）" ${result.length?'':'disabled'}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12m-4-4 4 4 4-4M4 15v5h16v-5"/></svg></button></div>
+ <div class="sr-table-wrap"><table class="sr-table"><thead><tr><th style="min-width:160px"><span class="sr-header-filter">操作时间<button type="button" id="sr-time-filter" class="sr-filter-icon ${from||to?'active':''}" aria-label="筛选操作时间" aria-expanded="false" aria-controls="sr-time-popover"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="10" r="6"></circle><path d="m15 15 5 5"></path></svg></button></span></th>${[...cols.values()].map(c=>`<th style="min-width:150px">${searchHeader(c.byteName,'field:'+c.byteKey)}</th>`).join('')}<th style="min-width:110px">${searchHeader('操作人','operator')}</th><th style="min-width:110px">操作</th></tr></thead><tbody>${result.slice((recordPage-1)*10,recordPage*10).map(r=>`<tr><td>${e(r.date.replace('T',' '))}</td>${selected?[...cols.keys()].map(k=>`<td>${fmt(r.values[k])}</td>`).join(''):`<td>${e(r.typeName)}</td><td><div class="sr-summary" title="${e(summary(r))}">${e(summary(r))}</div></td>`}<td>${e(r.operator)}</td><td><button class="sr-link" data-detail="${r.id}">查看</button>　<button class="sr-link" data-correct="${r.id}" ${types().some(t=>t.key===r.type)?'':'disabled title="类型停用，仅可查看"'}>编辑</button></td></tr>`).join('')||`<tr><td colspan="${colHeaders.length+3}" class="sr-empty">${from||to||Object.keys(columnSearch).length?'暂无符合条件的维护记录':'暂无维护记录'}</td></tr>`}</tbody></table></div><div class="sr-pagination"><span>共 ${result.length} 条</span><button class="ant-btn" id="sr-prev" ${recordPage===1?'disabled':''}>‹</button><span>${recordPage} / ${pages}</span><button class="ant-btn" id="sr-next" ${recordPage===pages?'disabled':''}>›</button><span>10 条/页</span></div></div>
+ <details class="sr-config-entry"><summary>原型配置演示</summary><p>按游戏版本维护一张配置表：配置生成类型标签、列表字段及新增表单。公共字段、表头搜索和下载由程序统一提供。</p><button class="ant-btn" id="sr-config">查看／调整字段配置</button></details>`;
+ const $s=s=>screen.querySelector(s);
+ if(failed||!opts.size){
+  const card=$s('.sr-record-card');card.innerHTML='<h3 class="sr-block-title">维护记录</h3><div class="sr-state-empty"><p>'+ (failed?'维护配置加载失败，请重试。':'当前游戏版本尚未配置维护类型及字段，请联系平台配置人员完成配置后再新增记录。')+'</p>'+(failed?'<button class="ant-btn" id="sr-retry">重试</button>':'<button class="ant-btn" disabled>新增记录</button>')+'</div>';
+  if(failed)$s('#sr-retry').onclick=()=>{previewMode='normal';loadConfiguration();config=config.map(c=>c.serviceTypeKey==='privilege'&&c.serviceTypeName==='特权操作'?{...c,serviceTypeName:'特权发放'}:c);config=[...config.filter(c=>c.serviceTypeKey!=='privilege'),...mergePrivilegeSchema(config.filter(c=>c.serviceTypeKey==='privilege'))];if(config.some(c=>c.serviceTypeKey==='gift'))config=[...config.filter(c=>c.serviceTypeKey!=='gift'),...rewardSchema(config.filter(c=>c.serviceTypeKey==='gift'))];draw()};
+ }else if(retired){$s('.sr-inline-tools').insertAdjacentHTML('beforebegin','<div class="sr-state-notice">该维护类型已停用，已有记录仍可查看和下载，暂不支持新增或编辑。</div>');}
+ const demos=$s('.sr-config-entry');demos.insertAdjacentHTML('beforeend',`<label style="display:block;margin-top:12px">展示状态预览：<select id="sr-state-preview">${[['normal','当前配置与记录'],['unconfigured','未配置且无历史'],['empty','已配置但无记录'],['retired','已停用且有历史'],['error','配置加载失败']].map(([k,n])=>`<option value="${k}" ${previewMode===k?'selected':''}>${n}</option>`).join('')}</select></label><p>状态预览不删除配置或记录；切回“当前配置与记录”即可恢复。</p>`);
+ $s('#sr-state-preview').onchange=x=>{previewMode=x.target.value;selected='';from='';to='';columnSearch={};recordPage=1;draw()};
+$s('#sr-return').onclick=()=>{screen.hidden=true;list.hidden=false;location.hash='list'};if($s('#sr-new'))$s('#sr-new').onclick=()=>form();$s('#sr-config').onclick=configForm;
+ if($s('#sr-download'))$s('#sr-download').onclick=()=>downloadRecords(result,cols,opts.get(selected));
+ screen.querySelectorAll('[data-search-column]').forEach(b=>b.onclick=()=>columnFilter(b));
+ screen.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{selected=b.dataset.type;columnSearch={};recordPage=1;draw()});
+ if($s('#sr-time-filter'))$s('#sr-time-filter').onclick=()=>timeFilter($s('#sr-time-filter'));if($s('#sr-clear-time'))$s('#sr-clear-time').onclick=()=>{from='';to='';recordPage=1;draw()};
+ if($s('#sr-prev'))$s('#sr-prev').onclick=()=>{recordPage--;draw()};if($s('#sr-next'))$s('#sr-next').onclick=()=>{recordPage++;draw()};
+ screen.querySelectorAll('[data-detail]').forEach(b=>b.onclick=()=>detail(b.dataset.detail));screen.querySelectorAll('[data-correct]').forEach(b=>b.onclick=()=>form(b.dataset.correct));}
+function matchesColumnSearch(record,filters){
+ return Object.entries(filters).every(([key,term])=>{const value=key==='operator'?record.operator:record.values[key.slice(6)];return (Array.isArray(value)?value.join('、'):String(value??'')).toLocaleLowerCase().includes(term.toLocaleLowerCase());});
+}
+function searchHeader(label,key){return `<span class="sr-header-filter">${e(label)}<button type="button" class="sr-filter-icon ${columnSearch[key]?'active':''}" data-search-column="${e(key)}" data-search-label="${e(label)}" aria-label="搜索${e(label)}" aria-expanded="false" title="${e(columnSearch[key]?'当前搜索：'+columnSearch[key]:'搜索'+label)}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="10" r="6"></circle><path d="m15 15 5 5"></path></svg></button></span>`;}
+function closeColumnFilter(){document.getElementById('sr-column-popover')?.remove();screen.querySelectorAll('[data-search-column]').forEach(b=>b.setAttribute('aria-expanded','false'));}
+function columnFilter(button){
+ const old=document.getElementById('sr-column-popover'),key=button.dataset.searchColumn,label=button.dataset.searchLabel;
+ const same=old?.dataset.key===key;closeColumnFilter();if(same)return;
+ document.getElementById('sr-time-popover')?.remove();document.getElementById('sr-time-filter')?.setAttribute('aria-expanded','false');
+ const panel=document.createElement('div');panel.id='sr-column-popover';panel.dataset.key=key;panel.className='sr-time-popover';panel.setAttribute('role','dialog');panel.setAttribute('aria-label','搜索'+label);
+ panel.innerHTML=`<strong>${e(label)}</strong><label><input id="sr-column-keyword" aria-label="${e(label)}搜索关键词" type="text" placeholder="请输入关键词" value="${e(columnSearch[key]||'')}" style="width:100%"></label><div class="sr-time-actions"><button class="ant-btn" id="sr-column-reset">重置</button><button class="ant-btn ant-btn-primary" id="sr-column-query">查询</button></div>`;
+ document.body.append(panel);button.setAttribute('aria-expanded','true');const rect=button.getBoundingClientRect();panel.style.left=Math.max(8,Math.min(rect.left,innerWidth-panel.offsetWidth-8))+'px';panel.style.top=Math.max(8,Math.min(rect.bottom+8,innerHeight-panel.offsetHeight-8))+'px';
+ function apply(value){if(value)columnSearch[key]=value;else delete columnSearch[key];recordPage=1;closeColumnFilter();draw();[...screen.querySelectorAll('[data-search-column]')].find(b=>b.dataset.searchColumn===key)?.focus();}
+ panel.querySelector('#sr-column-query').onclick=()=>apply(panel.querySelector('input').value.trim());panel.querySelector('#sr-column-reset').onclick=()=>apply('');
+ panel.onkeydown=x=>{if(x.key==='Escape'){closeColumnFilter();button.focus()}if(x.key==='Enter'){x.preventDefault();panel.querySelector('#sr-column-query').click()}};panel.querySelector('input').focus();
+}
+document.addEventListener('click',x=>{const panel=document.getElementById('sr-column-popover');if(panel&&!panel.contains(x.target)&&!x.target.closest('[data-search-column]'))closeColumnFilter()});
+function recordCsvCell(value){
+ let text=Array.isArray(value)?value.join('、'):String(value??'');
+ if(/^[\s]*[=+\-@]/.test(text)||/^[\t\r]/.test(text))text="'"+text;
+ return '"'+text.replace(/"/g,'""')+'"';
+}
+function recordCsv(records,cols){
+ const matrix=[['操作时间',...[...cols.values()].map(c=>c.byteName),'操作人'],...records.map(r=>[r.date.replace('T',' '),...[...cols.keys()].map(k=>r.values[k]??''),r.operator])];
+ return '\ufeff'+matrix.map(row=>row.map(recordCsvCell).join(',')).join('\r\n');
+}
+function downloadRecords(records,cols,typeName){
+ if(!records.length||player.canViewCustom===false||configLoadError||previewMode==='error')return;
+ const blob=new Blob([recordCsv(records,cols)],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=('维护记录-'+player.values[4]+'-'+(typeName||'记录')+'.csv').replace(/[\\/:*?"<>|]/g,'_');document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ toast('已下载 '+records.length+' 条维护记录');
+}
+function timeFilter(button){
+ closeColumnFilter();
+ const existing=document.getElementById('sr-time-popover');if(existing){existing.remove();button.setAttribute('aria-expanded','false');return}
+ const panel=document.createElement('div');panel.id='sr-time-popover';panel.className='sr-time-popover';panel.setAttribute('role','dialog');panel.setAttribute('aria-label','筛选操作时间');
+ panel.innerHTML=`<strong>操作时间</strong><label>开始日期<input id="sr-from" type="date" value="${from}"></label><label>结束日期<input id="sr-to" type="date" value="${to}"></label><div id="sr-date-error" role="alert"></div><div class="sr-time-actions"><button class="ant-btn" id="sr-reset">重置</button><button class="ant-btn ant-btn-primary" id="sr-query">查询</button></div>`;
+ document.body.append(panel);button.setAttribute('aria-expanded','true');const rect=button.getBoundingClientRect();panel.style.left=Math.max(8,Math.min(rect.left,innerWidth-panel.offsetWidth-8))+'px';panel.style.top=Math.max(8,Math.min(rect.bottom+8,innerHeight-panel.offsetHeight-8))+'px';
+ const dismiss=()=>{panel.remove();button.setAttribute('aria-expanded','false')};
+ panel.querySelector('#sr-query').onclick=()=>{const a=panel.querySelector('#sr-from').value,b=panel.querySelector('#sr-to').value;if(a&&b&&a>b){panel.querySelector('#sr-date-error').textContent='开始日期不能晚于结束日期';return}from=a;to=b;recordPage=1;dismiss();draw();document.getElementById('sr-time-filter')?.focus()};
+ panel.querySelector('#sr-reset').onclick=()=>{from='';to='';recordPage=1;dismiss();draw()};
+ panel.onkeydown=x=>{if(x.key==='Escape'){dismiss();button.focus()}if(x.key==='Enter'){x.preventDefault();panel.querySelector('#sr-query').click()}};
+ panel.querySelector('input').focus();
+}
+document.addEventListener('click',x=>{const panel=document.getElementById('sr-time-popover');if(panel&&!panel.contains(x.target)&&!x.target.closest('#sr-time-filter')){panel.remove();document.getElementById('sr-time-filter')?.setAttribute('aria-expanded','false')}});
+function control(c,v){const attr=`name="f_${e(c.byteKey)}"`,value=v??'',options=c.byteContent.split('\n').filter(Boolean),values=Array.isArray(value)?value:[String(value)];values.filter(x=>x&&!options.includes(x)).forEach(x=>options.push(x));const input=c.byteType==='textarea'?`<textarea ${attr} maxlength="2000" ${c.byteKey==='detail'?'placeholder="请填写本次特权发放内容及其他补充信息"':''}>${e(value)}</textarea>`:['select','multi'].includes(c.byteType)?`<select ${attr} ${c.byteType==='multi'?'multiple size="4"':''}><option value="">请选择</option>${options.map(x=>`<option ${values.includes(x)?'selected':''}>${e(x)}</option>`).join('')}</select>`:`<input ${attr} type="${c.byteType==='number'?'number':c.byteType==='date'?'date':'text'}" step="any" value="${e(value)}">`;return `<label class="${c.byteType==='textarea'?'wide':''}"><span>${c.byteRequired?'<b class="sr-required">* </b>':''}${e(c.byteName)}</span>${input}</label>`}
+function read(schema,f){const fd=new FormData(f);return Object.fromEntries(schema.map(c=>[c.byteKey,c.byteType==='multi'?fd.getAll('f_'+c.byteKey).filter(Boolean):String(fd.get('f_'+c.byteKey)??'').trim()]))}
+function form(id){if(configLoadError||previewMode==='error')return;const candidate=own().find(r=>r.id===id);if(id&&!types().some(t=>t.key===candidate?.type))return;const old=own().find(r=>r.id===id);let type=old?.type||selected||types()[0]?.key;if(!type)return;let common={date:old?.date||'',operator:old?.operator||''},drafts={};dirty=false;
+function paint(){const schema=old?old.schema:fields(type),values=drafts[type]||old?.values||{};shell(old?'编辑维护记录':'新增维护记录',`<form id="sr-form" novalidate><div class="sr-form"><label><span>维护类型</span><select id="sr-type" ${old?'disabled':''}>${types().map(t=>`<option value="${t.key}" ${type===t.key?'selected':''}>${e(t.name)}</option>`).join('')}</select></label><label><span><b class="sr-required">* </b>操作时间</span><input id="sr-date" type="datetime-local" value="${e(common.date)}"></label><label><span><b class="sr-required">* </b>操作人</span><input id="sr-operator" value="${e(common.operator)}"></label></div><h4 class="sr-section-title">${e(old?.typeName||types().find(t=>t.key===type).name)}</h4><div class="sr-form">${schema.map(c=>control(c,values[c.byteKey])).join('')}</div>${old?'<label class="sr-reason">修改原因<textarea id="sr-reason"></textarea></label>':''}<div class="sr-error" id="sr-error" role="alert"></div><div class="sr-form-actions"><button type="button" class="ant-btn" id="sr-cancel">取消</button><button class="ant-btn ant-btn-primary">保存记录</button></div></form>`);const f=q('#sr-form');f.oninput=()=>dirty=true;q('#sr-cancel').onclick=close;q('#sr-type').onchange=x=>{common={date:q('#sr-date').value,operator:q('#sr-operator').value};drafts[type]=read(schema,f);type=x.target.value;paint()};f.onsubmit=x=>{x.preventDefault();const v=read(schema,f),date=q('#sr-date').value,operator=q('#sr-operator').value.trim(),reason=q('#sr-reason')?.value.trim();let error=!date?'请填写操作时间':!operator?'请填写操作人':old&&!reason?'请填写修改原因':'';for(const c of schema)if(c.byteRequired===1&&(Array.isArray(v[c.byteKey])?!v[c.byteKey].length:v[c.byteKey]==='')){error='请填写'+c.byteName;break}if(error){q('#sr-error').textContent=error;return}const time=stamp(),r={id:old?.id||crypto.randomUUID(),version,playerId:player.id,type,typeName:old?.typeName||types().find(t=>t.key===type).name,date,operator,values:v,schema:JSON.parse(JSON.stringify(schema)),createdBy:old?.createdBy||'当前客服',createdAt:old?.createdAt||time,updatedBy:'当前客服',updatedAt:time,history:old?[...old.history,{at:time,by:'当前客服',reason,before:{date:old.date,operator:old.operator,values:old.values},after:{date,operator,values:v}}]:[]};const next=old?events.map(a=>a.id===old.id?r:a):[...events,r];try{localStorage.setItem(key,JSON.stringify(next));events=next;dirty=false;drawer.close();draw();toast('维护记录已保存')}catch{q('#sr-error').textContent='保存失败，请检查浏览器存储权限'}};}paint();}
+function detail(id){const r=own().find(a=>a.id===id);dirty=false;shell('维护记录详情',`<dl class="sr-detail"><dt>记录编号</dt><dd>${e(r.id)}</dd><dt>维护类型</dt><dd>${e(r.typeName)}</dd><dt>操作时间</dt><dd>${e(r.date.replace('T',' '))}</dd><dt>操作人</dt><dd>${e(r.operator)}</dd>${r.schema.map(c=>`<dt>${e(c.byteName)}</dt><dd>${fmt(r.values[c.byteKey])}</dd>`).join('')}<dt>录入信息</dt><dd>${e(r.createdBy)}　${e(r.createdAt)}</dd><dt>最后修改</dt><dd>${e(r.updatedBy)}　${e(r.updatedAt)}</dd></dl><h4>修改历史</h4>${r.history.map(h=>`<details class="sr-history"><summary>${e(h.at)}　${e(h.by)}　${e(h.reason)}</summary>${[['操作时间',h.before.date,h.after.date],['执行人',h.before.operator,h.after.operator],...r.schema.map(c=>[c.byteName,h.before.values[c.byteKey],h.after.values[c.byteKey]])].filter(a=>JSON.stringify(a[1])!==JSON.stringify(a[2])).map(a=>`<p>${e(a[0])}：${fmt(a[1])} → ${fmt(a[2])}</p>`).join('')||'业务内容未改变'}</details>`).join('')||'<p class="sr-caption">暂无修改历史</p>'}`)}
+function configForm(){dirty=false;const ordered=[...config].sort((a,b)=>a.serviceTypeSort-b.serviceTypeSort||a.serviceTypeKey.localeCompare(b.serviceTypeKey)||a.fieldSort-b.fieldSort);const controlNames={text:'文本',textarea:'多行文本',number:'数字',date:'日期',select:'下拉单选',multi:'下拉多选'};const keys=['serviceTypeKey','serviceTypeName','serviceTypeSort','byteKey','byteName','byteType','byteContent','byteRequired','fieldSort'],labels=['维护类型标识','维护类型名称','类型排序','字段键值','字段名称','字段类型','选项内容','是否必填','字段排序'];shell('当前游戏版本字段配置',`<p>当前游戏版本：${version}</p><div class="sr-config-rules"><p><strong>一行配置一个字段：</strong>相同维护类型标识生成一个标签；字段排序同时控制表格列与表单顺序。</p><p><strong>当前示例：</strong>特权发放为“具体操作、备注”；礼包发放为“晋级档位、礼包名称、发放类型、备注”。下拉选项由选项内容维护。</p><p><strong>公共能力：</strong>操作时间、操作人为公共字段；录入信息与修改历史由系统记录。除操作栏外，每列提供搜索；下载当前类型及全部筛选结果，无须增加搜索或下载配置列。</p><p><strong>配置边界：</strong>不在此处配置玩家实际记录。修改配置不得删除已有记录内容；停用类型保留历史标签，按历史字段展示，只允许查看和下载。</p></div><p class="sr-caption">字段名与编码如下；byteType正式使用整数枚举，当前JSON使用文字类型演示。</p><div class="sr-table-wrap"><table class="sr-table"><thead><tr>${labels.map((x,i)=>`<th>${x}<br><small>${keys[i]}</small></th>`).join('')}</tr></thead><tbody>${ordered.map(c=>`<tr>${keys.map(k=>`<td>${k==='byteType'?e(controlNames[c[k]]||c[k]):k==='byteRequired'?(c[k]===1?'1（必填）':'0（选填）'):e(c[k])||'—'}</td>`).join('')}</tr>`).join('')}</tbody></table></div><details style="margin-top:20px"><summary>调整配置 JSON</summary><textarea id="sr-json" style="width:100%;height:300px;margin:12px 0">${e(JSON.stringify(config,null,2))}</textarea><p class="sr-caption">类型支持text、textarea、number、date、select、multi；选项按换行分隔。空数组停止新增，历史记录保留。</p><div id="sr-config-error" class="sr-error"></div><button class="ant-btn ant-btn-primary" id="sr-config-save">保存配置</button></details>`);q('#sr-json').oninput=()=>dirty=true;q('#sr-config-save').onclick=()=>{try{const next=JSON.parse(q('#sr-json').value);if(!Array.isArray(next))throw Error('配置必须为数组');const seen=new Set(),groups=new Map();for(const c of next){if(!/^[A-Za-z]\w*$/.test(c.serviceTypeKey)||!/^[A-Za-z]\w*$/.test(c.byteKey)||!c.serviceTypeName?.trim()||!c.byteName?.trim())throw Error('请填写有效标识和名称');if(!['text','textarea','number','date','select','multi'].includes(c.byteType)||![0,1].includes(c.byteRequired)||!Number.isInteger(c.fieldSort)||!Number.isInteger(c.serviceTypeSort)||typeof c.byteContent!=='string')throw Error('控件类型、必填、选项或排序格式错误');const k=c.serviceTypeKey+':'+c.byteKey,g=c.serviceTypeName+':'+c.serviceTypeSort;if(seen.has(k))throw Error('同类型字段键重复');seen.add(k);if(groups.has(c.serviceTypeKey)&&groups.get(c.serviceTypeKey)!==g)throw Error('同类型名称和排序须一致');groups.set(c.serviceTypeKey,g)}const all=JSON.parse(localStorage.getItem(ck)||'{}');all[version]=next;localStorage.setItem(ck,JSON.stringify(all));config=next;dirty=false;drawer.close();draw();toast('配置已保存')}catch(err){q('#sr-config-error').textContent=err.message}};}
+document.addEventListener('click',x=>{const b=x.target.closest('[data-service]');if(b&&!b.disabled)open(b.dataset.service)});drawer.addEventListener('cancel',x=>{x.preventDefault();close()});window.addEventListener('hashchange',()=>{if(!location.hash.startsWith('#services/')&&!screen.hidden){if(drawer.open&&!close()){location.hash='services/'+player.id;return}screen.hidden=true;list.hidden=false}});
+})();
+
+</script>
+<style>
+#service-page{padding:12px}.sr-overview{background:#fff;padding:18px 16px 20px}.sr-overview-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.sr-overview-title strong{font-size:16px;font-weight:600}.sr-meta{display:flex;gap:14px 34px;flex-wrap:wrap;color:#8c8c8c;font-size:13px}.sr-meta b{font-weight:400;color:#334a62}.sr-record-card{margin-top:12px;padding:16px}.sr-block-title{border-left:3px solid #1890ff;padding-left:10px;margin:0 0 12px;font-weight:400;font-size:16px}.sr-type-tabs{display:flex;gap:32px;border-bottom:1px solid #eee;overflow:auto}.sr-type-tabs button{padding:10px 0 12px;border:0;background:none;white-space:nowrap;cursor:pointer;font-size:14px;border-bottom:2px solid transparent}.sr-type-tabs button.active{border-bottom-color:#1890ff;color:#1890ff}.sr-inline-tools{margin:16px 0 24px;gap:12px}.sr-inline-tools #sr-new{margin-left:auto}.sr-table th{font-size:13px}.sr-table td{font-size:13px;line-height:22px;padding:16px 12px}.sr-summary{max-width:480px;min-width:220px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.sr-pagination{display:flex;justify-content:flex-end;gap:12px;align-items:center;margin-top:16px;font-size:12px}.sr-pagination button{height:26px;padding:0 10px}#service-dialog{width:750px}#service-dialog .sr-form{display:flex;flex-direction:column;gap:22px}#service-dialog .sr-form label{display:grid;grid-template-columns:140px minmax(0,1fr);gap:10px;align-items:start}#service-dialog .sr-form label>span{text-align:right;line-height:32px}#service-dialog .sr-form input,#service-dialog .sr-form select{min-height:32px}#service-dialog .sr-section-title{font-size:14px;font-weight:400;margin:24px 0 20px}#service-dialog .sr-form-actions{position:sticky;bottom:-32px;background:white;border-top:1px solid #eee;padding:12px 0} @media(max-width:650px){.sr-inline-tools #sr-new{margin-left:0}#service-dialog .sr-form label{grid-template-columns:100px minmax(0,1fr)}.sr-meta{gap:10px}.sr-summary{min-width:180px}}
+</style><style>
+.sr-meta{gap:12px 30px}.sr-meta>span{white-space:nowrap}.sr-inline-tools #sr-new{margin-left:0}.sr-inline-tools{justify-content:flex-start;margin:16px 0 20px}.sr-header-filter{display:flex;align-items:center;justify-content:space-between;gap:10px}.sr-filter-icon{border:0;background:none;color:#bfbfbf;padding:2px;cursor:pointer;display:flex}.sr-filter-icon.active,.sr-filter-icon:hover{color:#1890ff}.sr-time-popover{position:fixed;z-index:1100;width:280px;max-width:calc(100vw - 16px);padding:16px;background:white;box-shadow:0 3px 14px #0003;border:1px solid #eee;border-radius:2px;font-size:13px}.sr-time-popover strong{font-weight:500}.sr-time-popover label{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px}.sr-time-popover input{border:1px solid #d9d9d9;height:32px;padding:4px 8px;width:174px;min-width:0}.sr-time-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}#sr-date-error{color:#ff4d4f;font-size:12px;margin-top:8px}
+</style><style>.sr-inline-tools .sr-download{margin-left:auto;border:0;background:transparent;color:#595959;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer}.sr-download:hover{color:#1890ff}.sr-download:disabled{color:#bfbfbf;cursor:not-allowed}</style><style>.sr-config-rules{background:#fafafa;border:1px solid #eee;padding:12px 16px;margin:14px 0;font-size:13px;line-height:1.8}.sr-config-rules p{margin:0 0 6px}.sr-table th small{color:#8c8c8c;font-size:11px}</style><style>.sr-state-empty{text-align:center;padding:58px 20px;color:#8c8c8c}.sr-state-empty p{margin-bottom:20px}.sr-state-notice{padding:12px 16px;background:#fffbe6;border:1px solid #ffe58f;margin-top:16px;color:#8c6d1f;font-size:13px}</style></body></html>
