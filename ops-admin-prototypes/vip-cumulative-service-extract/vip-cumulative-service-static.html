@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VIP累计服务数据（USD）</title>
+<style>
+:root{--blue:#1890ff;--ink:#234779;--border:#e8e8e8;--muted:#7d8798}*{box-sizing:border-box}body{margin:0;background:#f0f2f5;color:var(--ink);font:14px Arial,"Microsoft YaHei",sans-serif;padding:15px 8px 0}button,input,select{font:inherit}button,select{cursor:pointer}button{color:inherit}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #91caff;outline-offset:2px}.panel{background:#fff;border-radius:4px}.topbar{height:45px;padding:0 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}h1,h2{font-size:14px;font-weight:500;margin:0}.icon-button{border:0;background:none;color:#929aac;padding:6px;display:inline-flex;align-items:center;justify-content:center}.icon{height:15px;width:15px;display:inline-block;vertical-align:middle;flex-shrink:0}.filters{padding:8px 12px 9px}.filter-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.filter-row+.filter-row{margin-top:8px}.field{height:32px;border:1px solid var(--border);border-radius:5px;display:flex;align-items:center;padding:0 9px;gap:8px;color:#63728a;position:relative;white-space:nowrap;background:#fff}.field:hover{border-color:#91caff}.field:focus-within{border-color:#40a9ff}.type{font-family:Georgia,serif;font-size:17px;font-weight:700;color:#7e8594;line-height:1}.field input,.field select{color:inherit;border:0;background:transparent;outline:none;padding:0;min-width:0;width:100%;height:28px}.field input::placeholder{color:#63728a;opacity:1}.field select{appearance:none;padding-right:16px}.select:after{content:"";position:absolute;right:11px;width:6px;height:6px;border-right:1px solid #8a919d;border-bottom:1px solid #8a919d;transform:rotate(45deg);pointer-events:none;top:10px}.date-field{width:214px}.date-field .date-label{color:#409eff;font-weight:500}.date-field input{position:absolute;inset:0;opacity:0;cursor:pointer;height:100%;width:100%}.date-field input::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:auto;height:auto;cursor:pointer}.short{width:160px}.amount{width:160px}.threshold{width:191px;gap:2px}.threshold label{flex:none}.threshold input{color:#409eff;width:60px}.clear{border:0;background:none;color:#409eff;font-size:19px;line-height:1;padding:0 0 0 5px;margin-left:auto}.cutoff{width:296px;gap:8px}.cutoff select{color:#409eff;padding:0;flex:1}.cutoff .caption{margin-right:-8px}.period{width:160px;gap:8px}.period select{color:#409eff;padding:0;width:40px}.week{width:160px}.primary{height:32px;border:1px solid var(--blue);background:var(--blue);color:#fff;border-radius:4px;padding:0 15px}.primary:hover{background:#40a9ff;border-color:#40a9ff}.data-panel{margin-top:9px;overflow:hidden}.section-title{height:45px;display:flex;align-items:center;gap:9px;padding:0 17px}.ai{border:0;background:#eaf3ff;color:#234779;border-radius:12px;font-weight:600;font-size:12px;height:26px;padding:0 9px;display:flex;align-items:center;gap:4px}.ai-mark{font-style:italic;color:#6fc8f5;font-size:18px;text-shadow:2px 1px #d3eafc}.more{margin-left:auto}.table-viewport{overflow:auto;max-height:580px;scrollbar-width:thin;scrollbar-color:#d6d6d6 transparent}table{width:2940px;min-width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:14px}th{position:sticky;top:0;background:#fff;z-index:2;font-weight:500;white-space:nowrap;text-align:right;height:34px;border-bottom:1px solid #ededed;padding:0 12px}td{height:36px;text-align:right;white-space:nowrap;padding:0 12px;border-bottom:1px solid #fafafa}th:first-child,td:first-child{text-align:left}tbody tr:hover{background:#f5f5f5}tbody tr.selected{background:#f5f5f5}td.active-cell{background:#e6edf5}td:focus-visible{outline:1px solid #91caff;outline-offset:-1px}.empty{text-align:center!important;height:220px;color:#9aa3b0}.pagination{min-height:40px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;align-items:center;gap:7px;padding:7px 9px;background:#fff}.page-button{border:1px solid transparent;border-radius:2px;background:white;min-width:24px;height:24px;padding:0 5px}.page-button.active{border-color:var(--blue);color:var(--blue)}.page-button:disabled{color:#bfbfbf;cursor:default}.page-size{height:25px;border:1px solid #d9d9d9;border-radius:2px;color:var(--ink);background:white;padding:0 7px}.jump{width:47px;height:25px;border:1px solid #d9d9d9;border-radius:2px;color:var(--ink);text-align:center}.toast{position:fixed;top:23px;left:50%;transform:translateX(-50%);padding:11px 20px;border-radius:5px;background:#fff;box-shadow:0 3px 15px #0002;z-index:20;display:none;max-width:90vw;color:#41516b}dialog{border:none;border-radius:8px;width:510px;max-width:calc(100vw - 32px);padding:0;color:var(--ink);box-shadow:0 12px 48px #0003}dialog::backdrop{background:#0005}.dialog-heading{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}.dialog-heading h2{font-size:16px}.dialog-content{padding:20px;font-size:14px;line-height:1.9}.dialog-content p{margin:0 0 12px}.metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}.metric{padding:12px;background:#f5f8fd;border-radius:5px}.metric strong{display:block;font-size:24px;color:var(--blue);font-weight:500}.note{color:#8490a2;font-size:12px}.dialog-footer{border-top:1px solid var(--border);padding:12px 20px;text-align:right}@media(min-height:900px){.table-viewport{max-height:580px}}@media(max-width:650px){body{padding:8px}.topbar{padding:0 10px}.filters{padding:8px}.filter-row{gap:6px}.field{flex-grow:1}.section-title{padding:0 12px}.pagination{flex-wrap:wrap}.table-viewport{max-height:60vh}.cutoff{width:100%}}
+
+[hidden]{display:none!important}.positioning-row{margin-bottom:10px;min-height:32px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.choice-group{display:inline-flex;align-items:center;gap:0;border:1px solid #d9dfe8;border-radius:4px;overflow:hidden}.choice-group label{position:relative;cursor:pointer}.choice-group input{position:absolute;opacity:0;width:1px;height:1px}.choice-group span{display:block;padding:7px 14px;background:#fff;color:#63728a}.choice-group input:checked+span{background:#eaf4ff;color:#1890ff;box-shadow:inset 0 0 0 1px #91caff}.choice-group input:focus-visible+span{outline:2px solid #1890ff;outline-offset:-2px}.positioning-options{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.tier-picker{position:relative;min-width:230px;border:1px solid #e8e8e8;border-radius:5px;color:#63728a;background:#fff}.tier-picker summary{cursor:pointer;list-style:none;height:32px;display:flex;align-items:center;padding:0 10px;gap:8px}.tier-picker summary:after{content:'⌄';margin-left:auto}.tier-menu{position:absolute;top:36px;left:0;min-width:100%;padding:8px;background:#fff;box-shadow:0 4px 16px #0002;border:1px solid #e8e8e8;border-radius:4px;z-index:10}.tier-menu label{display:flex;gap:8px;align-items:center;padding:8px;white-space:nowrap;cursor:pointer}.tier-menu label:hover{background:#f0f7ff}.tier-menu input{accent-color:#1890ff}.tier-menu .note{padding:4px 8px}.query-state{padding:7px 17px;font-size:12px;color:#8490a2;border-bottom:1px solid #f4f4f4}.pending{color:#d48806;margin-left:10px}.display-label{margin-left:6px}td.tier-cell{text-align:left;color:#1890ff}
+</style>
+</head>
+<body>
+<svg aria-hidden="true" style="display:none"><defs><symbol id="calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 2v6M16 2v6M4 10h16M8 14h3v3H8z"/></symbol><symbol id="number" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h1v7M12 10c3-3 6 1 2 3l-2 3h5"/></symbol><symbol id="download" viewBox="0 0 24 24"><path d="M7 17H5a3 3 0 0 1-1-6 7 7 0 0 1 14-2 4 4 0 0 1 1 8h-2M12 11v9m-3-3 3 3 3-3"/></symbol></defs></svg>
+<main>
+<section class="panel" aria-label="查询条件">
+  <header class="topbar"><h1>VIP累计服务数据</h1><button class="icon-button" id="export" title="导出当前筛选结果（CSV）" aria-label="导出数据"><svg class="icon" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#download"/></svg></button></header>
+  <form class="filters" id="filters">
+    <div class="positioning-row">
+      <span>VIP定位方式：</span>
+      <div class="choice-group" role="radiogroup" aria-label="VIP定位方式">
+        <label><input type="radio" name="positioning" value="custom" checked><span>自定义金额</span></label>
+        <label><input type="radio" name="positioning" value="config"><span>VIP配置</span></label>
+      </div>
+    </div>
+    <div class="positioning-row" id="vip-options">
+      <div class="positioning-options" id="custom-options"></div>
+      <div class="positioning-options" id="config-options" hidden>
+        <details class="tier-picker" id="tier-picker">
+          <summary aria-label="VIP分层"><span>VIP分层：</span><span id="tier-summary">全部</span></summary>
+          <div class="tier-menu"><label><input type="checkbox" id="all-tiers" checked>全部</label><div id="tier-options"></div><div class="note">演示配置，待接入真实VIP配置</div></div>
+        </details>
+        <span class="display-label">统计展示：</span>
+        <div class="choice-group" role="radiogroup" aria-label="统计展示">
+          <label><input type="radio" name="display" value="merged" checked><span>合并统计</span></label>
+          <label><input type="radio" name="display" value="tier"><span>按分层统计</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-row">
+      <label class="field date-field"><svg class="icon" fill="none" stroke="currentColor" stroke-width="1.6"><use href="#calendar"/></svg><span>筛选日期: <span class="date-label" id="date-label">十月 20, 2026</span></span><input id="date" type="date" value="2026-10-20" aria-label="筛选日期"></label>
+      <label class="field short select"><span class="type">T</span><select id="channel" aria-label="渠道ID"><option value="">渠道ID</option><option value="1001">1001（演示）</option><option value="1002">1002（演示）</option><option value="1003">1003（演示）</option></select></label>
+      <label class="field short select"><span class="type">T</span><select id="region" aria-label="地区"><option value="">地区</option><option>巴西</option><option>墨西哥</option><option>印度</option></select></label>
+      <label class="field amount"><svg class="icon" fill="none" stroke="currentColor" stroke-width="1.6"><use href="#number"/></svg><input id="min" type="number" min="0" placeholder="最小累充" aria-label="最小累充"></label>
+      <label class="field amount"><svg class="icon" fill="none" stroke="currentColor" stroke-width="1.6"><use href="#number"/></svg><input id="max" type="number" min="0" placeholder="最大累充" aria-label="最大累充"></label>
+      <div class="field threshold"><label for="vip">VIP累充门槛:</label><input id="vip" type="number" min="0" value="10000" aria-label="VIP累充门槛"><button class="clear" type="button" data-reset="vip" title="重置VIP累充门槛" aria-label="重置VIP累充门槛">↶</button></div>
+      <div class="field threshold"><label for="high">高V累充门槛:</label><input id="high" type="number" min="0" value="13500" aria-label="高V累充门槛"><button class="clear" type="button" data-clear="high" title="清空高V累充门槛" aria-label="清空高V累充门槛">×</button></div>
+    </div>
+    <div class="filter-row">
+      <div class="field cutoff"><span class="type">T</span><label class="caption" for="cutoff">截止统计类型:</label><select id="cutoff" aria-label="截止统计类型"><option value="month">统计至筛选月最后一天</option><option value="date">统计至筛选日期</option></select><button class="clear" type="button" data-reset="cutoff" title="重置截止统计类型" aria-label="重置截止统计类型">×</button></div>
+      <div class="field period"><span class="type">T</span><label for="period">统计类型:</label><select id="period" aria-label="统计类型"><option value="week">按周</option><option value="day">按日</option><option value="month">按月</option></select><button class="clear" type="button" data-reset="period" title="重置统计类型" aria-label="重置统计类型">×</button></div>
+      <label class="field week select"><span class="type">T</span><select id="weekday" aria-label="周统计起始"><option value="">周统计起始</option><option value="1">星期一</option><option value="2">星期二</option><option value="3">星期三</option><option value="4">星期四</option><option value="5">星期五</option><option value="6">星期六</option><option value="0">星期日</option></select></label>
+      <button type="submit" class="primary">查询</button>
+    </div>
+  </form>
+</section>
+<section class="panel data-panel" aria-label="VIP累计服务数据">
+  <header class="section-title"><h2 title="依据截图还原；截图外的记录和筛选选项为本地演示内容">VIP累计服务数据</h2><button class="ai" id="analysis"><span class="ai-mark">Ai</span>数据分析</button><button class="icon-button more" id="about" aria-label="查看页面说明" title="页面说明">···</button></header>
+  <div class="query-state"><span id="query-mode">当前结果：自定义金额 · 演示数据</span><span class="pending" id="pending" hidden>条件已修改，查询后生效</span></div>
+  <div class="table-viewport" tabindex="0" aria-label="可横向和纵向滚动的数据表格"><table><colgroup><col style="width:132px"><col style="width:93px"><col style="width:91px"><col style="width:133px"><col style="width:91px"><col style="width:132px"><col style="width:133px"><col style="width:120px"><col style="width:120px"><col style="width:120px"><col style="width:120px"><col style="width:134px"><col style="width:131px"><col style="width:120px"><col style="width:150px"><col style="width:200px"><col style="width:200px"><col style="width:160px"><col style="width:200px"><col style="width:200px"><col style="width:160px"></colgroup><thead><tr id="headers"></tr></thead><tbody id="rows"></tbody></table></div>
+  <footer class="pagination"><span id="total">共177条</span><button class="page-button" id="prev" aria-label="上一页">‹</button><span id="pages"></span><button class="page-button" id="next" aria-label="下一页">›</button><select class="page-size" id="page-size" aria-label="每页条数"><option value="20">20 条/页</option><option value="50">50 条/页</option><option value="100" selected>100 条/页</option></select><span>跳至</span><input class="jump" id="jump" type="number" min="1" aria-label="跳转页码"><span>页</span></footer>
+</section>
+</main>
+<div class="toast" id="toast" role="status"></div>
+<dialog id="dialog"><div class="dialog-heading"><h2 id="dialog-title"></h2><button class="icon-button" id="close" aria-label="关闭弹窗">✕</button></div><div class="dialog-content" id="dialog-content"></div><div class="dialog-footer"><button class="primary" id="confirm">知道了</button></div></dialog>
+<script>
+// 前15行的完整可见数值来自参考截图；最右侧被裁切的指标及后续记录为演示数据。
+let columns=['截止日期','累计VIP数','活跃VIP数','累计已收录VIP数','流失VIP数','已收录流失VIP数','未收录流失VIP数','累计VIP收录率','活跃VIP收录率','活跃高V收录率','活跃低V收录率','已收录VIP活跃率','未收录VIP活跃率','新增活跃VIP数','新增活跃VIP收录率','已收录VIP三方充值金额占比','未收录VIP三方充值金额占比','VIP三方充值金额占比','已收录VIP三方充值人数占比','未收录VIP三方充值人数占比','VIP三方充值人数占比'];
+const captured=[
+['2026-10-22',1779,923,1666,856,766,90,'93.65%','97.51%','97.79%','96.71%','54.02%'],
+['2026-10-15',1775,927,1662,848,759,89,'93.63%','97.41%','97.82%','96.25%','54.33%'],
+['2026-10-08',1769,938,1656,831,742,89,'93.61%','97.44%','97.82%','96.39%','55.19%'],
+['2026-10-01',1762,936,1649,826,736,90,'93.59%','97.54%','98.25%','95.62%','55.37%'],
+['2026-09-24',1755,939,1642,816,728,88,'93.56%','97.34%','98.24%','94.94%','55.66%'],
+['2026-09-17',1744,941,1631,803,715,88,'93.52%','97.34%','98.25%','94.9%','56.16%'],
+['2026-09-10',1739,952,1627,787,699,88,'93.56%','97.48%','98.26%','95.4%','57.04%'],
+['2026-09-03',1725,947,1614,778,691,87,'93.57%','97.47%','98.26%','95.33%','57.19%'],
+['2026-08-27',1718,946,1607,772,685,87,'93.54%','97.46%','98.26%','95.35%','57.37%'],
+['2026-08-20',1697,934,1586,763,676,87,'93.46%','97.43%','98.11%','95.51%','57.38%'],
+['2026-08-13',1692,939,1581,753,666,87,'93.44%','97.44%','98.25%','95.29%','57.87%'],
+['2026-08-06',1681,943,1570,738,651,87,'93.4%','97.45%','98.26%','95.29%','58.54%'],
+['2026-07-30',1674,942,1562,732,645,87,'93.31%','97.35%','98.11%','95.29%','58.71%'],
+['2026-07-23',1662,941,1551,721,634,87,'93.32%','97.45%','98.1%','95.72%','59.12%'],
+['2026-07-16',1649,931,1538,718,631,87,'93.27%','97.42%','98.1%','95.55%','58.97%']
+];
+const $=id=>document.getElementById(id), pct=(a,b)=>(b?a/b*100:0).toFixed(2)+'%', iso=d=>d.toISOString().slice(0,10);
+const source=Array.from({length:177},(_,i)=>{let row;if(i<captured.length){row=[...captured[i]];row.push(pct(row[1]-row[3]-row[6],row[1]-row[3]));}else{const d=new Date('2026-10-22T00:00:00Z');d.setUTCDate(d.getUTCDate()-i*7);const total=Math.max(100,1779-i*9),active=Math.round(total*.54),recorded=Math.round(total*.934),lost=total-active,unrecordedLost=Math.round((total-recorded)*.78),recordedLost=lost-unrecordedLost;row=[iso(d),total,active,recorded,lost,recordedLost,unrecordedLost,pct(recorded,total),pct(recorded-recordedLost,active),'98.10%','95.50%',pct(recorded-recordedLost,recorded),pct(total-recorded-unrecordedLost,total-recorded)];}row.push(...Array(8).fill('—'));return {row,channel:String(1001+i%3),region:['巴西','墨西哥','印度'][i%3],recharge:10000+(i%12)*1500};});
+let filtered=[...source],page=1,pageSize=100,selected=3,timer;
+$('headers').innerHTML=columns.map(c=>'<th scope="col">'+c+'</th>').join('');
+function render(){const count=Math.max(1,Math.ceil(filtered.length/pageSize));page=Math.max(1,Math.min(count,page));$('rows').innerHTML=filtered.slice((page-1)*pageSize,page*pageSize).map((item,index)=>'<tr'+(index===selected?' class="selected"':'')+'>'+item.row.map((v,j)=>'<td tabindex="0"'+(index===selected&&j===2?' class="active-cell"':'')+(v==='—'?' title="未提供数据，待接入"':columns[j]==='未收录VIP活跃率'?' title="根据截图可见计数计算；原图此列被裁切"':'')+'>'+(j===0?'截止至'+v:typeof v==='number'?v.toLocaleString('en-US'):v)+'</td>').join('')+'</tr>').join('')||'<tr><td class="empty" colspan="'+columns.length+'">暂无数据，请调整筛选条件</td></tr>';$('total').textContent='共'+filtered.length+'条';$('pages').innerHTML=Array.from({length:count},(_,i)=>'<button class="page-button '+(i+1===page?'active':'')+'" data-page="'+(i+1)+'" aria-label="第'+(i+1)+'页"'+(i+1===page?' aria-current="page"':'')+'>'+(i+1)+'</button>').join('');$('prev').disabled=page===1;$('next').disabled=page===count;$('jump').max=count;}
+function go(p){page=p;selected=-1;render();document.querySelector('.table-viewport').scrollTop=0;}
+function toast(message){clearTimeout(timer);$('toast').textContent=message;$('toast').style.display='block';timer=setTimeout(()=>$('toast').style.display='none',3500);}
+function modal(title,html){$('dialog-title').textContent=title;$('dialog-content').innerHTML=html;$('dialog').showModal();}
+$('pages').onclick=e=>{if(e.target.dataset.page)go(Number(e.target.dataset.page));};$('prev').onclick=()=>go(page-1);$('next').onclick=()=>go(page+1);$('page-size').onchange=e=>{pageSize=Number(e.target.value);go(1);};$('jump').onkeydown=e=>{if(e.key==='Enter'){const n=Number(e.target.value),max=Number(e.target.max);if(!Number.isInteger(n)||n<1||n>max)return toast('请输入 1–'+max+' 之间的页码');go(n);e.target.value='';}};
+$('rows').onclick=e=>{const cell=e.target.closest('td');if(!cell||cell.classList.contains('empty'))return;document.querySelectorAll('.selected,.active-cell').forEach(el=>el.classList.remove('selected','active-cell'));cell.parentElement.classList.add('selected');cell.classList.add('active-cell');};
+document.querySelectorAll('[data-reset],[data-clear]').forEach(button=>button.onclick=()=>{const id=button.dataset.reset||button.dataset.clear;$(id).value=button.dataset.clear?'':({vip:'10000',cutoff:'month',period:'week'}[id]);if(id==='period')$('weekday').disabled=false;markPending();});
+$('date').onchange=()=>{if(!$('date').value)return;const [y,m,d]=$('date').value.split('-');$('date-label').textContent=['一','二','三','四','五','六','七','八','九','十','十一','十二'][Number(m)-1]+'月 '+Number(d)+', '+y;};
+$('period').onchange=()=>{$('weekday').disabled=$('period').value!=='week';};
+$('filters').onsubmit=e=>{
+  e.preventDefault();
+  const mode=positioning(), tiers=selectedTiers(), display=document.querySelector('input[name="display"]:checked').value;
+  const min=$('min').value===''?0:Number($('min').value),max=$('max').value===''?Infinity:Number($('max').value);
+  if(min>max)return toast('最小累充不能大于最大累充');
+  if(mode==='custom'&&$('high').value&&Number($('high').value)<Number($('vip').value))return toast('高V累充门槛不能低于VIP累充门槛');
+  if(mode==='config'&&!tiers.length)return toast('请至少选择一个VIP档位，或选择全部');
+  if(!$('date').value)return toast('请选择筛选日期');
+  const end=new Date($('date').value+'T00:00:00Z');if($('cutoff').value==='month')end.setUTCMonth(end.getUTCMonth()+1,0);
+  let result=source.filter(x=>x.row[0]<=iso(end)&&(!$('channel').value||x.channel===$('channel').value)&&(!$('region').value||x.region===$('region').value)&&x.recharge>=Math.max(min,mode==='custom'?Number($('vip').value):0)&&x.recharge<=max);
+  const seen=new Set();result=result.filter(x=>{if($('period').value!=='month')return true;const key=x.row[0].slice(0,7);if(seen.has(key))return false;seen.add(key);return true;});
+  const perTier=mode==='config'&&display==='tier';
+  columns=perTier?[baseColumns[0],'VIP分层',...baseColumns.slice(1)]:[...baseColumns];
+  const widths=perTier?[baseWidths[0],150,...baseWidths.slice(1)]:[...baseWidths];
+  document.querySelector('colgroup').innerHTML=widths.map(w=>'<col style="width:'+w+'px">').join('');
+  document.querySelector('table').style.width=widths.reduce((a,b)=>a+b,0)+'px';
+  $('headers').innerHTML=columns.map(c=>'<th scope="col">'+c+'</th>').join('');
+  if(mode==='config'){
+    result=result.flatMap(x=>perTier?tiers.map(t=>({row:[x.row[0],t.name,...Array(baseColumns.length-1).fill('—')]})):[{row:[x.row[0],...Array(baseColumns.length-1).fill('—')]}]);
+  }
+  filtered=result;appliedPositioning=mode;
+  $('query-mode').textContent=mode==='custom'?'当前结果：自定义金额 · 演示数据':'当前结果：VIP配置 · '+(perTier?'按分层统计':'合并统计')+' · '+(tiers.length===vipTierConfig.length?'全部档位':tiers.map(t=>t.name).join('、'))+'（演示配置；统计数据待接入）';
+  $('pending').hidden=true;$('tier-picker').open=false;go(1);
+  toast(mode==='custom'?'已更新本地演示结果；统计重算需接入真实数据':'已更新配置统计展示，未提供的数值以“—”显示');
+};
+$('analysis').onclick=()=>{if(appliedPositioning==='config')return toast('VIP配置统计尚未接入，暂无可分析的指标');if(!filtered.length)return toast('暂无可分析的数据');const latest=filtered[0].row;modal('VIP累计服务数据 · 数据分析','<div class="metrics"><div class="metric">累计VIP数<strong>'+latest[1].toLocaleString()+'</strong></div><div class="metric">累计VIP收录率<strong>'+latest[7]+'</strong></div></div><p>截至 '+latest[0]+'，活跃VIP '+latest[2].toLocaleString()+' 人，累计已收录VIP '+latest[3].toLocaleString()+' 人，未收录流失VIP '+latest[6]+' 人。</p><p>当前筛选结果共 '+filtered.length+' 条，可导出 CSV 继续分析。</p><div class="note">此处根据本地表格计算摘要，未连接 AI 服务。截图外记录为演示数据，不作为业务结论。</div>');};
+$('about').onclick=()=>modal('页面说明','<p>本页面根据提供的截图还原，保留筛选区、表格和分页。新增的 8 个指标按补充截图顺序追加，未提供数值，使用“—”占位。</p><p>前 15 行的完整可见数值按截图录入；最右列按可见计数计算，后续记录、渠道、地区与累充属性为演示数据，共 177 条。</p><p>筛选、分页、选中单元格和 CSV 导出在本地运行。按月展示每月最新快照；按日、周起始及高V门槛可设置，真实统计重算需接入接口。</p><div class="note">无外部依赖，可直接离线打开。未包含截图中的水印、意见悬浮入口和桌面宠物。</div>');
+function closeDialog(){$('dialog').close();}$('close').onclick=closeDialog;$('confirm').onclick=closeDialog;$('dialog').onclick=e=>{if(e.target===$('dialog')){const r=$('dialog').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeDialog();}};
+$('export').onclick=()=>{const csv='\uFEFF'+[columns,...filtered.map(x=>x.row)].map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})),a=document.createElement('a');a.href=url;a.download='VIP累计服务数据-演示.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('已导出当前筛选结果（演示数据）');};
+
+// 本地演示选项集中维护；接入时替换为VIP配置返回的有序名称列表。
+const vipTierConfig=[{id:'recorded',name:'VIP_收录'},{id:'priority',name:'VIP_1'},{id:'premium',name:'VIP_2'}];
+const baseColumns=[...columns];
+const baseWidths=[132,93,91,133,91,132,133,120,120,120,120,134,131,120,150,200,200,160,200,200,160];
+let appliedPositioning='custom';
+function positioning(){return document.querySelector('input[name="positioning"]:checked').value;}
+function selectedTiers(){return vipTierConfig.filter(t=>document.querySelector('#tier-options input[value="'+t.id+'"]').checked);}
+function markPending(){$('pending').hidden=false;}
+function updateTierSummary(){const selected=selectedTiers();$('all-tiers').checked=selected.length===vipTierConfig.length;$('all-tiers').indeterminate=selected.length>0&&selected.length<vipTierConfig.length;$('tier-summary').textContent=selected.length===vipTierConfig.length?'全部':selected.length?selected.map(t=>t.name).join('、'):'选择档位';}
+$('tier-options').replaceChildren(...vipTierConfig.map(t=>{const label=document.createElement('label'),input=document.createElement('input');input.type='checkbox';input.value=t.id;input.checked=true;label.append(input,document.createTextNode(t.name));return label;}));
+$('all-tiers').onchange=()=>{document.querySelectorAll('#tier-options input').forEach(input=>input.checked=$('all-tiers').checked);updateTierSummary();markPending();};
+$('tier-options').onchange=()=>{updateTierSummary();markPending();};
+for(const id of ['vip','high'])$('custom-options').append($(id).closest('.threshold'));
+function togglePositioning(){const custom=positioning()==='custom';$('custom-options').hidden=!custom;$('config-options').hidden=custom;for(const id of ['vip','high'])$(id).disabled=!custom;if(custom)$('tier-picker').open=false;markPending();}
+for(const input of document.querySelectorAll('input[name="positioning"]'))input.onchange=togglePositioning;
+$('filters').addEventListener('input',markPending);
+$('filters').addEventListener('change',markPending);
+document.addEventListener('click',e=>{if(!$('tier-picker').contains(e.target))$('tier-picker').open=false;});
+$('tier-picker').addEventListener('keydown',e=>{if(e.key==='Escape'){$('tier-picker').open=false;$('tier-picker').querySelector('summary').focus();}});
+
+render();
+</script>
+</body>
+</html>
