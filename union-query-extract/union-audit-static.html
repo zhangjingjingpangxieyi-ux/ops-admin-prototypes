@@ -18,7 +18,7 @@
       <div class="field"><label>区服</label><select class="control server" id="filter-server"><option>不限</option><option>1145海外-杨智圆主干(1145)</option><option>位面2海外-杨智圆主干(10006)</option></select></div>
       <div class="field"><label>来源类型</label><select class="control" id="filter-source"><option>全部</option><option>人工申请</option><option>监控规则</option></select></div>
       <div class="field"><label>审核ID</label><input class="control" id="filter-audit-id" placeholder="请输入完整审核ID"></div>
-      <div class="field"><label>监控记录ID</label><input class="control" id="filter-source-no" placeholder="请输入监控记录ID"></div>
+      <div class="field"><label>监控批次ID</label><input class="control" id="filter-source-no" placeholder="请输入监控批次ID"></div>
       <div class="field"><label>规则名称</label><input class="control" id="filter-rule" placeholder="请输入规则名称"></div>
 
       <div class="field"><select class="control compact" id="filter-union-type" aria-label="联盟查询字段"><option value="id">联盟ID</option><option value="name">联盟名称</option></select><input class="control" id="filter-union" placeholder="请输入联盟ID"></div>
@@ -33,7 +33,7 @@
     </div>
     <div class="table-wrap">
       <table id="audit-table">
-        <thead><tr><th style="width:46px"><input type="checkbox" id="check-all"></th><th style="width:180px">审核ID</th><th style="width:100px">审核状态</th><th style="width:110px">来源类型</th><th style="width:150px">监控记录ID</th><th style="width:180px">规则名称</th><th style="width:130px">操作类型</th><th style="width:120px">联盟ID</th><th style="width:140px">联盟名称</th><th style="width:180px">区服</th><th style="width:150px">开服时间</th><th style="width:120px">角色ID</th><th style="width:260px">操作详情</th><th style="width:210px">申请信息</th><th style="width:210px">审核信息</th><th style="width:230px">审核备注</th><th style="width:130px">操作</th></tr></thead>
+        <thead><tr><th style="width:46px"><input type="checkbox" id="check-all"></th><th style="width:180px">审核ID</th><th style="width:100px">审核状态</th><th style="width:110px">来源类型</th><th style="width:150px">监控批次ID</th><th style="width:180px">规则名称</th><th style="width:130px">操作类型</th><th style="width:120px">联盟ID</th><th style="width:140px">联盟名称</th><th style="width:180px">区服</th><th style="width:150px">开服时间</th><th style="width:120px">角色ID</th><th style="width:260px">操作详情</th><th style="width:210px">申请信息</th><th style="width:210px">审核信息</th><th style="width:230px">审核备注</th><th style="width:130px">操作</th></tr></thead>
 
         <tbody></tbody>
       </table>
@@ -94,14 +94,14 @@
     function processSnapshot(a){if(a.type==='联盟踢人')return '单盟踢人上限：10人；剩余联盟人数下限：30人';if(a.type==='联盟解散')return '无额外处理配置';if(a.type==='变更阶级/职位')return `目标阶级/职位：${esc(a.toPosition||'-')}；上任人数：1人`;if(a.type==='联盟变更')return `目标联盟：${esc(a.targetUnionName||'-')}；分配策略：按战力匹配`;if(a.type==='VIP补偿')return '补偿模板：VIP回流礼包；单角色发放上限：1次';return '-';}
     function applyReason(a){if(a.type==='宣言修改')return '申请人填写：联盟宣言需要调整，已确认内容可提交审核';if(a.type==='联盟改名')return '申请人填写：联盟名称需要调整，提交审核确认';return '申请人填写：人工提交操作申请';}
     function objectInfo(a){const unionItems=[['区服',esc(a.server)],['开服时间',esc(a.openAt||'-')]];if(a.unionId&&a.unionId!=='-'){unionItems.push(['联盟ID',esc(a.unionId)],['联盟名称',esc(a.unionName)],['联盟排名',esc(unionRankMap[a.unionId]||'-')]);}const role=objectSnapshot(a);const roleHtml=isRoleDimension(a)?`<div class="detail-block"><b>角色信息</b><dl class="desc" style="margin:12px 0 0">${richDesc([['角色ID',esc(role.roleId)],['角色创建时间',esc(role.createdAt)],['在线状态',esc(role.onlineStatus)],['累计充值金额（美元）',esc(role.rechargeUsd)],['最后离线时间',esc(role.lastOfflineAt)],['战力',esc(role.power)],['等级',esc(role.level)],['角色战力在联盟内排名',esc(role.unionPowerRank)]])}</dl></div>`:'';return `<h3 class="section-title">审核对象信息</h3><div class="detail-block"><b>区服 / 联盟信息</b><dl class="desc" style="margin:12px 0 0">${richDesc(unionItems)}</dl></div>${roleHtml}`;}
-    function evidenceInfo(a){if(a.sourceType==='人工申请')return `<h3 class="section-title">命中/申请信息</h3><dl class="desc">${richDesc([['来源说明',`人工申请 - ${esc(a.sourceNo)}`],['申请人',esc(a.applicant)],['申请时间',esc(a.applyAt)],['申请内容',esc(a.detail)],['申请理由',applyReason(a)],['申请时对象快照','见上方审核对象信息']])}</dl>`;return `<h3 class="section-title">命中/申请信息</h3><dl class="desc">${richDesc([['监控中心任务',esc(a.ruleName)],['监控记录ID',esc(a.sourceType==='监控规则'?a.sourceNo:'-')],['命中条件快照',esc(a.hitCondition||'-')],['处理配置快照',processSnapshot(a)],['命中原因',esc(a.hitReason||'-')],['巡检时间',esc(a.hitTime||'-')],['生成时间',esc(a.generatedAt||'-')],['审核记录生成结果',esc(a.generationResult||'-')]])}</dl>`;}
+    function evidenceInfo(a){if(a.sourceType==='人工申请')return `<h3 class="section-title">命中/申请信息</h3><dl class="desc">${richDesc([['来源说明',`人工申请 - ${esc(a.sourceNo)}`],['申请人',esc(a.applicant)],['申请时间',esc(a.applyAt)],['申请内容',esc(a.detail)],['申请理由',applyReason(a)],['申请时对象快照','见上方审核对象信息']])}</dl>`;return `<h3 class="section-title">命中/申请信息</h3><dl class="desc">${richDesc([['监控中心任务',esc(a.ruleName)],['监控批次ID',esc(a.sourceType==='监控规则'?a.sourceNo:'-')],['命中条件快照',esc(a.hitCondition||'-')],['处理配置快照',processSnapshot(a)],['命中原因',esc(a.hitReason||'-')],['巡检时间',esc(a.hitTime||'-')],['生成时间',esc(a.generatedAt||'-')],['审核记录生成结果',esc(a.generationResult||'-')]])}</dl>`;}
     function detailSection(title,items){return '<section class="audit-detail-section"><h3 class="section-title">'+title+'</h3><dl class="desc">'+richDesc(items)+'</dl></section>';}
     function openDetail(i){
       currentIndex=i;normalizeSystemRejections();const a=audits[i],manual=a.sourceType==='人工申请',source=a.monitorSource;
       const basic=[['审核ID',esc(a.id)],['审核状态','<span class="tag '+tag(a.status)+'">'+esc(a.status)+'</span>'],['来源类型',esc(a.sourceType)],['操作类型',esc(a.type)],['申请人',esc(manual?a.applicant:'系统自动生成')],['申请时间',esc(manual?a.applyAt:a.generatedAt)]];
       if(manual){const reason=a.applyReason||a.reason;if(reason&&reason!=='-')basic.push(['申请理由',esc(reason)]);}
       else{
-        basic.push(['监控任务',esc(a.ruleName||source?.name||'-')],['监控记录ID',esc(a.sourceNo)]);
+        basic.push(['监控任务',esc(a.ruleName||source?.name||'-')],['监控批次ID',esc(a.sourceNo)]);
       }
       const object=[['区服',esc(a.server)],['联盟ID',esc(a.unionId||'-')],['联盟名称',esc(a.unionName||'-')]];
       if(isRoleDimension(a))object.push(['角色ID',esc(a.roleId)],['角色名称',esc(a.roleName||a.memberName||'-')]);
@@ -148,13 +148,13 @@
       if(a.sourceType==='人工申请')return originalEvidenceInfo(a);
       const s=a.monitorSource;
       return `<h3 class="section-title">命中/申请信息</h3><dl class="desc">${richDesc([
-        ['监控中心任务',esc(a.ruleName)],['任务ID',esc(s?.taskId||'历史示例未关联')],['监控记录ID',esc(a.sourceType==='监控规则'?a.sourceNo:'-')],
+        ['监控中心任务',esc(a.ruleName)],['任务ID',esc(s?.taskId||'历史示例未关联')],['监控批次ID',esc(a.sourceType==='监控规则'?a.sourceNo:'-')],
         ['报表ID',esc(s?.report||'-')],['查询参数快照',esc(s?.parameters||'-')],
         ['命中条件快照',esc(s?.conditions?.length?JSON.stringify(s.conditions):a.hitCondition||'-')],
         ['处理顺序快照',esc(s?JSON.stringify(s.sorts):'-')],['处理配置快照',s?esc(JSON.stringify(s.process)):processSnapshot(a)],
         ['命中数据快照',esc(s?JSON.stringify({对象ID:s.objectId,说明:'本地关联示例，未采集实际报表行'}):a.hitReason||'-')],
         ['首次命中时间',esc(a.firstHitAt||a.hitTime||'-')],['最近命中时间',esc(a.lastHitAt||'-')],['关联监控记录',esc(a.linkedRuns||a.sourceNo)],
-        ...(a.systemRejected?[['审核方式','系统自动审核'],['触发审核监控记录ID',esc(a.invalidRunId||'-')],['自动审核时间',esc(a.invalidAt||'-')],['自动拒绝原因',esc(a.invalidReason||a.remark||'-')]]:[]),
+        ...(a.systemRejected?[['审核方式','系统自动审核'],['触发审核监控批次ID',esc(a.invalidRunId||'-')],['自动审核时间',esc(a.invalidAt||'-')],['自动拒绝原因',esc(a.invalidReason||a.remark||'-')]]:[]),
         ['巡检时间',esc(a.hitTime||'-')],['生成方式','系统自动生成'],['生成时间',esc(a.generatedAt||'-')],['审核记录生成结果',esc(a.generationResult||'已生成')]
       ])}</dl><div class="detail-block"><button class="btn-link monitor-source-jump" ${s?'':'disabled'}>查看审核记录来源</button><span class="subtext">${s?'打开监控中心对应巡检批次':'历史示例未关联新监控中心，保留原始快照'}</span></div>`;
     };
