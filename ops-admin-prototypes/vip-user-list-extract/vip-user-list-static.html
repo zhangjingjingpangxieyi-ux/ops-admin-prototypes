@@ -215,6 +215,7 @@ const storageKey = 'q1-vip-replay-channel-permissions-v1';
 // Business definitions supplied by the user; displayed only in column headers.
 const fieldHelp = {
   vip_segment:{title:'VIP分层',items:[['字段含义','根据用户充值金额，展示其在「VIP配置（通用）」中对应的分层名称，如 VIP_收录、VIP_1。仅用于报表分层，不影响游戏内 VIP 等级或权益。'],['计算口径','按当前游戏版本的配置币种，使用用户对应的人民币或美元充值金额匹配区间。低于最低充值门槛时，显示“未达标”。'],['更新时间','每小时第10分钟开始计算，任务完成后更新所有历史充值用户的分层。配置调整后，历史报表中的分层结果也会变化。'],['查询方式','选择分层名称可查询对应用户；选择“未达标”可查询未达到最低充值门槛的用户；选择“全部”不限分层。']]},
+  gift_tier:{title:'累充礼包档位',items:[['字段含义','按玩家累计充值金额匹配「VIP配置（通用）」中对应 VIP 等级的礼包档位。'],['差异标识','当前版本配置了「VIP礼包发放至」且两项均有值时进行比较；档位不一致，仅在「VIP礼包发放至」标橙提示。任一项无值时不比较。'],['更新时间','每日更新玩家对应的累充礼包档位。']]},
   lastRechargeTime:{title:'最后充值时间',items:[['字段含义','角色最近一次充值的时间。未充值或时间为空时显示“—”。']]},
   rechargeWarning:{title:'未充值预警',items:[['判断依据','未充值时长 = 当前时间 − 最后充值时间。'],['无预警','未充值时长 ≤ 48小时；从未充值或最后充值时间为空时也显示无预警。'],['48小时未充值','48小时 < 未充值时长 ≤ 72小时。'],['72小时未充值','未充值时长 > 72小时。']]},
   weeklyrecharge:{title:'近一周充值金额',items:[
@@ -286,6 +287,7 @@ const fieldHelp = {
 };
 const columnHelpKeys={1:'worldName',9:'per_pay_platform_amount',10:'vip_level',11:'userfreeze',12:'vip1_date',13:'server_vip1_date',14:'server_vip_date',15:'weeklyrecharge',16:'plat_form_weeklyrecharge',17:'per_plat_form_weeklyrecharge',19:'warning',20:'kf_name',22:'isaddweixin',23:'activestate',25:'collectactivedate'};
 columnHelpKeys[45]='vip_segment';
+columnHelpKeys[46]='gift_tier';
 columnHelpKeys[24]='collectionDays';
 columnHelpKeys[42]='rechargeWarning';columnHelpKeys[43]='lastRechargeTime';columnHelpKeys[44]='responsible_staff';
 function helpButton(key){return `<button type="button" class="field-help" data-help="${key}" aria-label="${esc(fieldHelp[key].title)}说明" aria-expanded="false"><span aria-hidden="true">?</span></button>`;}
@@ -445,7 +447,7 @@ const extensionFields=[
   {key:'remark',name:'备注',type:'textarea'}
 ];
 const columns=[
-  ...defaultColumnOrder.flatMap(index=>[({...sourceColumns[index],group:'default'}),...(index===10?[{name:'VIP分层',index:45,width:150,group:'default'}]:[]),...(index===18?[{name:'未充值预警',index:42,width:160,group:'default'},{name:'最后充值时间',index:43,width:180,group:'default'}]:[])]),
+  ...defaultColumnOrder.flatMap(index=>[({...sourceColumns[index],group:'default'}),...(index===10?[{name:'VIP分层',index:45,width:150,group:'default'},{name:'累充礼包档位',index:46,width:170,group:'default'}]:[]),...(index===18?[{name:'未充值预警',index:42,width:160,group:'default'},{name:'最后充值时间',index:43,width:180,group:'default'}]:[])]),
   {name:'负责客服',index:44,width:180,group:'default',responsible:true},
   ...extensionFields.map((field,i)=>({...field,index:29+i,width:field.key==='remark'?240:160,group:'extension'})),
   {...sourceColumns[29],index:41,width:180,group:'operation'}
@@ -503,9 +505,16 @@ function query(){
 const hiddenColumns=new Set();
 // Independent example result, never derived from the legacy numeric VIP field.
 function segmentValue(row){return row.vipSegment??(row.id==='DEMO-0001'?'VIP_收录':row.id==='DEMO-0002'?'未达标':'—');}
+const giftConfigKey='vip-config-prototype-373-v1';
+const demoGiftTiers=[0,10,50,100,200,500,1000,2000,5000,10000].map((min,i)=>({name:i===0?'收录礼包':'晋级礼包'+i,min}));
+function giftTiers(){try{const config=JSON.parse(localStorage.getItem(giftConfigKey)||'null'),v=config?.rows;if(Array.isArray(v)&&v.length)return v.filter(x=>typeof x.giftName==='string'&&Number.isFinite(x.min)).map(x=>({name:x.giftName,min:x.min})).sort((a,b)=>a.min-b.min);}catch{}return demoGiftTiers;}
+function expectedGift(row){const amount=Number(row.values[7]);if(!Number.isFinite(amount))return '—';const match=giftTiers().filter(x=>amount>=Number(x.min)).at(-1);return match?.name||'未达礼包门槛';}
+function normalizeGift(value){return String(value||'').trim().replace(/\s*（.*$/,'').replace(/\s*\(.*$/,'');}
+function giftMismatch(row){const rawExpected=expectedGift(row),expected=normalizeGift(rawExpected),actual=normalizeGift(row.extension?.prize_to);return extensionFields.some(f=>f.key==='prize_to')&&row.canViewCustom!==false&&!['','—','未达礼包门槛'].includes(rawExpected)&&Boolean(expected&&actual)&&expected!==actual;}
 function columnValue(row,c){
   if(c.index===24)return collectionDays(row);
   if(c.index===45)return segmentValue(row);
+  if(c.index===46)return expectedGift(row);
   if(c.index===44)return row.responsibleStaff||'—';
   if(c.index===42)return rechargeWarning(row.lastRechargeTime);
   if(c.index===43)return row.lastRechargeTime?new Date(row.lastRechargeTime).toLocaleString('sv-SE',{timeZone:'Asia/Shanghai'}):'';
@@ -525,7 +534,8 @@ function renderCell(row,c){
   const warningClass=['48小时未登录','48小时未充值'].includes(value)?'warning-48':['72小时未登录','72小时未充值'].includes(value)?'warning-72':'';
   const collectionClass=value==='已收录'?'collection-included':value==='未收录'?'collection-pending':value==='已删除'?'collection-deleted':'';
   const statusClass=[19,42].includes(c.index)?warningClass:c.index===22?collectionClass:'';
-  const content=restricted?`<span class="extension-permission-denied">无查看权限</span>`:c.index===10?`<span class="badge">VIP ${esc(value)}</span>`:statusClass?`<span class="${statusClass}">${esc(value)}</span>`:esc(value)||'—';
+  const diff=c.group==='extension'&&c.key==='prize_to'&&giftMismatch(row);
+  const content=restricted?`<span class="extension-permission-denied">无查看权限</span>`:c.index===10?`<span class="badge">VIP ${esc(value)}</span>`:diff?`<span style="display:inline-block;padding:1px 7px;border-radius:2px;background:#fff7e6;border:1px solid #ffd591;color:#d46b08" title="与VIP礼包发放至不一致，供客服核对">${esc(value)||'—'} · 待核对</span>`:statusClass?`<span class="${statusClass}">${esc(value)}</span>`:esc(value)||'—';
   return `<td ${columnAttributes(c)}>${content}</td>`;
 }
 function render(){
